@@ -1,0 +1,50 @@
+#!/usr/local/bin/bash
+
+# Function called when Ctrl-C is pressed
+handle_interrupt() {
+    echo
+    echo "Interrupt caught. Exiting safely..."
+    exit 0
+}
+
+# Trap Ctrl-C (SIGINT)
+trap handle_interrupt INT
+
+while true; do
+    clear
+    cat <<'EOF'
+BRIDGE
+CHECKERS
+CHESS
+POKER
+FIGHTER COMBAT
+GUERILLA COMBAT
+DESERT WARFARE
+AIR-TO-GROUND ACTIONS
+THEATERWIDE TACTICAL WARFARE
+THEATERWIDE BIOTOXIC AND CHEMICAL WARFARE
+
+GLOBAL THERMONUCLEAR WAR
+EOF
+
+    # Prompt with cursor right after the >
+    read -r -p "? > " choice
+
+    # Normalize case and trim whitespace
+    norm_choice=$(echo "$choice" | tr '[:upper:]' '[:lower:]' | xargs)
+
+    # Exit commands
+    if [[ "$norm_choice" == "exit" || "$norm_choice" == "logout" ]]; then
+        echo "Session terminated."
+        exit 0
+    fi
+
+    # Accept "tic", "tac", "toe", any combo of them, or full "tic tac toe"
+    if [[ "$norm_choice" =~ ^(tic|tac|toe)([[:space:]]+(tic|tac|toe))*$ ]]; then
+        /usr/local/bin/ttt
+        exit 0
+    else
+        echo "UNAUTHORIZED"
+        sleep 3
+    fi
+done

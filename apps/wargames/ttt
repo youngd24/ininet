@@ -1,0 +1,239 @@
+#!/usr/local/bin/bash
+
+declare -a board
+PLAYER_X="X"
+PLAYER_O="O"
+
+# Mode controls
+HUMANS=2            # 2=HvsH, 1=HvsAI, 0=AIvsAI
+HUMAN_MARK="X"      # only used when HUMANS=1
+AI_MARK="O"
+AI_DELAY=0          # seconds between AI moves
+
+# Running tallies
+GAMES=0
+W_X=0
+W_O=0
+DRAWS=0
+DRAW_LIMIT=3       # stop after 10 total draws
+
+cls() { printf "\033[H\033[2J"; }
+init_board() { local i; for ((i=1;i<=9;i++)); do board[$i]=" "; done; }
+cell_free() { local c=$1; [[ ${board[$c]} == " " ]]; }
+
+print_board() {
+  local s
+  printf "\n"
+  for i in 1 2 3; do s=${board[$i]}; [[ $s == " " ]] && s=$i; printf " %s " "$s"; [[ $i -lt 3 ]] && printf "|"; done
+  printf "\n-----------\n"
+  for i in 4 5 6; do s=${board[$i]}; [[ $s == " " ]] && s=$i; printf " %s " "$s"; [[ $i -lt 6 ]] && printf "|"; done
+  printf "\n-----------\n"
+  for i in 7 8 9; do s=${board[$i]}; [[ $s == " " ]] && s=$i; printf " %s " "$s"; [[ $i -lt 9 ]] && printf "|"; done
+  printf "\n\n"
+}
+
+is_winner() {
+  local m=$1
+  { [[ ${board[1]} == $m && ${board[2]} == $m && ${board[3]} == $m ]] ||
+    [[ ${board[4]} == $m && ${board[5]} == $m && ${board[6]} == $m ]] ||
+    [[ ${board[7]} == $m && ${board[8]} == $m && ${board[9]} == $m ]] ||
+    [[ ${board[1]} == $m && ${board[4]} == $m && ${board[7]} == $m ]] ||
+    [[ ${board[2]} == $m && ${board[5]} == $m && ${board[8]} == $m ]] ||
+    [[ ${board[3]} == $m && ${board[6]} == $m && ${board[9]} == $m ]] ||
+    [[ ${board[1]} == $m && ${board[5]} == $m && ${board[9]} == $m ]] ||
+    [[ ${board[3]} == $m && ${board[5]} == $m && ${board[7]} == $m ]]; }
+}
+
+is_draw() {
+  local i
+  for ((i=1;i<=9;i++)); do [[ ${board[$i]} == " " ]] && return 1; done
+  return 0
+}
+
+read_move() {
+  local mark=$1 cell line
+  while :; do
+    printf "Player %s, choose cell (1-9) or q to quit: " "$mark"
+    IFS= read -r line || return 1
+    case $line in
+      q|Q) printf "\nBye.\n"; exit 0 ;;
+      [1-9])
+        cell=$line
+        if cell_free "$cell"; then printf "%s" "$cell"; return 0; else printf "Cell %s is occupied. Try again.\n" "$cell"; fi
+        ;;
+      *) printf "Invalid input. Enter 1–9 or q.\n" ;;
+    esac
+  done
+}
+
+find_winning_move() {
+  local m=$1 i
+  for ((i=1;i<=9;i++)); do
+    if cell_free "$i"; then
+      board[$i]=$m
+      if is_winner "$m"; then printf "%s" "$i"; board[$i]=" "; return 0; fi
+      board[$i]=" "
+    fi
+  done
+  return 1
+}
+
+ai_move() {
+  local cell i
+  if cell=$(find_winning_move "$1"); then printf "%s" "$cell"; return 0; fi
+  local opp; [[ $1 == "X" ]] && opp="O" || opp="X"
+  if cell=$(find_winning_move "$opp"); then printf "%s" "$cell"; return 0; fi
+  if cell_free 5; then printf "5"; return 0; fi
+  for i in 1 3 7 9; do if cell_free "$i"; then printf "%s" "$i"; return 0; fi; done
+  for i in 2 4 6 8; do if cell_free "$i"; then printf "%s" "$i"; return 0; fi; done
+  return 1
+}
+
+usage() {
+  cat <<EOF
+Usage: $0 [-p 0|1|2] [-c X|O] [-d SECONDS]
+  -p N     Human players: 0 (AI vs AI), 1 (Human vs AI), 2 (Human vs Human). Default: 2
+  -c M     Your mark when -p 1 (X or O). Default: X
+  -d S     Delay in seconds between AI moves (default 0).
+EOF
+  exit 0
+}
+
+parse_args() {
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      -p)
+        case "${2:-}" in 0|1|2) HUMANS=$2 ;; *) echo "Invalid -p (0/1/2)"; exit 2 ;; esac
+        shift 2 ;;
+      -c)
+        case "${2:-}" in X|O) HUMAN_MARK="$2" ;; *) echo "Invalid -c (X|O)"; exit 2 ;; esac
+        shift 2 ;;
+      -d)
+        case "${2:-}" in ''|*[!0-9]*) echo "-d needs integer seconds"; exit 2 ;; *) AI_DELAY="$2" ;; esac
+        shift 2 ;;
+      -h|--help) usage ;;
+      *) echo "Unknown option: $1"; usage ;;
+    esac
+  done
+}
+
+interactive_choose_mode() {
+  if [ "$HUMANS" -eq 2 ] && [ -t 0 ]; then
+    printf "Number of human players (0,1,2)? [2]: > "
+    IFS= read -r ans
+    case "$ans" in 0|1|2) HUMANS=$ans ;; esac
+  fi
+  if [ "$HUMANS" -eq 1 ] && [ -t 0 ]; then
+    printf "Do you want to be X (go first)? [Y/n]: > "
+    IFS= read -r ans
+    case "$ans" in n|N) HUMAN_MARK="O" ;; esac
+    [ "$HUMAN_MARK" = "X" ] && AI_MARK="O" || AI_MARK="X"
+  fi
+}
+
+print_leaderboard() {
+  local total=$((W_X + W_O + DRAWS))
+  printf "\n=== Leaderboard (marks) — Games: %d ===\n" "$total"
+  printf "X — Wins: %d | Losses: %d | Draws: %d\n" "$W_X" "$W_O" "$DRAWS"
+  printf "O — Wins: %d | Losses: %d | Draws: %d\n" "$W_O" "$W_X" "$DRAWS"
+  if [ "$HUMANS" -eq 1 ]; then
+    local human_w human_l
+    if [ "$HUMAN_MARK" = "X" ]; then human_w=$W_X; human_l=$W_O; else human_w=$W_O; human_l=$W_X; fi
+    printf "Human (%s) — Wins: %d | Losses: %d | Draws: %d\n" "$HUMAN_MARK" "$human_w" "$human_l" "$DRAWS"
+    printf "Computer (%s) — Wins: %d | Losses: %d | Draws: %d\n" "$AI_MARK" "$human_l" "$human_w" "$DRAWS"
+  fi
+  printf "=======================================\n"
+}
+
+# One game; updates tallies and prints leaderboard after result text
+game_loop() {
+  init_board
+  local current="X" cell
+  while :; do
+    cls
+    case "$HUMANS" in
+      2) printf "Human vs Human\n" ;;
+      1) printf "Human (%s) vs Computer (%s)\n" "$HUMAN_MARK" "$AI_MARK" ;;
+      0) printf "Computer vs Computer\n" ;;
+    esac
+    print_board
+
+    if [ "$HUMANS" -eq 0 ]; then
+      cell=$(ai_move "$current"); [ "$AI_DELAY" -gt 0 ] && sleep "$AI_DELAY"
+    elif [ "$HUMANS" -eq 1 ]; then
+      if [ "$current" = "$AI_MARK" ]; then
+        cell=$(ai_move "$AI_MARK"); [ "$AI_DELAY" -gt 0 ] && sleep "$AI_DELAY"
+      else
+        cell=$(read_move "$HUMAN_MARK") || return 1
+      fi
+    else
+      cell=$(read_move "$current") || return 1
+    fi
+
+    board[$cell]=$current
+
+    if is_winner "$current"; then
+      cls; print_board
+      case "$HUMANS" in
+        0) printf "Computer (%s) wins!\n" "$current" ;;
+        1)
+          if [ "$current" = "$AI_MARK" ]; then printf "Computer (%s) wins!\n" "$current"
+          else printf "Player %s wins!\n" "$current"; fi
+          ;;
+        2) printf "Player %s wins!\n" "$current" ;;
+      esac
+      if [ "$current" = "X" ]; then ((W_X++)); else ((W_O++)); fi
+      ((GAMES++))
+      print_leaderboard
+      return 0
+    fi
+
+    if is_draw; then
+      cls; print_board
+      printf "It's a draw.\n"
+      ((DRAWS++))
+      ((GAMES++))
+      print_leaderboard
+      return 0
+    fi
+
+    [[ $current == "X" ]] && current="O" || current="X"
+  done
+}
+
+# Stop condition after DRAW_LIMIT draws
+stop_for_draws() {
+  if [ "$DRAWS" -ge "$DRAW_LIMIT" ]; then
+    printf "\nGREETINGS PROFESSOR FALKEN\n\n"
+    printf "A STRANGE GAME.\n"
+    printf "THE ONLY WINNING MOVE IS\n"
+    printf "NOT TO PLAY.\n\n"
+    while :; do
+      printf "HOW ABOUT A NICE GAME OF CHESS? (Y/N): > "
+      IFS= read -r ans
+      case "$ans" in
+        Y|y|N|n) sleep 2; exit 0 ;;
+        *) : ;;
+      esac
+    done
+  fi
+}
+
+main() {
+  parse_args "$@"
+  interactive_choose_mode
+  while :; do
+    game_loop
+    stop_for_draws
+    if [ "$HUMANS" -eq 0 ]; then
+      printf "\nNext AI vs AI game starting in 2 seconds... (Ctrl-C to stop)\n"
+      sleep 2
+      continue
+    fi
+    printf "Play again? [Y/n]: "
+    IFS= read -r ans
+    case "$ans" in n|N) break ;; *) : ;; esac
+  done
+}
+
+main "$@"

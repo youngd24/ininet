@@ -1,0 +1,159 @@
+#!/usr/bin/env python3
+import os
+import sys
+import time
+import random
+import subprocess
+from typing import List, Tuple, Optional
+
+# ---- Speed presets (seconds; includes jitter so effect is visible) ----
+# Format: (char_min, char_max, line_min, line_max)
+PRESETS = {
+    "9600": (0.0008, 0.0025, 0.03, 0.10),
+    "2400": (0.0025, 0.0060, 0.06, 0.20),
+    "1200": (0.0060, 0.0120, 0.10, 0.30),
+    "300":  (0.0300, 0.1200, 0.20, 0.50),
+    "fast": (0.0002, 0.0008, 0.02, 0.06),
+}
+
+# Defaults (~9600-ish feel)
+SP_CHAR_MIN, SP_CHAR_MAX, SP_LINE_MIN, SP_LINE_MAX = PRESETS["9600"]
+CURRENT_SPEED = "9600"
+
+def set_speed(name: str) -> None:
+    global SP_CHAR_MIN, SP_CHAR_MAX, SP_LINE_MIN, SP_LINE_MAX, CURRENT_SPEED
+    if name in PRESETS:
+        SP_CHAR_MIN, SP_CHAR_MAX, SP_LINE_MIN, SP_LINE_MAX = PRESETS[name]
+        CURRENT_SPEED = name
+
+def _rand_between(a: float, b: float) -> float:
+    return random.uniform(a, b)
+
+def slowPrintLine(line: str) -> None:
+    if line is None:
+        line = ""
+    for ch in line.upper():
+        sys.stdout.write(ch)
+        sys.stdout.flush()
+        time.sleep(_rand_between(SP_CHAR_MIN, SP_CHAR_MAX))
+    sys.stdout.write("\n")
+    sys.stdout.flush()
+
+def slowPrintBlock(lines: list[str]) -> None:
+    for ln in lines:
+        slowPrintLine(ln)
+        time.sleep(_rand_between(SP_LINE_MIN, SP_LINE_MAX))
+
+# --- Menu / launcher ----------------------------------------------------------
+
+MENU_ITEMS: List[Tuple[str, str]] = [
+    ("ADVENTURE",  "adventure"),
+    ("BACKGAMMON", "backgammon"),
+    ("BATTLESTAR", "battlestar"),
+    ("CRIBBAGE",   "cribbage"),
+    ("HANGMAN",    "hangman"),
+    ("MONOPOLY",   "monop"),
+    ("ROBOTS",     "robots"),
+    ("TETRIS",     "tetris"),
+    ("STAR TREK",  "trek"),
+    ("WARGAMES",   "wargames"),
+]
+
+def clear() -> None:
+    os.system("clear" if os.name != "nt" else "cls")
+
+def find_exec(cmd: str) -> Optional[str]:
+    path = f"/usr/games/{cmd}"
+    if os.path.isfile(path) and os.access(path, os.X_OK):
+        return path
+    return None
+
+def print_menu() -> None:
+    clear()
+    header = [
+        "",
+        "INIGAME SHELL GAMES LAUNCHER",
+        "",
+        "SELECT A GAME TO LAUNCH:",
+        ""
+    ]
+    slowPrintBlock(header)
+    width = len(str(len(MENU_ITEMS)))
+    for idx, (label, _) in enumerate(MENU_ITEMS, 1):
+        slowPrintLine(f" {str(idx).rjust(width)}. {label}")
+    slowPrintBlock([
+        "",
+        " 99. EXIT",
+        "",
+    ])
+    sys.stdout.write("? > ")
+    sys.stdout.flush()
+
+def resolve_selection(ans: str) -> Optional[str]:
+    ans = ans.strip()
+    if not ans.isdigit():
+        return None
+    i = int(ans)
+    if 1 <= i <= len(MENU_ITEMS):
+        return MENU_ITEMS[i - 1][1]   # return lowercase executable
+    elif i == 99:
+        return "EXIT"
+    return None
+
+def launch(cmd: str) -> None:
+    if cmd == "EXIT":
+        slowPrintLine("GOODBYE.")
+        sys.exit(0)
+
+    path = find_exec(cmd)
+    if not path:
+        slowPrintLine(f"SORRY—'{cmd.upper()}' NOT FOUND IN /USR/GAMES.")
+        return
+    slowPrintBlock([f"LAUNCHING {cmd.upper()}...", ""])
+    try:
+        subprocess.call([path])
+    except Exception as e:
+        slowPrintLine(f"ERROR: {e!r}")
+    finally:
+        slowPrintBlock(["", "(GAME EXITED) PRESS ENTER TO RETURN TO THE MENU."])
+        try:
+            input()
+        except EOFError:
+            pass
+
+def parse_speed_from_args() -> None:
+    env_speed = os.environ.get("SG_SPEED", "").strip().lower()
+    arg_speed = None
+    args = sys.argv[1:]
+    for i, a in enumerate(args):
+        if a == "--speed" and i + 1 < len(args):
+            arg_speed = args[i + 1].strip().lower()
+        elif a.startswith("--speed="):
+            arg_speed = a.split("=", 1)[1].strip().lower()
+        elif a.lower() in PRESETS:
+            arg_speed = a.lower()
+    chosen = env_speed or arg_speed or "9600"
+    set_speed(chosen)
+
+def main() -> None:
+    random.seed()
+    parse_speed_from_args()
+
+    while True:
+        print_menu()
+        try:
+            ans = input()
+        except EOFError:
+            slowPrintLine("")
+            break
+
+        choice = resolve_selection(ans)
+        if choice is None:
+            slowPrintLine("INVALID SELECTION. ENTER A NUMBER FROM THE MENU.")
+            time.sleep(0.6)
+            continue
+
+        launch(choice)
+
+if __name__ == "__main__":
+    main()

@@ -71,8 +71,14 @@ def find_exec(cmd: str) -> Optional[str]:
 def print_menu() -> None:
     clear()
     header = [
+        "****************************************************",
+        "*                                                  *",
+        "*        INIGAME SHELL GAMES LAUNCHER V1.0         *",
+        "*                                                  *",
+        "****************************************************",
         "",
-        "INIGAME SHELL GAMES LAUNCHER",
+        "COPYRIGHT (C) 1999 INITECH, INC DBA INIGAME, LLC",
+        "ALL RIGHTS, AND LEFTS, RESERVED.",
         "",
         "SELECT A GAME TO LAUNCH:",
         ""

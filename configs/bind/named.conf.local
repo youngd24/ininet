@@ -1,0 +1,151 @@
+//
+// Do any local configuration here
+//
+
+// Consider adding the 1918 zones here, if they are not used in your
+// organization
+//include "/etc/bind/zones.rfc1918";
+
+zone "initech.net" {
+	type slave;
+	masterfile-format text;
+	masters {
+		192.168.57.72;
+		};
+	file "/var/lib/bind/initech.net.hosts";
+	};
+
+zone "battle.net" {
+	type slave;
+	masterfile-format text;
+	masters {
+		192.168.57.72;
+		};
+	file "/var/lib/bind/battle.net.hosts";
+	};
+
+zone "inigame.io" {
+	type slave;
+	masterfile-format text;
+	masters {
+		192.168.57.72;
+		};
+	file "/var/lib/bind/inigame.io.hosts";
+	};
+
+zone "dy.net" {
+	type slave;
+	masterfile-format text;
+	masters {
+		192.168.57.72;
+		};
+	file "/var/lib/bind/dy.net.hosts";
+	};
+
+zone "aol.com" {
+	type slave;
+	masterfile-format text;
+	masters {
+		192.168.57.72;
+		};
+	file "/var/lib/bind/aol.com.hosts";
+	};
+
+zone "newaol.com" {
+	type slave;
+	masterfile-format text;
+	masters {
+		192.168.57.72;
+		};
+	file "/var/lib/bind/newaol.com.hosts";
+	};
+
+zone "netscape.com" {
+	type slave;
+	masterfile-format text;
+	masters {
+		192.168.57.72;
+		};
+	file "/var/lib/bind/netscape.com.hosts";
+	};
+
+zone "1.168.192.in-addr.arpa" {
+	type slave;
+	masterfile-format text;
+	masters {
+		192.168.57.72;
+		};
+	file "/var/lib/bind/192.168.1.rev";
+	};
+
+zone "25.168.192.in-addr.arpa" {
+	type slave;
+	masterfile-format text;
+	masters {
+		192.168.57.72;
+		};
+	file "/var/lib/bind/192.168.25.rev";
+	};
+
+zone "42.168.192.in-addr.arpa" {
+	type slave;
+	masterfile-format text;
+	masters {
+		192.168.57.72;
+		};
+	file "/var/lib/bind/192.168.42.rev";
+	};
+
+zone "57.168.192.in-addr.arpa" {
+	type slave;
+	masterfile-format text;
+	masters {
+		192.168.57.72;
+		};
+	file "/var/lib/bind/192.168.57.rev";
+	};
+
+zone "10.16.172.in-addr.arpa" {
+	type slave;
+	masterfile-format text;
+	masters {
+		192.168.57.72;
+		};
+	file "/var/lib/bind/172.16.10.rev";
+	};
+
+zone "20.16.172.in-addr.arpa" {
+	type slave;
+	masterfile-format text;
+	masters {
+		192.168.57.72;
+		};
+	file "/var/lib/bind/172.16.20.rev";
+	};
+
+zone "10.100.10.in-addr.arpa" {
+	type slave;
+	masterfile-format text;
+	masters {
+		192.168.57.72;
+		};
+	file "/var/lib/bind/10.100.10.rev";
+	};
+
+zone "20.100.10.in-addr.arpa" {
+	type slave;
+	masterfile-format text;
+	masters {
+		192.168.57.72;
+		};
+	file "/var/lib/bind/10.100.20.rev";
+	};
+
+zone "30.100.10.in-addr.arpa" {
+	type slave;
+	masterfile-format text;
+	masters {
+		192.168.57.72;
+		};
+	file "/var/lib/bind/10.100.30.rev";
+	};

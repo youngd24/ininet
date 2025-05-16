@@ -50,7 +50,6 @@ set tftpServer "192.168.57.45"
 # No spaces, no blank lines and must be in that format
 # Current version requires that to be the same for all devices
 # so it can only contain 3 lines as of today, feel free to change this
-# Read the creds from the file
 # -----------------------------------------------------------------------------
 set fp [open "$env(HOME)/netpass" r]
 set file_data [read $fp]

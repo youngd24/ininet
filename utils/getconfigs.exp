@@ -1,0 +1,139 @@
+#!/usr/bin/expect -f
+###############################################################################
+#
+# getconfigs.exp
+#
+# Backup Cisco configs using Expect
+#
+###############################################################################
+#
+# USAGE:
+#
+# Run it
+#
+###############################################################################
+#
+# NOTES:
+#
+# * Expect must be installed.
+# * telnet must be installed.
+# * tftp must be working somwhere.
+# * All usernames/passwords must match on all devices.
+#
+###############################################################################
+#
+# ISSUES:
+#
+# * trailing newline in the devices file errors at the end, need to 
+#   find a way to skip that.
+#
+###############################################################################
+
+# basic vars
+set timeout 20
+
+# Empty vars
+set Username ""
+set Password ""
+set enablepassword ""
+set DeviceName ""
+set DeviceIP ""
+set tftpServer "192.168.57.45"
+
+# -----------------------------------------------------------------------------
+# Process the file and assign the vars from it
+# Format is:
+# username:USERNAME
+# password:PASSWORD
+# enable:ENABLE_SECRET
+#
+# No spaces, no blank lines and must be in that format
+# Current version requires that to be the same for all devices
+# so it can only contain 3 lines as of today, feel free to change this
+# Read the creds from the file
+# -----------------------------------------------------------------------------
+set fp [open "$env(HOME)/netpass" r]
+set file_data [read $fp]
+close $fp
+set data [split $file_data "\n"]
+
+# Go do the reads
+foreach line $data {
+
+    # Username?
+    if {[regexp username $line match]} {
+
+        # Split into fields on colons
+        set fields [split $line ":"]
+
+        # Assign fields to variables and print some out...
+        lassign $fields toss Username
+        puts "Got username from config file"
+    }
+
+    # password?
+    if {[regexp password $line match]} {
+
+        # Split into fields on colons
+        set fields [split $line ":"]
+
+        # Assign fields to variables and print some out...
+        lassign $fields toss Password
+        puts "Got password from config file"
+    }
+
+    # enable?
+    if {[regexp enable $line match]} {
+
+        # Split into fields on colons
+        set fields [split $line ":"]
+
+        # Assign fields to variables and print some out...
+        lassign $fields toss enablepassword
+        puts "Got enable password from config file"
+    }
+}
+
+# -----------------------------------------------------------------------------
+# Read the list of systems to act on
+# Format is:
+# devicename:deviceip
+# 
+# Like the creds, no spaces, no blank lines
+# but here you can have as many as you want
+# -----------------------------------------------------------------------------
+set fp [open "$env(HOME)/systems" r]
+set file_data [read $fp]
+close $fp
+set data [split $file_data "\n"]
+
+# -----------------------------------------------------------------------------
+# Go do the expect script work
+# -----------------------------------------------------------------------------
+foreach line $data {
+
+    # Split into fields on colons
+    set fields [split $line ":"]
+
+    # Assign fields to variables and print some out...
+    lassign $fields DeviceName DeviceIP
+    puts "Got device name: $DeviceName"
+    puts "Got device ip: $DeviceIP"
+
+    spawn telnet $DeviceIP
+    expect "*Username: "
+    send "$Username\r"
+    expect "*assword: "
+    send "$Password\r"
+    expect ">"
+    send "en\r"
+    expect "*assword: "
+    send "$enablepassword\r"
+    expect "#"
+    send "copy run tftp://$tftpServer/ininet/$DeviceName.cfg\r";
+    expect "#"
+    send "exit\r"
+    expect "#"
+}
+
+exit

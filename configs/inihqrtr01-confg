@@ -62,7 +62,6 @@ interface Serial0/0
  ip address 172.16.10.1 255.255.255.0
  encapsulation frame-relay
  ipx network 90000001
- frame-relay map ipx 90000001.0008.a3c0.3b20 102 broadcast
 !
 interface FastEthernet0/1
  description To PIX External inside Ethernet1
@@ -148,7 +147,7 @@ ip route 0.0.0.0 0.0.0.0 192.168.25.1
 !
 !
 !
-ipx router eigrp 101
+ipx router eigrp 201
  network all
  log-neighbor-changes
 !

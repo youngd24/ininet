@@ -38,7 +38,8 @@ ipx internal-network D8A5B4A5
 !
 !
 !
-! 
+file prompt quiet
+!
 !
 !
 !
@@ -63,8 +64,8 @@ interface Serial0/0
  frame-relay map ipx 90000001.0008.a3c0.3b20 102 broadcast
 !
 interface FastEthernet0/1
- no ip address
- shutdown
+ description To PIX External inside Ethernet1
+ ip address 192.168.25.2 255.255.255.0
  duplex auto
  speed auto
 !
@@ -95,6 +96,7 @@ interface Ethernet1/1
 !
 interface FastEthernet3/0
  switchport access vlan 57
+ switchport mode trunk
 !
 interface FastEthernet3/1
 !
@@ -125,6 +127,7 @@ interface FastEthernet3/13
 interface FastEthernet3/14
 !
 interface FastEthernet3/15
+ switchport access vlan 25
 !
 interface Vlan1
  no ip address
@@ -136,7 +139,7 @@ router eigrp 666
 !
 no ip http server
 no ip http secure-server
-ip route 0.0.0.0 0.0.0.0 192.168.57.1
+ip route 0.0.0.0 0.0.0.0 192.168.25.1
 !
 !
 !

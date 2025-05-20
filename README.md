@@ -1,4 +1,6 @@
 # INITECH Network
-INITECH Network &amp; Systems Repo
+INITECH Network and Systems Repo
 
-![I N I Net  V6](ININet_V6.png)
+This is the area where all INITECH things are parked.
+
+![I N I Net  V7](ININet_V7.png)

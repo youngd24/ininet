@@ -129,7 +129,7 @@ foreach line $data {
     expect "*assword: "
     send "$enablepassword\r"
     expect "#"
-    send "copy run tftp://$tftpServer/ininet/$DeviceName.cfg\r";
+    send "copy run tftp://$tftpServer/ininet/$DeviceName-confg\r";
     expect "#"
     send "exit\r"
     expect "#"

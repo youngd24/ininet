@@ -1,0 +1,79 @@
+
+!
+version 12.2
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+no service dhcp
+!
+hostname INIKMCIRTR01
+!
+!
+ip subnet-zero
+ip cef
+!
+!
+ip dhcp excluded-address 10.100.20.1 10.100.20.25
+ip dhcp excluded-address 10.100.20.100 10.100.20.254
+!
+ip dhcp pool MCIPOOL
+   network 10.100.20.0 255.255.255.0
+   default-router 10.100.20.1 
+   domain-name initech.net
+   netbios-node-type h-node
+!
+ipx routing 000f.2453.ce60
+ipx internal-network A6CD4EC2
+call rsvp-sync
+!
+!
+!
+!
+!
+file prompt quiet
+!
+!
+!
+interface FastEthernet0/0
+ ip address 10.100.20.1 255.255.255.0
+ duplex auto
+ speed auto
+ ipx network 10000020 encapsulation SAP
+!
+interface Serial0/0
+ description To TELFRSW01 SERIAL0/2
+ ip address 172.16.10.3 255.255.255.0
+ encapsulation frame-relay
+ ipx network 90000001
+ frame-relay lmi-type ansi
+!
+router eigrp 666
+ redistribute connected
+ network 10.100.20.0 0.0.0.255
+ network 172.16.10.0 0.0.0.255
+ no auto-summary
+ no eigrp log-neighbor-changes
+!
+ip classless
+no ip http server
+!
+!
+!
+ipx router eigrp 201
+ network all
+ log-neighbor-changes
+!
+!
+!
+!
+dial-peer cor custom
+!
+!
+!
+!
+line con 0
+line aux 0
+line vty 0 4
+ login local
+!
+end

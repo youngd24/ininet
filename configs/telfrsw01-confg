@@ -8,13 +8,13 @@ service password-encryption
 hostname TELFRSW01
 !
 logging buffered 4096 informational
+!
 ip subnet-zero
 ip cef
 !
 !
 !
 frame-relay switching
-file prompt quiet
 !
 !
 !

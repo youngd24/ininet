@@ -38,7 +38,6 @@ ipx internal-network D8A5B4A5
 !
 !
 !
-file prompt quiet
 !
 ! 
 !
@@ -81,7 +80,7 @@ interface Serial0/2
 !
 interface Ethernet1/0
  description 10BASE2 LAN
- ip address 192.168.22.30 255.255.255.0
+ ip address 192.168.22.1 255.255.255.0
  half-duplex
 !
 interface Serial1/0
@@ -91,11 +90,17 @@ interface Serial1/0
 !
 interface Ethernet1/1
  no ip address
- shutdown
  half-duplex
 !
+interface Ethernet1/1.42
+ description VLAN 42 router interface
+ encapsulation dot1Q 42
+ ip address 192.168.42.1 255.255.255.0
+ no snmp trap link-status
+ ipx network 5000042 encapsulation SAP
+!
 interface FastEthernet3/0
- switchport access vlan 57
+ description Trunk port to router Ethernet1/1
  switchport mode trunk
 !
 interface FastEthernet3/1
@@ -103,6 +108,7 @@ interface FastEthernet3/1
 interface FastEthernet3/2
 !
 interface FastEthernet3/3
+ switchport access vlan 42
 !
 interface FastEthernet3/4
 !
@@ -127,13 +133,17 @@ interface FastEthernet3/13
 interface FastEthernet3/14
 !
 interface FastEthernet3/15
- switchport access vlan 25
+ description VLAN 42 access port
+ switchport access vlan 42
 !
 interface Vlan1
  no ip address
 !
 router eigrp 666
+ redistribute connected
  network 172.16.10.0 0.0.0.255
+ network 192.168.22.0
+ network 192.168.42.0
  network 192.168.57.0
  no auto-summary
 !
@@ -166,6 +176,7 @@ control-plane
 !
 !
 line con 0
+ logging synchronous
 line aux 0
 line vty 0 4
  login local

@@ -13,9 +13,9 @@ hostname INIKAUSSW01
 !
 !
 !
+!
 ip subnet-zero
 !
-file prompt quiet
 !
 !
 interface FastEthernet0/1

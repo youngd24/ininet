@@ -4,7 +4,6 @@ version 12.2
 service timestamps debug datetime msec
 service timestamps log datetime msec
 service password-encryption
-no service dhcp
 !
 hostname INIKMCIRTR01
 !
@@ -30,7 +29,6 @@ call rsvp-sync
 !
 !
 !
-file prompt quiet
 !
 !
 !
@@ -72,6 +70,7 @@ dial-peer cor custom
 !
 !
 line con 0
+ logging synchronous
 line aux 0
 line vty 0 4
  login local

@@ -1,0 +1,102 @@
+#!/usr/bin/expect -f
+
+# === USER CONFIGURATION ===
+set timeout 20
+set device_file "$env(HOME)/devices.txt"
+set creds_file "$env(HOME)/creds.txt"
+set tftp_server "192.168.57.45"
+
+# === READ CREDENTIALS ===
+set fh_creds [open $creds_file r]
+set creds_data [split [read $fh_creds] "\n"]
+close $fh_creds
+
+foreach line $creds_data {
+    if {[regexp {^username=(.+)} $line -> val]} {
+        set username $val
+    } elseif {[regexp {^password=(.+)} $line -> val]} {
+        set password $val
+    } elseif {[regexp {^enable=(.+)} $line -> val]} {
+        set enable_password $val
+    }
+}
+
+# Validate all credentials were found
+if {![info exists username] || ![info exists password] || ![info exists enable_password]} {
+    puts "ERROR: Missing credentials in $creds_file"
+    exit 1
+}
+
+# === READ DEVICE LIST ===
+set fh_devices [open $device_file r]
+set device_data [split [read $fh_devices] "\n"]
+close $fh_devices
+set data [split $device_data "\n"]
+
+# === LOOP THROUGH DEVICES ===
+foreach line $device_data {
+    if {$line eq ""} {
+        puts "hit blank line"
+        continue
+    }
+
+    set fields [split $line ":"]
+
+    lassign $fields DeviceName DeviceIP
+    puts "Got device name: $DeviceName"
+    puts "Got device ip: $DeviceIP"
+
+    puts "\n=== Backing up device: $DeviceName ($DeviceIP) ==="
+    set backup_filename "/ininet/${DeviceName}-confg"
+
+    spawn telnet $DeviceIP
+
+    expect {
+        "Username:" {
+            send "$username\r"
+            exp_continue
+        }
+        "Password:" {
+            send "$password\r"
+        }
+        timeout {
+            puts "ERROR: Connection timed out to $DeviceName ($DeviceIP)"
+            continue
+        }
+    }
+
+    expect ">" {
+        send "enable\r"
+    }
+
+    expect "Password:" {
+        send "$enable_password\r"
+    }
+
+   expect "#" {
+        send "terminal length 0\r"
+        expect "#"
+
+        send "copy running-config tftp:\r"
+        expect "Address or name of remote host" {
+            send "$tftp_server\r"
+        }
+
+        expect "Destination filename" {
+            send "$backup_filename\r"
+        }
+
+        expect {
+            "#" {
+                puts "SUCCESS: $DeviceName ($DeviceIP) backed up to $tftp_server:$backup_filename"
+            }
+            timeout {
+                puts "ERROR: Timeout during backup on $DeviceName ($DeviceIP)"
+            }
+        }
+
+        send "exit\r"
+        expect eof
+    }
+}
+

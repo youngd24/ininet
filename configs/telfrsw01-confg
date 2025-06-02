@@ -20,7 +20,7 @@ frame-relay switching
 !
 interface FastEthernet0/0
  description MGMT LAN Interface
- ip address 192.168.57.28 255.255.255.0
+ ip address 192.168.42.7 255.255.255.0
  duplex auto
  speed auto
 !
@@ -63,6 +63,8 @@ interface Serial1/2
 !
 ip default-gateway 192.168.57.1
 ip classless
+ip route 0.0.0.0 0.0.0.0 192.168.57.1
+ip route 0.0.0.0 0.0.0.0 192.168.42.1
 no ip http server
 !
 !

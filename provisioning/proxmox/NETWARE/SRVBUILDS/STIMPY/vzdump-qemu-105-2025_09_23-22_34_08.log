@@ -1,0 +1,19 @@
+2025-09-23 22:34:08 INFO: Starting Backup of VM 105 (qemu)
+2025-09-23 22:34:08 INFO: status = stopped
+2025-09-23 22:34:08 INFO: backup mode: stop
+2025-09-23 22:34:08 INFO: ionice priority: 7
+2025-09-23 22:34:08 INFO: VM Name: stimpy
+2025-09-23 22:34:08 INFO: include disk 'ide0' 'local-lvm:vm-105-disk-0' 10G
+2025-09-23 22:34:08 INFO: include disk 'ide1' 'local-lvm:vm-105-disk-1' 8G
+2025-09-23 22:34:08 INFO: creating vzdump archive '/var/lib/vz/dump/vzdump-qemu-105-2025_09_23-22_34_08.vma.zst'
+2025-09-23 22:34:08 INFO: starting kvm to execute backup task
+2025-09-23 22:34:09 INFO: started backup task '175fc96d-e900-49ec-a664-643af250d9ca'
+2025-09-23 22:34:12 INFO:  37% (6.7 GiB of 18.0 GiB) in 3s, read: 2.2 GiB/s, write: 72.0 KiB/s
+2025-09-23 22:34:15 INFO:  80% (14.5 GiB of 18.0 GiB) in 6s, read: 2.6 GiB/s, write: 38.2 MiB/s
+2025-09-23 22:34:16 INFO: 100% (18.0 GiB of 18.0 GiB) in 7s, read: 3.5 GiB/s, write: 0 B/s
+2025-09-23 22:34:16 INFO: backup is sparse: 17.89 GiB (99%) total zero data
+2025-09-23 22:34:16 INFO: transferred 18.00 GiB in 7 seconds (2.6 GiB/s)
+2025-09-23 22:34:16 INFO: stopping kvm after backup task
+2025-09-23 22:34:17 INFO: archive file size: 42MB
+2025-09-23 22:34:17 INFO: adding notes to backup
+2025-09-23 22:34:17 INFO: Finished Backup of VM 105 (00:00:09)

@@ -18,4 +18,4 @@ To import into Proxmox:
 qmrestore vzdump-qemu-105-2025_09_22-23_57_12.vma.zst <vmid>
 ```
 
-Where <vmid> is whatever numeric ID you want to assign to it.
+Where vmid is whatever numeric ID you want to assign to it.

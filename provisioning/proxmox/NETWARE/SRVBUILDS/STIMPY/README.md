@@ -37,6 +37,7 @@ NETWARE 4.11:
   - LONG FILE NAMES LOADED AND APPLIED
 
 
+```
 OBSERVED NETWORK EMISSIONS:
 
 INIHQRTR01#sh ipx servers
@@ -51,4 +52,4 @@ P     4 STIMPY                DE3AFEED.0000.0000.0001:0451      2/01   1  Et1/1.
 P   26B CORP_________________ DE3AFEED.0000.0000.0001:0005      2/01   1  Et1/1.42
 P   278 CORP_________________ DE3AFEED.0000.0000.0001:4006      2/01   1  Et1/1.42
 
-
+```

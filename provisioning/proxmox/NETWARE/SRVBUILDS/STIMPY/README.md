@@ -37,9 +37,9 @@ NETWARE 4.11:
   - LONG FILE NAMES LOADED AND APPLIED
 
 
-```
 OBSERVED NETWORK EMISSIONS:
 
+```
 INIHQRTR01#sh ipx servers
 Codes: S - Static, P - Periodic, E - EIGRP, H - Holddown, + = detail
 U - Per-user static

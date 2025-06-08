@@ -19,3 +19,5 @@ qmrestore vzdump-qemu-105-2025_09_22-23_57_12.vma.zst <vmid>
 ```
 
 Where vmid is whatever numeric ID you want to assign to it.
+
+I don't know why you can't rename these files, but for whatever reason whenever I do it won't accept them.

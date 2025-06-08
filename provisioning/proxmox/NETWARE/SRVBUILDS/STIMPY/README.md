@@ -1,4 +1,6 @@
 
+This is a (mostly) complete 4.11 install, total is about 44MB in size.
+
 On your PVE host:
 
 ```

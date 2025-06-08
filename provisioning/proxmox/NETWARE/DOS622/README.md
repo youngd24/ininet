@@ -1,5 +1,5 @@
 
-Pre-build DOS 6.22 Proxmox VM for this video: https://youtu.be/0ChB3Ewdngk
+Pre-build DOS 6.22 Proxmox VM based on my video here: https://youtu.be/0ChB3Ewdngk
 
 - 10GB disk
 - 100MB DOS partition

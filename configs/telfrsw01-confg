@@ -63,14 +63,34 @@ interface Serial1/2
 !
 ip default-gateway 192.168.57.1
 ip classless
-ip route 0.0.0.0 0.0.0.0 192.168.57.1
 ip route 0.0.0.0 0.0.0.0 192.168.42.1
 no ip http server
 !
+banner motd 
+/====================================================================\
+||   __  .__   __.  __  .___________. _______   ______  __    __    ||
+||  |  | |  \ |  | |  | |           ||   ____| /      ||  |  |  |   ||
+||  |  | |   \|  | |  | `---|  |----`|  |__   |  ,----'|  |__|  |   ||
+||  |  | |  . `  | |  |     |  |     |   __|  |  |     |   __   |   ||
+||  |  | |  |\   | |  |     |  |     |  |____ |  `----.|  |  |  |   ||
+||  |__| |__| \__| |__|     |__|     |_______| \______||__|  |__|   ||
+||------------------------------------------------------------------||
+||      UNAUTHORIZED ACCESS PROHIBITED, ALL ACCESS LOGGED           ||
+||------------------------------------------------------------------||
+||                                                                  ||
+||  Systems Support              | Ask yourself,                    ||
+||  techops@initech.net          | Is it good for the company?      ||
+||  617-555-1212                 | - Someone that doesn't matter    ||
+||                                                                  ||
+\====================================================================/
+alias exec show-running-config show running-config view full
+privilege exec level 10 show running-config
+privilege exec level 10 show interface
 !
 line con 0
 line aux 0
 line vty 0 4
  login local
+ transport input telnet
 !
 end

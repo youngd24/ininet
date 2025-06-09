@@ -138,6 +138,28 @@ control-plane
 !
 !
 !
+banner motd 
+/====================================================================\
+||   __  .__   __.  __  .___________. _______   ______  __    __    ||
+||  |  | |  \ |  | |  | |           ||   ____| /      ||  |  |  |   ||
+||  |  | |   \|  | |  | `---|  |----`|  |__   |  ,----'|  |__|  |   ||
+||  |  | |  . `  | |  |     |  |     |   __|  |  |     |   __   |   ||
+||  |  | |  |\   | |  |     |  |     |  |____ |  `----.|  |  |  |   ||
+||  |__| |__| \__| |__|     |__|     |_______| \______||__|  |__|   ||
+||------------------------------------------------------------------||
+||      UNAUTHORIZED ACCESS PROHIBITED, ALL ACCESS LOGGED           ||
+||------------------------------------------------------------------||
+||                                                                  ||
+||  Systems Support              | Ask yourself,                    ||
+||  techops@initech.net          | Is it good for the company?      ||
+||  617-555-1212                 | - Someone that doesn't matter    ||
+||                                                                  ||
+\====================================================================/
+alias exec show-running-config show running-config view full
+privilege exec level 10 show running-config view full
+privilege exec level 10 show running-config view
+privilege exec level 10 show running-config
+privilege exec level 10 show
 !
 line con 0
  logging synchronous

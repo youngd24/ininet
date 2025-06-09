@@ -134,6 +134,23 @@ snmp-server engineID local 00000009020000027D2EABC0
 snmp-server community public RO
 snmp-server location HQ Data Center
 snmp-server contact System Support (techops@initech.net)
+banner motd 
+/====================================================================\
+||   __  .__   __.  __  .___________. _______   ______  __    __    ||
+||  |  | |  \ |  | |  | |           ||   ____| /      ||  |  |  |   ||
+||  |  | |   \|  | |  | `---|  |----`|  |__   |  ,----'|  |__|  |   ||
+||  |  | |  . `  | |  |     |  |     |   __|  |  |     |   __   |   ||
+||  |  | |  |\   | |  |     |  |     |  |____ |  `----.|  |  |  |   ||
+||  |__| |__| \__| |__|     |__|     |_______| \______||__|  |__|   ||
+||------------------------------------------------------------------||
+||      UNAUTHORIZED ACCESS PROHIBITED, ALL ACCESS LOGGED           ||
+||------------------------------------------------------------------||
+||                                                                  ||
+||  Systems Support              | Ask yourself,                    ||
+||  techops@initech.net          | Is it good for the company?      ||
+||  617-555-1212                 | - Someone that doesn't matter    ||
+||                                                                  ||
+\====================================================================/
 !
 line con 0
  logging synchronous

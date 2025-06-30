@@ -42,7 +42,7 @@ And that will be attached to the DNS record for the given entry. Example from th
 # sw01       IN  TXT "consvr=consrv01.mydomain.com, conport=2031"
 ```
 
-Then all I'd have to type to get where I wantd to is:
+Then all I'd have to type to get where I wanted to is:
 
 > `con host`
 

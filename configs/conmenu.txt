@@ -1,0 +1,125 @@
+! ####################################################################################
+! CONSOLE SERVER MENU
+! ####################################################################################
+!
+! This is the local loopback address on the console server
+!
+ip host P33 2033 10.10.10.10
+ip host P34 2034 10.10.10.10
+ip host P35 2035 10.10.10.10
+ip host P36 2036 10.10.10.10
+ip host P37 2037 10.10.10.10
+ip host P38 2038 10.10.10.10
+ip host P39 2039 10.10.10.10
+ip host P40 2040 10.10.10.10
+ip host P41 2041 10.10.10.10
+ip host P42 2042 10.10.10.10
+ip host P43 2043 10.10.10.10
+ip host P44 2044 10.10.10.10
+ip host P45 2045 10.10.10.10
+ip host P46 2046 10.10.10.10
+ip host P47 2047 10.10.10.10
+ip host P48 2048 10.10.10.10
+!
+! Clear line aliases
+!
+alias exec clr33 clear line 33
+alias exec clr34 clear line 34
+alias exec clr35 clear line 35
+alias exec clr36 clear line 36
+alias exec clr37 clear line 37
+alias exec clr38 clear line 38
+alias exec clr39 clear line 39
+alias exec clr40 clear line 40
+alias exec clr41 clear line 41
+alias exec clr42 clear line 42
+alias exec clr43 clear line 43
+alias exec clr44 clear line 44
+alias exec clr45 clear line 45
+alias exec clr46 clear line 46
+alias exec clr47 clear line 47
+alias exec clr48 clear line 48
+!
+! The menu
+menu CONMENU title ^
+******************************************************************************
+************************    INITECH CONSOLE SERVER   *************************
+******************************************************************************
+|                  To exit session and return to the menu press              |
+|                         <CTRL>+<SHFT>+<6> then <X>.                        |
+******************************************************************************
+^
+menu CONMENU prompt ^ Please enter your selection: ^C
+!
+menu CONMENU text 1 INIHQRTR01 (3640)
+menu CONMENU command 1 resume P33 /connect telnet P33
+!
+menu CONMENU text 2 INHQSW01 (2900XL)
+menu CONMENU command 2 resume P34 /connect telnet P34
+!
+menu CONMENU text 3 INIHQFW01 (PIX 520)
+menu CONMENU command 3 resume P35 /connect telnet P35
+!
+menu CONMENU text 4 TELFRSW01 (2600)
+menu CONMENU command 4 resume P36 /connect telnet P36
+!
+menu CONMENU text 5 INIKAUSSW01 (2900XL)
+menu CONMENU command 5 resume P37 /connect telnet P37
+!
+menu CONMENU text 6 INIKAUSRTR01 (2600)
+menu CONMENU command 6 resume P38 /connect telnet P38
+!
+menu CONMENU text 7 INIKMCIRTR01 (2600)
+menu CONMENU command 7 resume P39 /connect telnet P39
+!
+menu CONMENU text 8 OPEN
+menu CONMENU command 8 resume P40 /connect telnet P40
+!
+menu CONMENU text 9 INIVGW01 (3825)
+menu CONMENU command 9 resume P41 /connect telnet P41
+!
+menu CONMENU text 10 INIVGW02 (3825)
+menu CONMENU command 10 resume P42 /connect telnet P42
+!
+!menu CONMENU text 11 P43
+!menu CONMENU command 11 resume P43 /connect telnet P43
+!
+!menu CONMENU text 12 P44
+!menu CONMENU command 12 resume P44 /connect telnet P44
+!
+!menu CONMENU text 13 P45
+!menu CONMENU command 13 resume P45 /connect telnet P45
+!
+!menu CONMENU text 14 P46
+!menu CONMENU command 14 resume P46 /connect telnet P46
+!
+!menu CONMENU text 15 P47
+!menu CONMENU command 15 resume P47 /connect telnet P47
+!
+!menu CONMENU text 16 P48
+!menu CONMENU command 16 resume P48 /connect telnet P48
+!
+menu CONMENU text 50 Solaris 7 Login
+menu CONMENU command 50 telnet wedge.initech.net
+!
+menu CONMENU text 99 Exit
+!
+!menu CONMENU command cls33 clr33
+!menu CONMENU command cls34 clr34
+!menu CONMENU command cls35 clr35
+!menu CONMENU command cls36 clr36
+!menu CONMENU command cls47 clr37
+!menu CONMENU command cls38 clr38
+!menu CONMENU command cls39 clr39
+!menu CONMENU command cls40 clr40
+!menu CONMENU command cls41 clr41
+!menu CONMENU command cls42 clr42
+!menu CONMENU command cls43 clr43
+!menu CONMENU command cls44 clr44
+!menu CONMENU command cls45 clr45
+!menu CONMENU command cls46 clr46
+!menu CONMENU command cls47 clr47
+!menu CONMENU command cls48 clr48
+!
+menu CONMENU command 99 logout
+menu CONMENU clear-screen

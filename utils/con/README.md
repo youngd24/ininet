@@ -1,5 +1,5 @@
 # con
-A simple little utility to enable me to be a slightly lazier than normal.
+A simple little utility to enable me to be slightly lazier than normal.
 
 # The Problem
 Say you have a Cisco 2900, with a 16 port async serial board, that acts as the console server for a bunch of other gear, maybe other Cisco devices. IOS takes all of those serial ports and, if configured correctly, makes them available as tcp ports on the network one can telnet to. So, say one is mapped is line 33 on the 2900, you could do this to access that port over the network:

@@ -41,6 +41,7 @@ alias exec clr47 clear line 47
 alias exec clr48 clear line 48
 !
 ! The menu
+!
 menu CONMENU title ^
 ******************************************************************************
 ************************    INITECH CONSOLE SERVER   *************************

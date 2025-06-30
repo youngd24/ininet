@@ -17,7 +17,7 @@ What if I could do a lookup in some way for where that thing is attached and hav
 
 > `It's not DNS. It might be DNS. It's DNS. It's always DNS.`
 
-Ok, so DNS it is. How cnaa I attach some info to the DNS for the host saying where it's attached? I'd need the following information:
+Ok, so DNS it is. How can I attach some info to the DNS for the host saying where it's attached? I'd need the following stuff:
 
 1. The name of the console server hosting it.
 2. The tcp port number presented for it.
@@ -46,7 +46,7 @@ Then all I'd have to type to get where I wanted to is:
 
 > `con host`
 
-So I wrote it. Well, not really, I had ChatGPT do it, here's the prompt chain:
+So I wrote it. Well, not really, I had ChatGPT do it, I needed yet another excuse to use some AI, here's the prompt chain:
 
 ```
 You asked for a Python script with the following capabilities:
@@ -64,6 +64,14 @@ Use the extracted consvr and conport to spawn a telnet session to that server an
 
 It could probably be better but who cares. Code is in here and I've taken credit for it. Enjoy.
 
-Oh, there are C versions for Linux and Solaris 7 in here as well, 'cause, why not. ChatGPT did those as well. We're doomed.
+Oh, there are C versions for Linux and Solaris 7 in here as well, 'cause, why not. ChatGPT did those too, we're doomed.
 
-Laterz.
+Laterz
+
+```
+TODO
+----
+- Write a silly RFC for the record type
+
+```
+

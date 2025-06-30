@@ -1,5 +1,8 @@
 ! ####################################################################################
 ! CONSOLE SERVER MENU
+!
+! https://www.cisco.com/c/en/us/td/docs/ios/fundamentals/configuration/guide/TIPs_Conversion/cf_15_1s_book/cf_connections.html
+!
 ! ####################################################################################
 !
 ! This is the local loopback address on the console server

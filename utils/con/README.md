@@ -26,7 +26,7 @@ I first thought I could maybe use the WKS record type but after reading, it's es
 
 Settled. The format will be:
 
-host   IN TXT "consvr=<host>, conport=<port>"
+host   IN TXT "consvr=host, conport=port"
 
 And that will be attached to the DNS record for the given entry. Example from the code:
 

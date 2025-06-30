@@ -15,7 +15,7 @@ Issues:
 
 What if I could do a lookup in some way for where that thing is attached and have it just telnet for me? Ideally it would be centralized in something, a database, etc, so what to use? Well, could do just that, stash it in a database but that seems like overkill that just adds too much effort. Where else is centralized, always available, easy to access and already maintained?
 
-> `It's not DNS. It might be DNS. It's DNS`
+> `It's not DNS. It might be DNS. It's DNS. It's always DNS.`
 
 Ok, so DNS it is. How cnaa I attach some info to the DNS for the host saying where it's attached? I'd need the following information:
 

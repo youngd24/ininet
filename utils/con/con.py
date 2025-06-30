@@ -5,16 +5,16 @@
 #
 # Find the console server port for a given host and telnet to it.
 #
-# Copyright (c) 2025
+# Copyright (c) who?
 # Darren Young [youngd24@gmail.com]
 #
 ###############################################################################
 #
 # REQUIREMENTS:
 #
-# python3
-# dnspython
-# telnet
+# - python3
+# - dnspython
+# - telnet
 #
 ###############################################################################
 #

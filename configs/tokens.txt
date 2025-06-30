@@ -1,0 +1,28 @@
+Table 8 Tokens Allowed by Banner Type 
+
+$(hostname)
+Router Hostname
+
+$(domain)
+Router Domain Name
+
+$(peer-ip)
+IP Address of the Peer Machine
+
+$(gate-ip)
+IP Address of the Gateway Machine
+
+$(encap)
+Encapsulation Type (SLIP or PPP)
+
+$(encap-alt)
+Encapsulation Type Displayed as SL/IP instead of SLIP
+
+$(mtu)
+Maximum Transmission Unit Size
+
+$(line)
+vty or tty (async) Line Number
+
+$(line-desc)
+User-specified description of the Line

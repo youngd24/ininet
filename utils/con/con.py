@@ -62,9 +62,9 @@ def query_txt_record(hostname: str):
     Record format is: "consvr=<server>, conport=<port>"
     """
     # do we care to support multiple TXT records, as failover?
-    answer = resolver.resolve(hostname, 'TXT')[0].to_text()
+    answer = resolver.resolve(hostname, 'TXT')[0]
     ptrn = r'consvr=(?P<srv>.*?), conport=(?P<port>\d+ ?)'
-    result = re.search(ptrn, answer)
+    result = re.search(ptrn, str(answer))
     if result:
         return result.group('srv'), result.group('port')
 
@@ -73,7 +73,7 @@ def query_txt_record(hostname: str):
 def spawn_telnet(hostname: str, port: int):
     """Spawn telnet for the connection. Use the usual ctrl-] to break out of it."""
     print(f'Opening telnet connection to {hostname} {port}...')
-    subprocess.run(['telnet', hostname, port], check=False)
+    subprocess.run(['telnet', hostname, str(port)], check=False)
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
@@ -83,7 +83,7 @@ if __name__ == '__main__':
     try:
         host = sys.argv[1]
         consvr, conport = query_txt_record(host)
-        spawn_telnet(consvr, conport)
+        spawn_telnet(consvr, int(conport))
 
     except resolver.NoAnswer:
         print(f'No TXT record found for {host}.')

@@ -103,8 +103,11 @@ menu CONMENU command 10 resume P42 /connect telnet P42
 !menu CONMENU text 16 P48
 !menu CONMENU command 16 resume P48 /connect telnet P48
 !
-menu CONMENU text 50 Solaris 7 Login
+menu CONMENU text 50 Solaris 7 Login (wedge)
 menu CONMENU command 50 telnet wedge.initech.net
+!
+menu CONMENU text 51 NetBSD 10 Login (lobot)
+menu CONMENU command 51 telnet lobot.initech.net
 !
 menu CONMENU text 99 Exit
 !

@@ -7,11 +7,22 @@ service password-encryption
 !
 hostname INIKMCIRTR01
 !
+aaa new-model
+aaa authentication login default group radius local
+aaa authentication login localauth local
+aaa authentication ppp default if-needed group radius local
+aaa authorization exec default group radius local 
+aaa authorization network default group radius local 
+aaa accounting delay-start
+aaa accounting exec default start-stop group radius
+aaa accounting network default start-stop group radius
 !
 ip subnet-zero
 ip cef
 !
 !
+ip domain-name initech.net
+ip name-server 192.168.42.45
 ip dhcp excluded-address 10.100.20.1 10.100.20.25
 ip dhcp excluded-address 10.100.20.100 10.100.20.254
 !
@@ -20,6 +31,7 @@ ip dhcp pool MCIPOOL
    default-router 10.100.20.1 
    domain-name initech.net
    netbios-node-type h-node
+   dns-server 192.168.42.45 
 !
 ipx routing 000f.2453.ce60
 ipx internal-network A6CD4EC2
@@ -55,6 +67,7 @@ router eigrp 666
 ip classless
 no ip http server
 !
+logging 192.168.42.46
 !
 !
 ipx router eigrp 201
@@ -63,6 +76,8 @@ ipx router eigrp 201
 !
 !
 !
+radius-server host 192.168.42.45 auth-port 1812 acct-port 1813
+radius-server key 7 151A0E0008257A767B
 !
 dial-peer cor custom
 !
@@ -90,6 +105,5 @@ line con 0
  logging synchronous
 line aux 0
 line vty 0 4
- login local
 !
 end

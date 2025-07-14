@@ -1,18 +1,39 @@
 
 !
-version 12.2
+version 12.4
 service timestamps debug datetime msec
 service timestamps log datetime msec
 service password-encryption
 !
 hostname INIKAUSRTR01
 !
+boot-start-marker
+boot-end-marker
 !
-ip subnet-zero
+logging buffered 4096 informational
+!
+aaa new-model
+!
+!
+aaa authentication login default group radius local
+aaa authentication login localauth local
+aaa authentication ppp default if-needed group radius local
+aaa authorization exec default group radius local 
+aaa authorization network default group radius local 
+aaa accounting delay-start 
+aaa accounting exec default start-stop group radius
+aaa accounting network default start-stop group radius
+!
+aaa session-id common
+!
+resource policy
+!
+no network-clock-participate slot 1 
+no network-clock-participate wic 0 
 ip cef
 !
 !
-no ip domain-lookup
+no ip dhcp use vrf connected
 ip dhcp excluded-address 10.100.10.1 10.100.10.25
 ip dhcp excluded-address 10.100.10.100 10.100.10.254
 !
@@ -21,11 +42,13 @@ ip dhcp pool AUSLAN
    default-router 10.100.10.1 
    domain-name initech.net
    netbios-node-type h-node
+   dns-server 192.168.42.45 
 !
-ipx routing 0008.a3c0.3b20
+!
+ip domain name initech.net
+ip name-server 192.168.42.45
+ipx routing 000c.85ff.14e0
 ipx internal-network 7C8C2BDF
-call rsvp-sync
-!
 !
 !
 !
@@ -52,14 +75,6 @@ interface Serial0/0
  fair-queue
  frame-relay lmi-type ansi
 !
-interface Serial0/1
- no ip address
- shutdown
-!
-interface Serial0/2
- no ip address
- shutdown
-!
 router eigrp 666
  redistribute connected
  network 10.100.10.0 0.0.0.255
@@ -67,8 +82,11 @@ router eigrp 666
  no auto-summary
  no eigrp log-neighbor-changes
 !
-ip classless
-ip http server
+!
+no ip http server
+no ip http secure-server
+!
+logging 192.168.42.46
 !
 !
 !
@@ -78,10 +96,10 @@ ipx router eigrp 201
 !
 !
 !
+radius-server host 192.168.42.45 auth-port 1812 acct-port 1813
+radius-server key 7 000C160A08545A545C
 !
-dial-peer cor custom
-!
-!
+control-plane
 !
 banner motd 
 /====================================================================\
@@ -104,6 +122,7 @@ banner motd 
 line con 0
 line aux 0
 line vty 0 4
- login local
+ transport input telnet
+!
 !
 end

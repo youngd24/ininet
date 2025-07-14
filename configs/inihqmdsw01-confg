@@ -6,7 +6,7 @@ service timestamps debug uptime
 service timestamps log uptime
 service password-encryption
 !
-hostname INIKAUSSW01
+hostname INIHQMDSW01
 !
 !
 !
@@ -21,120 +21,128 @@ ip name-server 192.168.42.45
 !
 !
 interface FastEthernet0/1
- switchport access vlan 10
+ switchport access vlan 42
  spanning-tree portfast
 !
 interface FastEthernet0/2
- switchport access vlan 10
+ switchport access vlan 42
  spanning-tree portfast
 !
 interface FastEthernet0/3
- switchport access vlan 10
+ switchport access vlan 42
  spanning-tree portfast
 !
 interface FastEthernet0/4
- switchport access vlan 10
+ switchport access vlan 42
  spanning-tree portfast
 !
 interface FastEthernet0/5
- switchport access vlan 10
+ switchport access vlan 42
  spanning-tree portfast
 !
 interface FastEthernet0/6
- switchport access vlan 10
+ switchport access vlan 42
  spanning-tree portfast
 !
 interface FastEthernet0/7
- switchport access vlan 10
+ switchport access vlan 42
  spanning-tree portfast
 !
 interface FastEthernet0/8
- switchport access vlan 10
+ switchport access vlan 42
  spanning-tree portfast
 !
 interface FastEthernet0/9
- switchport access vlan 10
+ switchport access vlan 42
  spanning-tree portfast
 !
 interface FastEthernet0/10
- switchport access vlan 10
+ switchport access vlan 42
  spanning-tree portfast
 !
 interface FastEthernet0/11
- switchport access vlan 10
+ switchport access vlan 42
  spanning-tree portfast
 !
 interface FastEthernet0/12
- switchport access vlan 10
+ switchport access vlan 42
  spanning-tree portfast
 !
 interface FastEthernet0/13
- switchport access vlan 10
+ switchport access vlan 42
  spanning-tree portfast
 !
 interface FastEthernet0/14
- switchport access vlan 10
+ switchport access vlan 42
  spanning-tree portfast
 !
 interface FastEthernet0/15
- switchport access vlan 10
  spanning-tree portfast
 !
 interface FastEthernet0/16
- switchport access vlan 10
+ switchport access vlan 42
  spanning-tree portfast
 !
 interface FastEthernet0/17
- switchport access vlan 10
+ switchport access vlan 25
  spanning-tree portfast
 !
 interface FastEthernet0/18
- switchport access vlan 10
+ switchport access vlan 25
  spanning-tree portfast
 !
 interface FastEthernet0/19
- switchport access vlan 10
+ switchport access vlan 25
  spanning-tree portfast
 !
 interface FastEthernet0/20
- switchport access vlan 10
- spanning-tree portfast
+ switchport access vlan 25
 !
 interface FastEthernet0/21
- switchport access vlan 10
- spanning-tree portfast
+ description ** TRUNK PORT ***
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
 !
 interface FastEthernet0/22
- switchport access vlan 10
- spanning-tree portfast
+ description ** TRUNK PORT ***
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
 !
 interface FastEthernet0/23
- description ** RESERVED TRUNK PORT **
+ description ** TRUNK PORT ***
  switchport trunk encapsulation dot1q
  switchport mode trunk
 !
 interface FastEthernet0/24
- description ** TRUNK PORT UPLINK TO ROUTER **
+ description ** TRUNK PORT ***
  switchport trunk encapsulation dot1q
  switchport mode trunk
 !
 interface GigabitEthernet0/1
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
 !
 interface GigabitEthernet0/2
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
 !
 interface VLAN1
  no ip directed-broadcast
  no ip route-cache
  shutdown
 !
-interface VLAN10
- description UPLINNK TO INIKAUSRTR01 FastEthernet0/0
- ip address 10.100.10.5 255.255.255.0
+interface VLAN42
+ ip address 192.168.42.6 255.255.255.0
  no ip directed-broadcast
  no ip route-cache
 !
-ip default-gateway 10.100.10.1
+ip default-gateway 192.168.42.1
+logging source-interface VLAN42
 logging 192.168.42.46
+snmp-server engineID local 00000009020000036BE18900
+snmp-server community public RO
+snmp-server location HQ Data Center
+snmp-server contact System Support (techops@initech.net)
 banner motd 
 /====================================================================\
 ||   __  .__   __.  __  .___________. _______   ______  __    __    ||

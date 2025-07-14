@@ -12,7 +12,19 @@ boot-end-marker
 !
 logging buffered 4096 informational
 !
-no aaa new-model
+aaa new-model
+!
+!
+aaa authentication login default group radius local
+aaa authentication login localauth local
+aaa authentication ppp default if-needed group radius local
+aaa authorization exec default group radius local 
+aaa authorization network default group radius local 
+aaa accounting delay-start 
+aaa accounting exec default start-stop group radius
+aaa accounting network default start-stop group radius
+!
+aaa session-id common
 !
 resource policy
 !
@@ -23,7 +35,8 @@ ip cef
 !
 !
 !
-no ip domain lookup
+ip domain name initech.net
+ip name-server 192.168.42.45
 frame-relay switching
 !
 !
@@ -80,7 +93,10 @@ ip route 0.0.0.0 0.0.0.0 192.168.42.1
 no ip http server
 no ip http secure-server
 !
+logging 192.168.42.46
 !
+radius-server host 192.168.42.46 auth-port 1812 acct-port 1813
+radius-server key 7 030C5E070A00701E1D
 !
 control-plane
 !
@@ -106,7 +122,6 @@ line con 0
  logging synchronous
 line aux 0
 line vty 0 4
- login local
  transport input telnet
 !
 !

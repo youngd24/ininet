@@ -12,13 +12,28 @@ boot-end-marker
 !
 logging buffered 4096 informational
 !
-no aaa new-model
+aaa new-model
+!
+!
+aaa authentication login default group radius local
+aaa authentication login localauth local
+aaa authentication login CONSOLE none
+aaa authentication ppp default if-needed group radius local
+aaa authorization exec default group radius local 
+aaa authorization network default group radius local 
+aaa accounting delay-start 
+aaa accounting exec default start-stop group radius
+aaa accounting network default start-stop group radius
+!
+aaa session-id common
 !
 resource policy
 !
 !
 !
 ip cef
+ip domain name initech.net
+ip name-server 192.168.42.45
 !
 !
 !
@@ -69,9 +84,9 @@ interface FastEthernet0/1
  speed auto
 !
 interface Serial0/1
- no ip address
- shutdown
- clock rate 2000000
+ description POINT-TO-POINT T1 TO INIKEDC DEV OFC
+ ip address 172.16.20.1 255.255.255.0
+ encapsulation ppp
 !
 interface Serial0/2
  no ip address
@@ -103,20 +118,23 @@ router eigrp 666
  redistribute connected
  redistribute static
  network 172.16.10.0 0.0.0.255
+ network 172.16.20.0 0.0.0.255
  network 192.168.22.0
+ network 192.168.25.0
  network 192.168.42.0
  network 192.168.57.0
  no auto-summary
 !
 no ip http server
 no ip http secure-server
-ip route 0.0.0.0 0.0.0.0 192.168.57.1
+ip route 0.0.0.0 0.0.0.0 192.168.25.1
 ip route 192.168.1.0 255.255.255.0 192.168.57.1
 ip route 192.168.12.0 255.255.255.0 192.168.57.1
 !
 !
 !
-logging 192.168.42.45
+logging source-interface Ethernet1/1.42
+logging 192.168.42.46
 !
 !
 !
@@ -127,6 +145,8 @@ ipx router eigrp 201
 !
 !
 !
+radius-server host 192.168.42.45 auth-port 1812 acct-port 1813
+radius-server key 7 130D121E0703557878
 !
 control-plane
 !
@@ -155,17 +175,12 @@ banner motd 
 ||  617-555-1212                 | - Someone that doesn't matter    ||
 ||                                                                  ||
 \====================================================================/
-alias exec show-running-config show running-config view full
-privilege exec level 10 show running-config view full
-privilege exec level 10 show running-config view
-privilege exec level 10 show running-config
-privilege exec level 10 show
 !
 line con 0
  logging synchronous
+ login authentication CONSOLE
 line aux 0
 line vty 0 4
- login local
 !
 !
 end

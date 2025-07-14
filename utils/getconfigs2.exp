@@ -19,7 +19,7 @@
 set timeout 20
 set device_file "$env(HOME)/devices.txt"
 set creds_file "$env(HOME)/creds.txt"
-set tftp_server "192.168.42.45"
+set tftp_server "192.168.42.46"
 
 # === READ CREDENTIALS ===
 set fh_creds [open $creds_file r]

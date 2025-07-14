@@ -33,7 +33,7 @@ resource policy
 !
 ip cef
 ip domain name initech.net
-ip name-server 192.168.42.45
+ip name-server 192.168.42.46
 !
 !
 !

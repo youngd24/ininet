@@ -42,11 +42,11 @@ ip dhcp pool AUSLAN
    default-router 10.100.10.1 
    domain-name initech.net
    netbios-node-type h-node
-   dns-server 192.168.42.45 
+   dns-server 192.168.42.46 
 !
 !
 ip domain name initech.net
-ip name-server 192.168.42.45
+ip name-server 192.168.42.46
 ipx routing 000c.85ff.14e0
 ipx internal-network 7C8C2BDF
 !

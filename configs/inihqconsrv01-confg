@@ -34,7 +34,7 @@ ip host P45 2045 10.10.10.10
 ip host P46 2046 10.10.10.10
 ip host P47 2047 10.10.10.10
 ip host P48 2048 10.10.10.10
-ip name-server 192.168.42.45
+ip name-server 192.168.42.46
 !
 !
 !

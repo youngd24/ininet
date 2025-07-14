@@ -22,7 +22,7 @@ ip cef
 !
 !
 ip domain-name initech.net
-ip name-server 192.168.42.45
+ip name-server 192.168.42.46
 ip dhcp excluded-address 10.100.20.1 10.100.20.25
 ip dhcp excluded-address 10.100.20.100 10.100.20.254
 !
@@ -31,7 +31,7 @@ ip dhcp pool MCIPOOL
    default-router 10.100.20.1 
    domain-name initech.net
    netbios-node-type h-node
-   dns-server 192.168.42.45 
+   dns-server 192.168.42.46 
 !
 ipx routing 000f.2453.ce60
 ipx internal-network A6CD4EC2

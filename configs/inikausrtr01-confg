@@ -96,7 +96,7 @@ ipx router eigrp 201
 !
 !
 !
-radius-server host 192.168.42.45 auth-port 1812 acct-port 1813
+radius-server host 192.168.42.46 auth-port 1812 acct-port 1813
 radius-server key 7 000C160A08545A545C
 !
 control-plane

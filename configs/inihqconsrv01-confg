@@ -1,0 +1,181 @@
+
+!
+version 12.3
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname INIHQCONSRV01
+!
+boot-start-marker
+boot-end-marker
+!
+no logging monitor
+!
+no aaa new-model
+ip subnet-zero
+ip cef
+!
+!
+ip domain name initech.net
+ip host P33 2033 10.10.10.10
+ip host P34 2034 10.10.10.10
+ip host P35 2035 10.10.10.10
+ip host P36 2036 10.10.10.10
+ip host P37 2037 10.10.10.10
+ip host P38 2038 10.10.10.10
+ip host P39 2039 10.10.10.10
+ip host P40 2040 10.10.10.10
+ip host P41 2041 10.10.10.10
+ip host P42 2042 10.10.10.10
+ip host P43 2043 10.10.10.10
+ip host P44 2044 10.10.10.10
+ip host P45 2045 10.10.10.10
+ip host P46 2046 10.10.10.10
+ip host P47 2047 10.10.10.10
+ip host P48 2048 10.10.10.10
+ip name-server 192.168.42.45
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ ip address 10.10.10.10 255.255.255.0
+!
+interface FastEthernet0/0
+ ip address 192.168.42.18 255.255.255.0
+ duplex auto
+ speed auto
+!
+interface Async1
+ no ip address
+ encapsulation slip
+!
+interface Async2
+ no ip address
+ encapsulation slip
+!
+ip default-gateway 192.168.42.1
+ip http server
+ip classless
+ip route 0.0.0.0 0.0.0.0 192.168.42.1
+!
+!
+logging 192.168.42.46
+!
+menu CONMENU title 
+******************************************************************************
+************************    INITECH CONSOLE SERVER   *************************
+******************************************************************************
+|                  To exit session and return to the menu press              |
+|                         <CTRL>+<SHFT>+<6> then <X>.                        |
+******************************************************************************
+
+menu CONMENU prompt  Please enter your selection: 
+menu CONMENU text 1 INIHQRTR01 (3640)
+menu CONMENU command 1 resume P33 /connect telnet P33
+menu CONMENU text 2 INHQSW01 (2900XL)
+menu CONMENU command 2 resume P34 /connect telnet P34
+menu CONMENU text 3 INIHQFW01 (PIX 520)
+menu CONMENU command 3 resume P35 /connect telnet P35
+menu CONMENU text 4 TELFRSW01 (2600)
+menu CONMENU command 4 resume P36 /connect telnet P36
+menu CONMENU text 5 INIKAUSSW01 (2900XL)
+menu CONMENU command 5 resume P37 /connect telnet P37
+menu CONMENU text 6 INIKAUSRTR01 (2600)
+menu CONMENU command 6 resume P38 /connect telnet P38
+menu CONMENU text 7 INIKMCIRTR01 (2600)
+menu CONMENU command 7 resume P39 /connect telnet P39
+menu CONMENU text 8 OPEN
+menu CONMENU command 8 resume P40 /connect telnet P40
+menu CONMENU text 9 INIVGW01 (3825)
+menu CONMENU command 9 resume P41 /connect telnet P41
+menu CONMENU text 10 INIVGW02 (3825)
+menu CONMENU command 10 resume P42 /connect telnet P42
+menu CONMENU text 50 Solaris 7 Login (wedge)
+menu CONMENU command 50 telnet wedge.initech.net
+menu CONMENU text 51 NetBSD 10 Login (lobot)
+menu CONMENU command 51 telnet lobot.initech.net
+menu CONMENU text 99 Exit
+menu CONMENU command 99 logout
+menu CONMENU clear-screen
+!
+!
+!
+!
+!
+!
+dial-peer cor custom
+!
+!
+!
+banner motd 
+/====================================================================\
+||   __  .__   __.  __  .___________. _______   ______  __    __    ||
+||  |  | |  \ |  | |  | |           ||   ____| /      ||  |  |  |   ||
+||  |  | |   \|  | |  | `---|  |----`|  |__   |  ,----'|  |__|  |   ||
+||  |  | |  . `  | |  |     |  |     |   __|  |  |     |   __   |   ||
+||  |  | |  |\   | |  |     |  |     |  |____ |  `----.|  |  |  |   ||
+||  |__| |__| \__| |__|     |__|     |_______| \______||__|  |__|   ||
+||------------------------------------------------------------------||
+||      UNAUTHORIZED ACCESS PROHIBITED, ALL ACCESS LOGGED           ||
+||------------------------------------------------------------------||
+||                                                                  ||
+||  Systems Support              | Ask yourself,                    ||
+||  techops@initech.net          | Is it good for the company?      ||
+||  617-555-1212                 | - Someone that doesn't matter    ||
+||                                                                  ||
+\====================================================================/
+alias exec clr33 clear line 33
+alias exec clr34 clear line 34
+alias exec clr35 clear line 35
+alias exec clr36 clear line 36
+alias exec clr37 clear line 37
+alias exec clr38 clear line 38
+alias exec clr39 clear line 39
+alias exec clr40 clear line 40
+alias exec clr41 clear line 41
+alias exec clr42 clear line 42
+alias exec clr43 clear line 43
+alias exec clr44 clear line 44
+alias exec clr45 clear line 45
+alias exec clr46 clear line 46
+alias exec clr47 clear line 47
+alias exec clr48 clear line 48
+!
+line con 0
+ logging synchronous
+ login local
+line 1 2
+ login local
+ modem Dialin
+ modem autoconfigure discovery
+ transport input all
+ stopbits 1
+ speed 115200
+ flowcontrol hardware
+line 33 48
+ exec-timeout 0 0
+ login local
+ no exec
+ transport input telnet
+line aux 0
+line vty 0 4
+ login local
+ transport input telnet
+!
+!
+end

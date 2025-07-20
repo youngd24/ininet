@@ -1,5 +1,8 @@
 
 !
+! Last configuration change at 14:05:24 CDT Tue Jul 20 1999 by admin
+! NVRAM config last updated at 14:06:43 CDT Tue Jul 20 1999 by admin
+!
 version 12.4
 service timestamps debug datetime msec
 service timestamps log datetime msec
@@ -28,6 +31,8 @@ aaa session-id common
 !
 resource policy
 !
+clock timezone CST -6
+clock summer-time CDT recurring
 no network-clock-participate slot 1 
 no network-clock-participate wic 0 
 ip cef
@@ -124,5 +129,8 @@ line aux 0
 line vty 0 4
  transport input telnet
 !
+ntp logging
+ntp clock-period 17208321
+ntp server 192.168.42.1 prefer
 !
 end

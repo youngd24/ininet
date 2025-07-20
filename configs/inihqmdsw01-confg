@@ -1,5 +1,7 @@
 
 !
+! NVRAM config last updated at 15:43:57 CDT Tue Jul 20 1999 by admin
+!
 version 12.0
 no service pad
 service timestamps debug uptime
@@ -13,6 +15,8 @@ hostname INIHQMDSW01
 !
 !
 !
+clock timezone CST -6
+clock summer-time CDT recurring
 !
 ip subnet-zero
 ip domain-name initech.net
@@ -171,4 +175,6 @@ line vty 0 4
 line vty 5 15
  login
 !
+ntp clock-period 11259101
+ntp server 192.168.42.1 prefer
 end

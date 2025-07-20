@@ -1,0 +1,186 @@
+: Saved
+: Written by enable_15 at 18:14:55.036 UTC Tue Jan 28 2003
+!
+ASA Version 8.4(7) 
+!
+hostname INIHQFW01
+passwd fYGjIZ.r.8FYvTjF encrypted
+names
+!
+interface GigabitEthernet0/0
+ description OUTSIDE COMCAST VLAN
+ nameif outside
+ security-level 0
+ ip address dhcp setroute 
+!
+interface GigabitEthernet0/1
+ description INSIDE VLAN 25
+ nameif inside
+ security-level 100
+ ip address 192.168.25.1 255.255.255.0 
+!
+interface GigabitEthernet0/2
+ shutdown
+ no nameif
+ no security-level
+ no ip address
+!
+interface GigabitEthernet0/3
+ shutdown
+ no nameif
+ no security-level
+ no ip address
+!
+interface Management0/0
+ nameif management
+ security-level 100
+ ip address 192.168.168.1 255.255.255.0 
+ management-only
+!
+banner motd /====================================================================\
+banner motd ||   __  .__   __.  __  .___________. _______   ______  __    __    ||
+banner motd ||  |  | |  \ |  | |  | |           ||   ____| /      ||  |  |  |   ||
+banner motd ||  |  | |   \|  | |  | `---|  |----`|  |__   |  ,----'|  |__|  |   ||
+banner motd ||  |  | |  . `  | |  |     |  |     |   __|  |  |     |   __   |   ||
+banner motd ||  |  | |  |\   | |  |     |  |     |  |____ |  `----.|  |  |  |   ||
+banner motd ||  |__| |__| \__| |__|     |__|     |_______| \______||__|  |__|   ||
+banner motd ||------------------------------------------------------------------||
+banner motd ||      UNAUTHORIZED ACCESS PROHIBITED, ALL ACCESS LOGGED           ||
+banner motd ||------------------------------------------------------------------||
+banner motd ||                                                                  ||
+banner motd ||  Systems Support              | Ask yourself,                    ||
+banner motd ||  techops@initech.net          | Is it good for the company       ||
+banner motd ||  617-555-1212                 | - Someone that doesn't matter    ||
+banner motd ||                                                                  ||
+banner motd \====================================================================/
+ftp mode passive
+object network netsrv02
+ host 192.168.42.46
+object service http
+ service tcp destination eq www 
+object service https
+ service tcp destination eq https 
+object network VLAN1
+ subnet 192.168.1.0 255.255.255.0
+object network VLAN42
+ subnet 192.168.42.0 255.255.255.0
+object network VLAN57
+ subnet 192.168.57.0 255.255.255.0
+object network wedge
+ host 192.168.42.86
+object network novnc
+ host 192.168.42.45
+object network AUSLAN
+ subnet 10.100.10.0 255.255.255.0
+object network FR-WAN
+ subnet 172.16.10.0 255.255.255.0
+object network LEGACY-WAN
+ subnet 172.16.20.0 255.255.255.0
+object network MCILAN
+ subnet 10.100.20.0 255.255.255.0
+object-group network INSIDE-NETS
+ network-object 192.168.25.0 255.255.255.0
+ network-object object VLAN1
+ network-object object VLAN42
+ network-object object AUSLAN
+ network-object object FR-WAN
+ network-object object LEGACY-WAN
+ network-object object MCILAN
+access-list outside_access_in extended permit icmp any any time-exceeded 
+access-list outside_access_in extended permit icmp any any unreachable 
+access-list outside_access_in extended permit tcp any object netsrv02 eq www 
+access-list outside_access_in extended permit tcp any object wedge eq 1337 
+access-list outside_access_in extended permit tcp any object netsrv02 eq 6080 
+pager lines 24
+logging enable
+logging timestamp
+logging asdm informational
+logging host inside 192.168.42.46
+mtu outside 1500
+mtu inside 1500
+mtu management 1500
+no failover
+icmp unreachable rate-limit 1 burst-size 1
+asdm image disk0:/asdm-714.bin
+no asdm history enable
+arp timeout 14400
+arp permit-nonconnected
+!
+object network netsrv02
+ nat (inside,outside) static interface service tcp www www 
+object network wedge
+ nat (inside,outside) static interface service tcp 1337 1337 
+object network novnc
+ nat (inside,outside) static interface service tcp 6080 6080 
+!
+nat (inside,outside) after-auto source dynamic INSIDE-NETS interface
+access-group outside_access_in in interface outside
+!
+router eigrp 666
+ network 192.168.25.0 255.255.255.0
+!
+timeout xlate 3:00:00
+timeout pat-xlate 0:00:30
+timeout conn 1:00:00 half-closed 0:10:00 udp 0:02:00 icmp 0:00:02
+timeout sunrpc 0:10:00 h323 0:05:00 h225 1:00:00 mgcp 0:05:00 mgcp-pat 0:05:00
+timeout sip 0:30:00 sip_media 0:02:00 sip-invite 0:03:00 sip-disconnect 0:02:00
+timeout sip-provisional-media 0:02:00 uauth 0:05:00 absolute
+timeout tcp-proxy-reassembly 0:01:00
+timeout floating-conn 0:00:00
+dynamic-access-policy-record DfltAccessPolicy
+user-identity default-domain LOCAL
+http server enable
+http 192.168.1.0 255.255.255.0 management
+http 192.168.25.0 255.255.255.0 inside
+http 192.168.42.0 255.255.255.0 inside
+http 192.168.57.0 255.255.255.0 inside
+http 192.168.1.0 255.255.255.0 inside
+no snmp-server location
+no snmp-server contact
+snmp-server enable traps snmp authentication linkup linkdown coldstart warmstart
+telnet 192.168.42.0 255.255.255.0 inside
+telnet 192.168.57.0 255.255.255.0 inside
+telnet 192.168.1.0 255.255.255.0 inside
+telnet timeout 10
+ssh timeout 5
+ssh key-exchange group dh-group1-sha1
+console timeout 0
+dhcpd address 192.168.168.2-192.168.168.254 management
+!
+threat-detection basic-threat
+threat-detection statistics access-list
+no threat-detection statistics tcp-intercept
+webvpn
+!
+class-map inspection_default
+ match default-inspection-traffic
+!
+!
+policy-map type inspect dns preset_dns_map
+ parameters
+  message-length maximum client auto
+  message-length maximum 512
+policy-map global_policy
+ class inspection_default
+  inspect dns preset_dns_map 
+  inspect ftp 
+  inspect h323 h225 
+  inspect h323 ras 
+  inspect rsh 
+  inspect rtsp 
+  inspect esmtp 
+  inspect sqlnet 
+  inspect skinny  
+  inspect sunrpc 
+  inspect xdmcp 
+  inspect sip  
+  inspect netbios 
+  inspect tftp 
+  inspect ip-options 
+  inspect icmp 
+!
+service-policy global_policy global
+prompt hostname context 
+no call-home reporting anonymous
+Cryptochecksum:d9ba82848888058c907f3414e673e3c1
+: end

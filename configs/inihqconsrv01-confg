@@ -1,5 +1,7 @@
 
 !
+! NVRAM config last updated at 14:07:56 CDT Tue Jul 20 1999 by admin
+!
 version 12.3
 service timestamps debug datetime msec
 service timestamps log datetime msec
@@ -10,9 +12,24 @@ hostname INIHQCONSRV01
 boot-start-marker
 boot-end-marker
 !
+no logging console
 no logging monitor
 !
-no aaa new-model
+clock timezone CST -6
+clock summer-time CDT recurring
+aaa new-model
+!
+!
+aaa authentication login default group tacacs+ local
+aaa authentication login localauth local
+aaa authentication login CONSOLE none
+aaa authentication ppp default if-needed group tacacs+ local
+aaa authorization exec default group tacacs+ local 
+aaa authorization network default group tacacs+ local 
+aaa accounting delay-start 
+aaa accounting exec default start-stop group tacacs+
+aaa accounting network default start-stop group tacacs+
+aaa session-id common
 ip subnet-zero
 ip cef
 !
@@ -113,6 +130,9 @@ menu CONMENU text 99 Exit
 menu CONMENU command 99 logout
 menu CONMENU clear-screen
 !
+tacacs-server host 192.168.42.46
+tacacs-server directed-request
+tacacs-server key 7 052F232E056E6B2C3F
 !
 !
 !
@@ -123,44 +143,31 @@ dial-peer cor custom
 !
 !
 banner motd 
-/====================================================================\
-||   __  .__   __.  __  .___________. _______   ______  __    __    ||
-||  |  | |  \ |  | |  | |           ||   ____| /      ||  |  |  |   ||
-||  |  | |   \|  | |  | `---|  |----`|  |__   |  ,----'|  |__|  |   ||
-||  |  | |  . `  | |  |     |  |     |   __|  |  |     |   __   |   ||
-||  |  | |  |\   | |  |     |  |     |  |____ |  `----.|  |  |  |   ||
-||  |__| |__| \__| |__|     |__|     |_______| \______||__|  |__|   ||
-||------------------------------------------------------------------||
-||      UNAUTHORIZED ACCESS PROHIBITED, ALL ACCESS LOGGED           ||
-||------------------------------------------------------------------||
-||                                                                  ||
-||  Systems Support              | Ask yourself,                    ||
-||  techops@initech.net          | Is it good for the company?      ||
-||  617-555-1212                 | - Someone that doesn't matter    ||
-||                                                                  ||
-\====================================================================/
-alias exec clr33 clear line 33
-alias exec clr34 clear line 34
-alias exec clr35 clear line 35
-alias exec clr36 clear line 36
-alias exec clr37 clear line 37
-alias exec clr38 clear line 38
-alias exec clr39 clear line 39
-alias exec clr40 clear line 40
-alias exec clr41 clear line 41
-alias exec clr42 clear line 42
-alias exec clr43 clear line 43
-alias exec clr44 clear line 44
-alias exec clr45 clear line 45
-alias exec clr46 clear line 46
-alias exec clr47 clear line 47
-alias exec clr48 clear line 48
+/==========================================================================\
+||       __  .__   __.  __  .___________. _______   ______  __    __      ||
+||     |  | |  \ |  | |  | |           ||   ____| /      ||  |  |  |      ||
+||     |  | |   \|  | |  | `---|  |----`|  |__   |  ,----'|  |__|  |      ||
+||     |  | |  . `  | |  |     |  |     |   __|  |  |     |   __   |      ||
+||     |  | |  |\   | |  |     |  |     |  |____ |  `----.|  |  |  |      ||
+||     |__| |__| \__| |__|     |__|     |_______| \______||__|  |__|      ||
+||------------------------------------------------------------------------||
+||           UNAUTHORIZED ACCESS PROHIBITED, ALL ACCESS LOGGED            ||
+||------------------------------------------------------------------------||
+||                                                                        ||
+||  Systems Support               |   Ask yourself,                       ||
+||  techops@initech.net           |   Is it good for the company?         ||
+||  617-555-1212                  |   - Someone that doesn't matter       ||
+||                                                                        ||
+\==========================================================================/
+
+Host   : $(hostname).($(domain))
+Line   : $(line) ($(line-desc))
+
 !
 line con 0
+ location HQ Console Port
  logging synchronous
- login local
 line 1 2
- login local
  modem Dialin
  modem autoconfigure discovery
  transport input all
@@ -168,14 +175,15 @@ line 1 2
  speed 115200
  flowcontrol hardware
 line 33 48
+ location Console Server 2600 Async Serial Port
  exec-timeout 0 0
- login local
  no exec
- transport input telnet
+ transport input all
 line aux 0
 line vty 0 4
- login local
  transport input telnet
 !
+ntp clock-period 17180359
+ntp server 192.168.42.1 prefer
 !
 end

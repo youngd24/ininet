@@ -1,47 +1,81 @@
 
 !
-! Last configuration change at 15:51:32 CDT Tue Jul 20 1999 by admin
-! NVRAM config last updated at 15:47:47 CDT Tue Jul 20 1999 by admin
-!
-version 12.2
+version 12.4
 service timestamps debug datetime msec
 service timestamps log datetime msec
 service password-encryption
 !
-hostname INIKMCIRTR01
+hostname INIKEDCRTR01
+!
+boot-start-marker
+boot-end-marker
+!
 !
 aaa new-model
+!
+!
 aaa authentication login default group radius local
 aaa authentication login localauth local
+aaa authentication login CONSOLE none
 aaa authentication ppp default if-needed group radius local
 aaa authorization exec default group radius local 
 aaa authorization network default group radius local 
-aaa accounting delay-start
+aaa accounting delay-start 
 aaa accounting exec default start-stop group radius
 aaa accounting network default start-stop group radius
 !
+!
+aaa session-id common
 clock timezone CST -6
 clock summer-time CDT recurring
-ip subnet-zero
+no network-clock-participate slot 1 
+no network-clock-participate wic 0 
 ip cef
 !
 !
-ip domain-name initech.net
-ip name-server 192.168.42.46
-ip dhcp excluded-address 10.100.20.1 10.100.20.25
-ip dhcp excluded-address 10.100.20.100 10.100.20.254
+no ip dhcp use vrf connected
+ip dhcp excluded-address 10.100.30.1 10.100.30.25
+ip dhcp excluded-address 10.100.30.100 10.100.30.254
 !
-ip dhcp pool MCIPOOL
-   network 10.100.20.0 255.255.255.0
-   default-router 10.100.20.1 
+ip dhcp pool EDCLAN
+   network 10.100.30.0 255.255.255.0
+   default-router 10.100.30.1 
    domain-name initech.net
    netbios-node-type h-node
    dns-server 192.168.42.46 
 !
-ipx routing 000f.2453.ce60
-ipx internal-network A6CD4EC2
-call rsvp-sync
 !
+ip domain name initech.net
+ip name-server 192.168.42.46
+!
+multilink bundle-name authenticated
+ipx routing 000f.90bb.a980
+ipx internal-network B4DD5EA1
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+archive
+ log config
+  hidekeys
+! 
 !
 !
 !
@@ -54,29 +88,35 @@ interface FastEthernet0/0
  duplex auto
  speed auto
 !
-interface FastEthernet0/0.20
- encapsulation dot1Q 20
- ip address 10.100.20.1 255.255.255.0
- ipx network 10000020 encapsulation SAP
+interface FastEthernet0/0.30
+ encapsulation dot1Q 30
+ ip address 10.100.30.1 255.255.255.0
+ ipx network 10000030 encapsulation SAP
 !
 interface Serial0/0
- description To TELFRSW01 SERIAL0/2
- ip address 172.16.10.3 255.255.255.0
- encapsulation frame-relay
- ipx network 90000001
- frame-relay lmi-type ansi
+ description POINT-TO-POINT T1 TO INIHQRTR01 SERIAL0/1
+ ip address 172.16.20.2 255.255.255.0
+ encapsulation ppp
+ ipx network 90000002
 !
 router eigrp 666
  redistribute connected
- network 10.100.20.0 0.0.0.255
- network 172.16.10.0 0.0.0.255
+ redistribute static
+ network 10.100.30.0 0.0.0.255
+ network 172.16.20.0 0.0.0.255
  no auto-summary
- no eigrp log-neighbor-changes
 !
-ip classless
+ip forward-protocol nd
+!
+!
 no ip http server
+no ip http secure-server
 !
 logging 192.168.42.46
+!
+!
+!
+!
 !
 !
 ipx router eigrp 201
@@ -86,9 +126,15 @@ ipx router eigrp 201
 !
 !
 radius-server host 192.168.42.46 auth-port 1812 acct-port 1813
-radius-server key 7 151A0E0008257A767B
+radius-server key 7 130D121E0703557878
 !
-dial-peer cor custom
+control-plane
+!
+!
+!
+!
+!
+!
 !
 !
 !
@@ -108,14 +154,17 @@ banner motd 
 ||  techops@initech.net          | Is it good for the company?      ||
 ||  617-555-1212                 | - Someone that doesn't matter    ||
 ||                                                                  ||
-\====================================================================/
+\====================================================================/
+
 !
 line con 0
- logging synchronous
+ login authentication CONSOLE
 line aux 0
 line vty 0 4
  transport input telnet
 !
-ntp clock-period 17208121
+ntp logging
+ntp clock-period 17208081
 ntp server 192.168.42.1 prefer
+!
 end

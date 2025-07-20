@@ -1,5 +1,8 @@
 
 !
+! Last configuration change at 14:03:45 CDT Tue Jul 20 1999 by admin
+! NVRAM config last updated at 14:05:40 CDT Tue Jul 20 1999 by admin
+!
 version 12.4
 service timestamps debug datetime msec
 service timestamps log datetime msec
@@ -29,6 +32,8 @@ aaa session-id common
 !
 resource policy
 !
+clock timezone CST -6
+clock summer-time CDT recurring
 !
 !
 ip cef
@@ -87,6 +92,7 @@ interface Serial0/1
  description POINT-TO-POINT T1 TO INIKEDC DEV OFC
  ip address 172.16.20.1 255.255.255.0
  encapsulation ppp
+ ipx network 90000002
 !
 interface Serial0/2
  no ip address
@@ -129,6 +135,7 @@ no ip http server
 no ip http secure-server
 ip route 0.0.0.0 0.0.0.0 192.168.25.1
 ip route 192.168.1.0 255.255.255.0 192.168.57.1
+ip route 192.168.5.0 255.255.255.0 192.168.57.1
 ip route 192.168.12.0 255.255.255.0 192.168.57.1
 !
 !
@@ -177,10 +184,15 @@ banner motd 
 \====================================================================/
 !
 line con 0
- logging synchronous
+ exec-timeout 5 0
  login authentication CONSOLE
+ transport preferred none
 line aux 0
 line vty 0 4
+ transport input telnet
 !
+ntp logging
+ntp source Ethernet1/1.42
+ntp master 1
 !
 end

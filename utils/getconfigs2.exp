@@ -89,8 +89,8 @@ foreach line $device_data {
     }
 
    expect "#" {
-        send "terminal length 0\r"
-        expect "#"
+#        send "terminal length 0\r"
+#        expect "#"
 
         send "copy running-config tftp:\r"
         expect "Address or name of remote host" {

@@ -1,7 +1,7 @@
 
 !
-! Last configuration change at 15:48:42 CDT Tue Jul 20 1999 by admin
-! NVRAM config last updated at 15:48:48 CDT Tue Jul 20 1999 by admin
+! Last configuration change at 17:38:46 CDT Thu Jul 22 1999 by admin
+! NVRAM config last updated at 17:39:15 CDT Thu Jul 22 1999 by admin
 !
 version 12.0
 no service pad
@@ -14,9 +14,10 @@ hostname INIKMCISW01
 aaa new-model
 aaa authentication login default group tacacs+ local
 aaa authentication login localauth local
+aaa authentication login CONSOLE none
 aaa authentication ppp default if-needed group tacacs+ local
 aaa authorization exec default group tacacs+ local
-aaa authorization network default group tacacs+ local
+aaa authorization exec CONSOLE none
 aaa accounting delay-start
 aaa accounting exec default start-stop group tacacs+
 aaa accounting network default start-stop group tacacs+
@@ -147,31 +148,37 @@ ip default-gateway 10.100.20.1
 logging 192.168.42.46
 tacacs-server host 192.168.42.46
 banner motd 
-/====================================================================\
-||   __  .__   __.  __  .___________. _______   ______  __    __    ||
-||  |  | |  \ |  | |  | |           ||   ____| /      ||  |  |  |   ||
-||  |  | |   \|  | |  | `---|  |----`|  |__   |  ,----'|  |__|  |   ||
-||  |  | |  . `  | |  |     |  |     |   __|  |  |     |   __   |   ||
-||  |  | |  |\   | |  |     |  |     |  |____ |  `----.|  |  |  |   ||
-||  |__| |__| \__| |__|     |__|     |_______| \______||__|  |__|   ||
-||------------------------------------------------------------------||
-||      UNAUTHORIZED ACCESS PROHIBITED, ALL ACCESS LOGGED           ||
-||------------------------------------------------------------------||
-||                                                                  ||
-||  Systems Support              | Ask yourself,                    ||
-||  techops@initech.net          | Is it good for the company?      ||
-||  617-555-1212                 | - Someone that doesn't matter    ||
-||                                                                  ||
-\====================================================================/
+/==========================================================================\
+||       __  .__   __.  __  .___________. _______   ______  __    __      ||
+||     |  | |  \ |  | |  | |           ||   ____| /      ||  |  |  |      ||
+||     |  | |   \|  | |  | `---|  |----`|  |__   |  ,----'|  |__|  |      ||
+||     |  | |  . `  | |  |     |  |     |   __|  |  |     |   __   |      ||
+||     |  | |  |\   | |  |     |  |     |  |____ |  `----.|  |  |  |      ||
+||     |__| |__| \__| |__|     |__|     |_______| \______||__|  |__|      ||
+||------------------------------------------------------------------------||
+||           UNAUTHORIZED ACCESS PROHIBITED, ALL ACCESS LOGGED            ||
+||------------------------------------------------------------------------||
+||                                                                        ||
+||  Systems Support               |   Ask yourself,                       ||
+||  techops@initech.net           |   Is it good for the company?         ||
+||  617-555-1212                  |   - Someone that doesn't matter       ||
+||                                                                        ||
+\==========================================================================/
+
+Host   : $(hostname).($(domain))
+Line   : $(line) ($(line-desc))
 
 !
 line con 0
+ location Console Port
+ login authentication CONSOLE
  transport input none
  stopbits 1
 line vty 0 4
+ location Telnet VTY Line
  transport input telnet
 line vty 5 15
 !
-ntp clock-period 22519081
+ntp clock-period 22519082
 ntp server 192.168.42.1 prefer
 end

@@ -1,7 +1,7 @@
 
 !
-! Last configuration change at 15:51:32 CDT Tue Jul 20 1999 by admin
-! NVRAM config last updated at 15:47:47 CDT Tue Jul 20 1999 by admin
+! Last configuration change at 17:37:34 CDT Thu Jul 22 1999 by admin
+! NVRAM config last updated at 17:37:36 CDT Thu Jul 22 1999 by admin
 !
 version 12.2
 service timestamps debug datetime msec
@@ -11,14 +11,15 @@ service password-encryption
 hostname INIKMCIRTR01
 !
 aaa new-model
-aaa authentication login default group radius local
+aaa authentication login default group tacacs+ local
 aaa authentication login localauth local
-aaa authentication ppp default if-needed group radius local
-aaa authorization exec default group radius local 
-aaa authorization network default group radius local 
+aaa authentication login CONSOLE none
+aaa authentication ppp default if-needed group tacacs+ local
+aaa authorization exec default group tacacs+ local 
+aaa authorization exec CONSOLE none 
 aaa accounting delay-start
-aaa accounting exec default start-stop group radius
-aaa accounting network default start-stop group radius
+aaa accounting exec default start-stop group tacacs+
+aaa accounting network default start-stop group tacacs+
 !
 clock timezone CST -6
 clock summer-time CDT recurring
@@ -85,35 +86,43 @@ ipx router eigrp 201
 !
 !
 !
-radius-server host 192.168.42.46 auth-port 1812 acct-port 1813
-radius-server key 7 151A0E0008257A767B
+tacacs-server host 192.168.42.46
+tacacs-server directed-request
 !
 dial-peer cor custom
 !
 !
 !
 banner motd 
-/====================================================================\
-||   __  .__   __.  __  .___________. _______   ______  __    __    ||
-||  |  | |  \ |  | |  | |           ||   ____| /      ||  |  |  |   ||
-||  |  | |   \|  | |  | `---|  |----`|  |__   |  ,----'|  |__|  |   ||
-||  |  | |  . `  | |  |     |  |     |   __|  |  |     |   __   |   ||
-||  |  | |  |\   | |  |     |  |     |  |____ |  `----.|  |  |  |   ||
-||  |__| |__| \__| |__|     |__|     |_______| \______||__|  |__|   ||
-||------------------------------------------------------------------||
-||      UNAUTHORIZED ACCESS PROHIBITED, ALL ACCESS LOGGED           ||
-||------------------------------------------------------------------||
-||                                                                  ||
-||  Systems Support              | Ask yourself,                    ||
-||  techops@initech.net          | Is it good for the company?      ||
-||  617-555-1212                 | - Someone that doesn't matter    ||
-||                                                                  ||
-\====================================================================/
+/==========================================================================\
+||       __  .__   __.  __  .___________. _______   ______  __    __      ||
+||     |  | |  \ |  | |  | |           ||   ____| /      ||  |  |  |      ||
+||     |  | |   \|  | |  | `---|  |----`|  |__   |  ,----'|  |__|  |      ||
+||     |  | |  . `  | |  |     |  |     |   __|  |  |     |   __   |      ||
+||     |  | |  |\   | |  |     |  |     |  |____ |  `----.|  |  |  |      ||
+||     |__| |__| \__| |__|     |__|     |_______| \______||__|  |__|      ||
+||------------------------------------------------------------------------||
+||           UNAUTHORIZED ACCESS PROHIBITED, ALL ACCESS LOGGED            ||
+||------------------------------------------------------------------------||
+||                                                                        ||
+||  Systems Support               |   Ask yourself,                       ||
+||  techops@initech.net           |   Is it good for the company?         ||
+||  617-555-1212                  |   - Someone that doesn't matter       ||
+||                                                                        ||
+\==========================================================================/
+
+Host   : $(hostname).($(domain))
+Line   : $(line) ($(line-desc))
+
 !
 line con 0
+ location Console Port
  logging synchronous
+ login authentication CONSOLE
+ transport preferred none
 line aux 0
 line vty 0 4
+ location Telnet VTY Line
  transport input telnet
 !
 ntp clock-period 17208505

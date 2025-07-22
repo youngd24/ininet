@@ -1,6 +1,6 @@
 
 !
-! Last configuration change at 15:55:32 CDT Thu Jul 22 1999
+! Last configuration change at 17:30:01 CDT Thu Jul 22 1999 by admin
 ! NVRAM config last updated at 09:34:46 CDT Thu Jul 22 1999 by admin
 !
 version 12.0
@@ -159,7 +159,6 @@ snmp-server community public RO
 snmp-server location HQ Data Center
 snmp-server contact System Support (techops@initech.net)
 tacacs-server host 192.168.42.46
-tacacs-server key DEADBEEF
 banner motd 
 /==========================================================================\
 ||       __  .__   __.  __  .___________. _______   ______  __    __      ||

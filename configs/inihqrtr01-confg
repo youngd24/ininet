@@ -1,6 +1,6 @@
 
 !
-! Last configuration change at 16:08:45 CDT Thu Jul 22 1999 by admin
+! Last configuration change at 17:30:33 CDT Thu Jul 22 1999 by admin
 ! NVRAM config last updated at 16:08:47 CDT Thu Jul 22 1999 by admin
 !
 version 12.4
@@ -154,7 +154,6 @@ ipx router eigrp 201
 !
 tacacs-server host 192.168.42.46
 tacacs-server directed-request
-tacacs-server key 7 052F232E056E6B2C3F
 !
 control-plane
 !

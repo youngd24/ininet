@@ -135,7 +135,6 @@ menu CONMENU clear-screen
 !
 tacacs-server host 192.168.42.46
 tacacs-server directed-request
-tacacs-server key 7 052F232E056E6B2C3F
 !
 !
 !

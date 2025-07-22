@@ -103,7 +103,6 @@ logging 192.168.42.46
 !
 tacacs-server host 192.168.42.46
 tacacs-server directed-request
-tacacs-server key 7 15362E2D20080E010E
 !
 control-plane
 !

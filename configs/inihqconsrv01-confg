@@ -187,7 +187,7 @@ line aux 0
 line vty 0 4
  transport input telnet
 !
-ntp clock-period 17180839
+ntp clock-period 17180840
 ntp server 192.168.42.1 prefer
 !
 end

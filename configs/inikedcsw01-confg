@@ -162,6 +162,6 @@ line vty 0 4
 line vty 5 15
  login
 !
-ntp clock-period 22518584
+ntp clock-period 22518585
 ntp server 192.168.42.1 prefer
 end

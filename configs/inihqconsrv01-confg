@@ -1,6 +1,7 @@
 
 !
-! NVRAM config last updated at 14:07:56 CDT Tue Jul 20 1999 by admin
+! Last configuration change at 14:35:58 CDT Thu Jul 22 1999 by vcfuser
+! NVRAM config last updated at 14:36:35 CDT Thu Jul 22 1999 by vcfuser
 !
 version 12.3
 service timestamps debug datetime msec
@@ -24,7 +25,9 @@ aaa authentication login default group tacacs+ local
 aaa authentication login localauth local
 aaa authentication login CONSOLE none
 aaa authentication ppp default if-needed group tacacs+ local
+aaa authorization console
 aaa authorization exec default group tacacs+ local 
+aaa authorization exec CONSOLE none 
 aaa authorization network default group tacacs+ local 
 aaa accounting delay-start 
 aaa accounting exec default start-stop group tacacs+
@@ -166,7 +169,6 @@ Line   : $(line) ($(line-desc))
 !
 line con 0
  location HQ Console Port
- logging synchronous
 line 1 2
  modem Dialin
  modem autoconfigure discovery
@@ -180,10 +182,12 @@ line 33 48
  no exec
  transport input all
 line aux 0
+ authorization exec CONSOLE
+ login authentication CONSOLE
 line vty 0 4
  transport input telnet
 !
-ntp clock-period 17180359
+ntp clock-period 17180839
 ntp server 192.168.42.1 prefer
 !
 end

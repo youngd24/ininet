@@ -1,5 +1,5 @@
 : Saved
-: Written by enable_15 at 18:14:55.036 UTC Tue Jan 28 2003
+: Written by enable_15 at 18:19:33.824 UTC Mon Feb 3 2003
 !
 ASA Version 8.4(7) 
 !
@@ -68,8 +68,6 @@ object network VLAN57
  subnet 192.168.57.0 255.255.255.0
 object network wedge
  host 192.168.42.86
-object network novnc
- host 192.168.42.45
 object network AUSLAN
  subnet 10.100.10.0 255.255.255.0
 object network FR-WAN
@@ -90,7 +88,6 @@ access-list outside_access_in extended permit icmp any any time-exceeded
 access-list outside_access_in extended permit icmp any any unreachable 
 access-list outside_access_in extended permit tcp any object netsrv02 eq www 
 access-list outside_access_in extended permit tcp any object wedge eq 1337 
-access-list outside_access_in extended permit tcp any object netsrv02 eq 6080 
 pager lines 24
 logging enable
 logging timestamp
@@ -110,8 +107,6 @@ object network netsrv02
  nat (inside,outside) static interface service tcp www www 
 object network wedge
  nat (inside,outside) static interface service tcp 1337 1337 
-object network novnc
- nat (inside,outside) static interface service tcp 6080 6080 
 !
 nat (inside,outside) after-auto source dynamic INSIDE-NETS interface
 access-group outside_access_in in interface outside
@@ -182,5 +177,5 @@ policy-map global_policy
 service-policy global_policy global
 prompt hostname context 
 no call-home reporting anonymous
-Cryptochecksum:d9ba82848888058c907f3414e673e3c1
+Cryptochecksum:7aa8cb4a4dfcac1b306cff7ded7680d1
 : end

@@ -1,7 +1,7 @@
 
 !
-! Last configuration change at 14:03:45 CDT Tue Jul 20 1999 by admin
-! NVRAM config last updated at 14:05:40 CDT Tue Jul 20 1999 by admin
+! Last configuration change at 16:08:45 CDT Thu Jul 22 1999 by admin
+! NVRAM config last updated at 16:08:47 CDT Thu Jul 22 1999 by admin
 !
 version 12.4
 service timestamps debug datetime msec
@@ -18,15 +18,15 @@ logging buffered 4096 informational
 aaa new-model
 !
 !
-aaa authentication login default group radius local
+aaa authentication login default group tacacs+ local
 aaa authentication login localauth local
 aaa authentication login CONSOLE none
-aaa authentication ppp default if-needed group radius local
-aaa authorization exec default group radius local 
-aaa authorization network default group radius local 
+aaa authentication ppp default if-needed group tacacs+ local
+aaa authorization exec default group tacacs+ local 
+aaa authorization exec CONSOLE none 
 aaa accounting delay-start 
-aaa accounting exec default start-stop group radius
-aaa accounting network default start-stop group radius
+aaa accounting exec default start-stop group tacacs+
+aaa accounting network default start-stop group tacacs+
 !
 aaa session-id common
 !
@@ -152,8 +152,9 @@ ipx router eigrp 201
 !
 !
 !
-radius-server host 192.168.42.46 auth-port 1812 acct-port 1813
-radius-server key 7 130D121E0703557878
+tacacs-server host 192.168.42.46
+tacacs-server directed-request
+tacacs-server key 7 052F232E056E6B2C3F
 !
 control-plane
 !
@@ -166,24 +167,29 @@ control-plane
 !
 !
 banner motd 
-/====================================================================\
-||   __  .__   __.  __  .___________. _______   ______  __    __    ||
-||  |  | |  \ |  | |  | |           ||   ____| /      ||  |  |  |   ||
-||  |  | |   \|  | |  | `---|  |----`|  |__   |  ,----'|  |__|  |   ||
-||  |  | |  . `  | |  |     |  |     |   __|  |  |     |   __   |   ||
-||  |  | |  |\   | |  |     |  |     |  |____ |  `----.|  |  |  |   ||
-||  |__| |__| \__| |__|     |__|     |_______| \______||__|  |__|   ||
-||------------------------------------------------------------------||
-||      UNAUTHORIZED ACCESS PROHIBITED, ALL ACCESS LOGGED           ||
-||------------------------------------------------------------------||
-||                                                                  ||
-||  Systems Support              | Ask yourself,                    ||
-||  techops@initech.net          | Is it good for the company?      ||
-||  617-555-1212                 | - Someone that doesn't matter    ||
-||                                                                  ||
-\====================================================================/
+/==========================================================================\
+||       __  .__   __.  __  .___________. _______   ______  __    __      ||
+||     |  | |  \ |  | |  | |           ||   ____| /      ||  |  |  |      ||
+||     |  | |   \|  | |  | `---|  |----`|  |__   |  ,----'|  |__|  |      ||
+||     |  | |  . `  | |  |     |  |     |   __|  |  |     |   __   |      ||
+||     |  | |  |\   | |  |     |  |     |  |____ |  `----.|  |  |  |      ||
+||     |__| |__| \__| |__|     |__|     |_______| \______||__|  |__|      ||
+||------------------------------------------------------------------------||
+||           UNAUTHORIZED ACCESS PROHIBITED, ALL ACCESS LOGGED            ||
+||------------------------------------------------------------------------||
+||                                                                        ||
+||  Systems Support               |   Ask yourself,                       ||
+||  techops@initech.net           |   Is it good for the company?         ||
+||  617-555-1212                  |   - Someone that doesn't matter       ||
+||                                                                        ||
+\==========================================================================/
+
+Host   : $(hostname).($(domain))
+Line   : $(line) ($(line-desc))
+
 !
 line con 0
+ location Console Port
  exec-timeout 5 0
  login authentication CONSOLE
  transport preferred none

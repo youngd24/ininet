@@ -1,6 +1,7 @@
 
 !
-! NVRAM config last updated at 15:43:57 CDT Tue Jul 20 1999 by admin
+! Last configuration change at 15:55:32 CDT Thu Jul 22 1999
+! NVRAM config last updated at 09:34:46 CDT Thu Jul 22 1999 by admin
 !
 version 12.0
 no service pad
@@ -10,6 +11,16 @@ service password-encryption
 !
 hostname INIHQMDSW01
 !
+aaa new-model
+aaa authentication login default group tacacs+ local
+aaa authentication login localauth local
+aaa authentication login CONSOLE none
+aaa authentication ppp default if-needed group tacacs+ local
+aaa authorization exec default group tacacs+ local
+aaa authorization exec CONSOLE none
+aaa accounting delay-start
+aaa accounting exec default start-stop group tacacs+
+aaa accounting network default start-stop group tacacs+
 !
 !
 !
@@ -147,34 +158,41 @@ snmp-server engineID local 00000009020000036BE18900
 snmp-server community public RO
 snmp-server location HQ Data Center
 snmp-server contact System Support (techops@initech.net)
+tacacs-server host 192.168.42.46
+tacacs-server key DEADBEEF
 banner motd 
-/====================================================================\
-||   __  .__   __.  __  .___________. _______   ______  __    __    ||
-||  |  | |  \ |  | |  | |           ||   ____| /      ||  |  |  |   ||
-||  |  | |   \|  | |  | `---|  |----`|  |__   |  ,----'|  |__|  |   ||
-||  |  | |  . `  | |  |     |  |     |   __|  |  |     |   __   |   ||
-||  |  | |  |\   | |  |     |  |     |  |____ |  `----.|  |  |  |   ||
-||  |__| |__| \__| |__|     |__|     |_______| \______||__|  |__|   ||
-||------------------------------------------------------------------||
-||      UNAUTHORIZED ACCESS PROHIBITED, ALL ACCESS LOGGED           ||
-||------------------------------------------------------------------||
-||                                                                  ||
-||  Systems Support              | Ask yourself,                    ||
-||  techops@initech.net          | Is it good for the company?      ||
-||  617-555-1212                 | - Someone that doesn't matter    ||
-||                                                                  ||
-\====================================================================/
+/==========================================================================\
+||       __  .__   __.  __  .___________. _______   ______  __    __      ||
+||     |  | |  \ |  | |  | |           ||   ____| /      ||  |  |  |      ||
+||     |  | |   \|  | |  | `---|  |----`|  |__   |  ,----'|  |__|  |      ||
+||     |  | |  . `  | |  |     |  |     |   __|  |  |     |   __   |      ||
+||     |  | |  |\   | |  |     |  |     |  |____ |  `----.|  |  |  |      ||
+||     |__| |__| \__| |__|     |__|     |_______| \______||__|  |__|      ||
+||------------------------------------------------------------------------||
+||           UNAUTHORIZED ACCESS PROHIBITED, ALL ACCESS LOGGED            ||
+||------------------------------------------------------------------------||
+||                                                                        ||
+||  Systems Support               |   Ask yourself,                       ||
+||  techops@initech.net           |   Is it good for the company?         ||
+||  617-555-1212                  |   - Someone that doesn't matter       ||
+||                                                                        ||
+\==========================================================================/
+
+Host   : $(hostname).($(domain))
+Line   : $(line) ($(line-desc))
 
 !
 line con 0
+ location Console Port
+ authorization exec CONSOLE
+ login authentication CONSOLE
  transport input none
  stopbits 1
 line vty 0 4
- login local
+ location Telnet VTY Line
  transport input telnet
 line vty 5 15
- login
 !
-ntp clock-period 11259101
+ntp clock-period 11259695
 ntp server 192.168.42.1 prefer
 end

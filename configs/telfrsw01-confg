@@ -1,7 +1,7 @@
 
 !
-! Last configuration change at 17:17:17 CDT Thu Jul 22 1999 by admin
-! NVRAM config last updated at 17:17:52 CDT Thu Jul 22 1999 by admin
+! Last configuration change at 13:40:05 CDT Sat Jul 24 1999 by admin
+! NVRAM config last updated at 13:40:06 CDT Sat Jul 24 1999 by admin
 !
 version 12.4
 service timestamps debug datetime msec
@@ -18,12 +18,13 @@ logging buffered 4096 informational
 aaa new-model
 !
 !
-aaa authentication login default group tacacs+ local
 aaa authentication login localauth local
-aaa authentication login CONSOLE none
-aaa authentication ppp default if-needed group tacacs+ local
-aaa authorization exec default group tacacs+ local 
-aaa authorization exec CONSOLE none 
+aaa authentication login TACPLUS group tacacs+ local
+aaa authentication login NOAUTH none
+aaa authorization exec localauth local 
+aaa authorization exec NOAUTH none 
+aaa authorization exec TACPLUS group tacacs+ local 
+aaa authorization commands 3 TACPLUS group tacacs+ local 
 aaa accounting delay-start 
 aaa accounting exec default start-stop group tacacs+
 aaa accounting network default start-stop group tacacs+
@@ -127,15 +128,20 @@ banner motd 
 Host   : $(hostname).($(domain))
 Line   : $(line) ($(line-desc))
 
+privilege exec level 3 show running-config view full
+privilege exec level 3 show running-config view
+privilege exec level 3 show running-config
+privilege exec level 3 show
 !
 line con 0
  location Console Port
- authorization exec CONSOLE
  logging synchronous
- login authentication CONSOLE
 line aux 0
 line vty 0 4
  location Telnet VTY Line
+ authorization commands 3 TACPLUS
+ authorization exec TACPLUS
+ login authentication TACPLUS
  transport input telnet
 !
 ntp logging

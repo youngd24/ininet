@@ -180,6 +180,6 @@ line vty 0 4
  transport input telnet
 line vty 5 15
 !
-ntp clock-period 22519075
+ntp clock-period 22519073
 ntp server 192.168.42.1 prefer
 end

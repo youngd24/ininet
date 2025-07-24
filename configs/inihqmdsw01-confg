@@ -1,7 +1,7 @@
 
 !
-! Last configuration change at 05:45:38 CDT Sat Jul 24 1999 by admin
-! NVRAM config last updated at 05:45:39 CDT Sat Jul 24 1999 by admin
+! Last configuration change at 12:12:56 CDT Sat Jul 24 1999 by admin
+! NVRAM config last updated at 12:14:13 CDT Sat Jul 24 1999 by admin
 !
 version 12.0
 no service pad
@@ -12,13 +12,13 @@ service password-encryption
 hostname INIHQMDSW01
 !
 aaa new-model
-aaa authentication login default group tacacs+ local
 aaa authentication login localauth local
-aaa authentication login CONSOLE none
-aaa authentication ppp default if-needed group tacacs+ local
-aaa authorization exec default group tacacs+ local
-aaa authorization exec CONSOLE none
-aaa authorization commands 3 default group tacacs+ if-authenticated
+aaa authentication login TACPLUS group tacacs+ local
+aaa authentication login NOAUTH none
+aaa authorization exec localauth local
+aaa authorization exec NOAUTH none
+aaa authorization exec TACPLUS group tacacs+ local
+aaa authorization commands 3 TACPLUS group tacacs+ local
 aaa accounting delay-start
 aaa accounting exec default start-stop group tacacs+
 aaa accounting network default start-stop group tacacs+
@@ -207,14 +207,17 @@ privilege exec level 3 show
 !
 line con 0
  location Console Port
- login authentication CONSOLE
  transport input none
  stopbits 1
 line vty 0 4
  location Telnet VTY Line
+ authorization commands 3 TACPLUS
+ authorization exec TACPLUS
+ login authentication TACPLUS
  transport input telnet
 line vty 5 15
+ transport input none
 !
-ntp clock-period 11259701
+ntp clock-period 11259703
 ntp server 192.168.42.1 prefer
 end

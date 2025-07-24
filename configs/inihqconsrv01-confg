@@ -1,7 +1,7 @@
 
 !
-! Last configuration change at 20:47:47 CDT Fri Jul 23 1999 by admin
-! NVRAM config last updated at 20:47:48 CDT Fri Jul 23 1999 by admin
+! Last configuration change at 13:35:40 CDT Sat Jul 24 1999 by admin
+! NVRAM config last updated at 13:35:43 CDT Sat Jul 24 1999 by admin
 !
 version 12.3
 service timestamps debug datetime msec
@@ -185,6 +185,8 @@ line 33
 line 34
  location Console Server 2600 Async Serial Port 34
  exec-timeout 0 0
+ authorization exec CONSOLE
+ login authentication CONSOLE
  no exec
  transport input all
 line 35 48
@@ -194,9 +196,10 @@ line 35 48
  transport input all
 line aux 0
 line vty 0 4
+ location Telnet VTY Line
  transport input telnet
 !
-ntp clock-period 17180843
+ntp clock-period 17180841
 ntp server 192.168.42.1 prefer
 !
 end

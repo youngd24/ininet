@@ -1,7 +1,7 @@
 
 !
-! Last configuration change at 17:30:01 CDT Thu Jul 22 1999 by admin
-! NVRAM config last updated at 09:34:46 CDT Thu Jul 22 1999 by admin
+! Last configuration change at 05:45:38 CDT Sat Jul 24 1999 by admin
+! NVRAM config last updated at 05:45:39 CDT Sat Jul 24 1999 by admin
 !
 version 12.0
 no service pad
@@ -18,6 +18,7 @@ aaa authentication login CONSOLE none
 aaa authentication ppp default if-needed group tacacs+ local
 aaa authorization exec default group tacacs+ local
 aaa authorization exec CONSOLE none
+aaa authorization commands 3 default group tacacs+ if-authenticated
 aaa accounting delay-start
 aaa accounting exec default start-stop group tacacs+
 aaa accounting network default start-stop group tacacs+
@@ -157,8 +158,28 @@ logging 192.168.42.46
 snmp-server engineID local 00000009020000036BE18900
 snmp-server community public RO
 snmp-server location HQ Data Center
-snmp-server contact System Support (techops@initech.net)
+snmp-server contact Systems Support [techops@initech.net]
+snmp-server enable traps snmp
+snmp-server enable traps vlan-membership
+snmp-server enable traps c2900
+snmp-server enable traps config
+snmp-server enable traps entity
+snmp-server enable traps hsrp
+snmp-server enable traps vtp
+snmp-server enable traps cluster
 tacacs-server host 192.168.42.46
+banner exec 
+******************************************************************************
+**                       USEFUL COMMANDS AND NOTES                          **
+******************************************************************************
+** 'show running-config view full' to see the configuration                 **
+** 'show ip int brief' to see IP addresses assigned                         **
+** 'show ip route' to see routes                                            **
+**                                                                          **
+** If you're in a session from the console server, remember the break       **
+** sequence is <CTRL>-<SHIFT>-6 then X                                      **
+******************************************************************************
+
 banner motd 
 /==========================================================================\
 ||       __  .__   __.  __  .___________. _______   ______  __    __      ||
@@ -180,10 +201,12 @@ banner motd 
 Host   : $(hostname).($(domain))
 Line   : $(line) ($(line-desc))
 
+privilege exec level 3 show startup-config
+privilege exec level 3 show running-config
+privilege exec level 3 show
 !
 line con 0
  location Console Port
- authorization exec CONSOLE
  login authentication CONSOLE
  transport input none
  stopbits 1
@@ -192,6 +215,6 @@ line vty 0 4
  transport input telnet
 line vty 5 15
 !
-ntp clock-period 11259698
+ntp clock-period 11259701
 ntp server 192.168.42.1 prefer
 end

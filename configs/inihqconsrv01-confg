@@ -1,7 +1,7 @@
 
 !
-! Last configuration change at 14:35:58 CDT Thu Jul 22 1999 by vcfuser
-! NVRAM config last updated at 14:36:35 CDT Thu Jul 22 1999 by vcfuser
+! Last configuration change at 20:47:47 CDT Fri Jul 23 1999 by admin
+! NVRAM config last updated at 20:47:48 CDT Fri Jul 23 1999 by admin
 !
 version 12.3
 service timestamps debug datetime msec
@@ -105,30 +105,32 @@ menu CONMENU title 
 ******************************************************************************
 
 menu CONMENU prompt  Please enter your selection: 
-menu CONMENU text 1 INIHQRTR01 (3640)
-menu CONMENU command 1 resume P33 /connect telnet P33
-menu CONMENU text 2 INHQSW01 (2900XL)
-menu CONMENU command 2 resume P34 /connect telnet P34
-menu CONMENU text 3 INIHQFW01 (PIX 520)
-menu CONMENU command 3 resume P35 /connect telnet P35
-menu CONMENU text 4 TELFRSW01 (2600)
-menu CONMENU command 4 resume P36 /connect telnet P36
-menu CONMENU text 5 INIKAUSSW01 (2900XL)
-menu CONMENU command 5 resume P37 /connect telnet P37
-menu CONMENU text 6 INIKAUSRTR01 (2600)
-menu CONMENU command 6 resume P38 /connect telnet P38
-menu CONMENU text 7 INIKMCIRTR01 (2600)
-menu CONMENU command 7 resume P39 /connect telnet P39
-menu CONMENU text 8 OPEN
-menu CONMENU command 8 resume P40 /connect telnet P40
-menu CONMENU text 9 INIVGW01 (3825)
-menu CONMENU command 9 resume P41 /connect telnet P41
-menu CONMENU text 10 INIVGW02 (3825)
-menu CONMENU command 10 resume P42 /connect telnet P42
+menu CONMENU text 33 INIHQRTR01 (3640)
+menu CONMENU command 33 resume inihqrtr01 /connect telnet inihqrtr01
+menu CONMENU text 34 INHQMDSW01 (3500XL)
+menu CONMENU command 34 resume inihqmdsw01 /connect telnet inihqmdsw01
+menu CONMENU text 35 INIHQFW01 (PIX 520)
+menu CONMENU command 35 resume P35 /connect telnet P35
+menu CONMENU text 36 TELFRSW01 (2600)
+menu CONMENU command 36 resume telfrsw01 /connect telnet telfrsw01
+menu CONMENU text 37 INIKAUSRTR01 (2600)
+menu CONMENU command 37 resume inikausrtr01 /connect telnet inikausrtr01
+menu CONMENU text 38 INIKAUSSW01 (3500XL)
+menu CONMENU command 38 resume inikaussw01 /connect telnet inikaussw01
+menu CONMENU text 39 INIKEDCRTR01 (2600)
+menu CONMENU command 39 resume inikaedcrtr01 /connect telnet inikedcrtr01
+menu CONMENU text 40 INIKEDCSW01 (2900XL)
+menu CONMENU command 40 resume inikedcsw01 /connect telnet inikedcsw01
+menu CONMENU text 41 INIKMCIRTR01 (2600)
+menu CONMENU command 41 resume inikmcirtr01 /connect telnet inikmcirtr01
+menu CONMENU text 42 INIKMCISW01 (2900XL)
+menu CONMENU command 42 resume inikmcisw01 /connect telnet inikmcisw01
 menu CONMENU text 50 Solaris 7 Login (wedge)
 menu CONMENU command 50 telnet wedge.initech.net
 menu CONMENU text 51 NetBSD 10 Login (lobot)
 menu CONMENU command 51 telnet lobot.initech.net
+menu CONMENU text 52 Citadel/UX BBS
+menu CONMENU command 52 telnet wedge 1337
 menu CONMENU text 99 Exit
 menu CONMENU command 99 logout
 menu CONMENU clear-screen
@@ -175,18 +177,26 @@ line 1 2
  stopbits 1
  speed 115200
  flowcontrol hardware
-line 33 48
+line 33
+ location Console Server 2600 Async Serial Port 33
+ exec-timeout 0 0
+ no exec
+ transport input all
+line 34
+ location Console Server 2600 Async Serial Port 34
+ exec-timeout 0 0
+ no exec
+ transport input all
+line 35 48
  location Console Server 2600 Async Serial Port
  exec-timeout 0 0
  no exec
  transport input all
 line aux 0
- authorization exec CONSOLE
- login authentication CONSOLE
 line vty 0 4
  transport input telnet
 !
-ntp clock-period 17180840
+ntp clock-period 17180843
 ntp server 192.168.42.1 prefer
 !
 end

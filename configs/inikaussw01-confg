@@ -1,7 +1,7 @@
 
 !
-! Last configuration change at 17:23:49 CDT Thu Jul 22 1999
-! NVRAM config last updated at 17:24:30 CDT Thu Jul 22 1999
+! Last configuration change at 03:33:01 CDT Fri Jul 23 1999 by admin
+! NVRAM config last updated at 03:33:01 CDT Fri Jul 23 1999 by admin
 !
 version 12.0
 no service pad
@@ -175,6 +175,7 @@ Line   : $(line) ($(line-desc))
 !
 line con 0
  location Console Port
+ authorization exec CONSOLE
  login authentication CONSOLE
  transport input none
  stopbits 1
@@ -183,6 +184,6 @@ line vty 0 4
  transport input telnet
 line vty 5 15
 !
-ntp clock-period 11259733
+ntp clock-period 11259732
 ntp server 192.168.42.1 prefer
 end

@@ -1,7 +1,7 @@
 
 !
-! Last configuration change at 17:21:58 CDT Thu Jul 22 1999 by admin
-! NVRAM config last updated at 17:22:36 CDT Thu Jul 22 1999 by admin
+! Last configuration change at 06:51:46 CDT Sun Jul 25 1999 by admin
+! NVRAM config last updated at 06:51:47 CDT Sun Jul 25 1999 by admin
 !
 version 12.4
 service timestamps debug datetime msec
@@ -18,12 +18,13 @@ logging buffered 4096 informational
 aaa new-model
 !
 !
-aaa authentication login default group tacacs+ local
 aaa authentication login localauth local
-aaa authentication login CONSOLE none
-aaa authentication ppp default if-needed group tacacs+ local
-aaa authorization exec default group tacacs+ local 
-aaa authorization exec CONSOLE none 
+aaa authentication login TACPLUS group tacacs+ local
+aaa authentication login NOAUTH none
+aaa authorization exec localauth local 
+aaa authorization exec NOAUTH none 
+aaa authorization exec TACPLUS group tacacs+ local 
+aaa authorization commands 3 TACPLUS group tacacs+ local 
 aaa accounting delay-start 
 aaa accounting exec default start-stop group tacacs+
 aaa accounting network default start-stop group tacacs+
@@ -107,6 +108,18 @@ tacacs-server directed-request
 !
 control-plane
 !
+banner exec 
+****************************************************************************
+**                      USEFUL COMMANDS AND NOTES                         **
+****************************************************************************
+** 'show running-config view full' to see the configuration               **
+** 'show ip int brief' to see IP addresses assigned                       **
+** 'show ip route' to see routes                                          **
+**                                                                        **
+** If you're in a session from the console server, remember the break     **
+** sequence is <CTRL>-<SHIFT>-6 then X                                    **
+****************************************************************************
+
 banner motd 
 /==========================================================================\
 ||       __  .__   __.  __  .___________. _______   ______  __    __      ||
@@ -128,18 +141,25 @@ banner motd 
 Host   : $(hostname).($(domain))
 Line   : $(line) ($(line-desc))
 
+privilege exec level 3 show running-config view full
+privilege exec level 3 show running-config view
+privilege exec level 3 show running-config
+privilege exec level 3 show
 !
 line con 0
  location Console Port
- login authentication CONSOLE
+ login authentication NOAUTH
  transport preferred none
 line aux 0
 line vty 0 4
  location Telnet VTY Line
+ authorization commands 3 TACPLUS
+ authorization exec TACPLUS
+ login authentication TACPLUS
  transport input telnet
 !
 ntp logging
-ntp clock-period 17180202
+ntp clock-period 17180179
 ntp server 192.168.42.1 prefer
 !
 end

@@ -1,7 +1,6 @@
 
 !
-! Last configuration change at 03:34:51 CDT Fri Jul 23 1999 by admin
-! NVRAM config last updated at 03:34:51 CDT Fri Jul 23 1999 by admin
+! No configuration change since last restart
 !
 version 12.0
 no service pad
@@ -179,6 +178,6 @@ line vty 0 4
  transport input telnet
 line vty 5 15
 !
-ntp clock-period 22518583
+ntp clock-period 22518577
 ntp server 192.168.42.1 prefer
 end

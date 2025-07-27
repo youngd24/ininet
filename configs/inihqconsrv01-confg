@@ -1,7 +1,7 @@
 
 !
-! Last configuration change at 13:35:40 CDT Sat Jul 24 1999 by admin
-! NVRAM config last updated at 13:35:43 CDT Sat Jul 24 1999 by admin
+! Last configuration change at 06:40:05 CDT Sun Jul 25 1999 by admin
+! NVRAM config last updated at 06:41:34 CDT Sun Jul 25 1999 by admin
 !
 version 12.3
 service timestamps debug datetime msec
@@ -21,14 +21,14 @@ clock summer-time CDT recurring
 aaa new-model
 !
 !
-aaa authentication login default group tacacs+ local
 aaa authentication login localauth local
-aaa authentication login CONSOLE none
-aaa authentication ppp default if-needed group tacacs+ local
+aaa authentication login TACPLUS group tacacs+ local
+aaa authentication login NOAUTH none
 aaa authorization console
-aaa authorization exec default group tacacs+ local 
-aaa authorization exec CONSOLE none 
-aaa authorization network default group tacacs+ local 
+aaa authorization exec localauth local 
+aaa authorization exec NOAUTH none 
+aaa authorization exec TACPLUS group tacacs+ local 
+aaa authorization commands 3 TACPLUS group tacacs+ local 
 aaa accounting delay-start 
 aaa accounting exec default start-stop group tacacs+
 aaa accounting network default start-stop group tacacs+
@@ -146,6 +146,18 @@ dial-peer cor custom
 !
 !
 !
+banner exec 
+****************************************************************************
+**                      USEFUL COMMANDS AND NOTES                         **
+****************************************************************************
+** 'show running-config view full' to see the configuration               **
+** 'show ip int brief' to see IP addresses assigned                       **
+** 'show ip route' to see routes                                          **
+**                                                                        **
+** If you're in a session from the console server, remember the break     **
+** sequence is <CTRL>-<SHIFT>-6 then X                                    **
+****************************************************************************
+
 banner motd 
 /==========================================================================\
 ||       __  .__   __.  __  .___________. _______   ______  __    __      ||
@@ -170,6 +182,9 @@ Line   : $(line) ($(line-desc))
 !
 line con 0
  location HQ Console Port
+ authorization commands 3 TACPLUS
+ authorization exec TACPLUS
+ login authentication TACPLUS
 line 1 2
  modem Dialin
  modem autoconfigure discovery
@@ -177,29 +192,25 @@ line 1 2
  stopbits 1
  speed 115200
  flowcontrol hardware
-line 33
- location Console Server 2600 Async Serial Port 33
- exec-timeout 0 0
- no exec
- transport input all
-line 34
- location Console Server 2600 Async Serial Port 34
- exec-timeout 0 0
- authorization exec CONSOLE
- login authentication CONSOLE
- no exec
- transport input all
-line 35 48
+line 33 48
  location Console Server 2600 Async Serial Port
  exec-timeout 0 0
+ authorization commands 3 TACPLUS
+ authorization exec TACPLUS
+ login authentication TACPLUS
  no exec
  transport input all
 line aux 0
+ authorization exec NOAUTH
+ login authentication NOAUTH
 line vty 0 4
  location Telnet VTY Line
+ authorization commands 3 TACPLUS
+ authorization exec TACPLUS
+ login authentication TACPLUS
  transport input telnet
 !
-ntp clock-period 17180841
+ntp clock-period 17180839
 ntp server 192.168.42.1 prefer
 !
 end

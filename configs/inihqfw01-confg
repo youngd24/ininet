@@ -1,5 +1,5 @@
 : Saved
-: Written by enable_15 at 18:19:33.824 UTC Mon Feb 3 2003
+: Written by enable_15 at 13:39:31.265 UTC Fri Jan 3 2003
 !
 ASA Version 8.4(7) 
 !
@@ -76,6 +76,8 @@ object network LEGACY-WAN
  subnet 172.16.20.0 255.255.255.0
 object network MCILAN
  subnet 10.100.20.0 255.255.255.0
+object network ssh_access_server
+ host 192.168.42.46
 object-group network INSIDE-NETS
  network-object 192.168.25.0 255.255.255.0
  network-object object VLAN1
@@ -88,6 +90,7 @@ access-list outside_access_in extended permit icmp any any time-exceeded
 access-list outside_access_in extended permit icmp any any unreachable 
 access-list outside_access_in extended permit tcp any object netsrv02 eq www 
 access-list outside_access_in extended permit tcp any object wedge eq 1337 
+access-list outside_access_in extended permit tcp any object ssh_access_server eq ssh 
 pager lines 24
 logging enable
 logging timestamp
@@ -107,6 +110,8 @@ object network netsrv02
  nat (inside,outside) static interface service tcp www www 
 object network wedge
  nat (inside,outside) static interface service tcp 1337 1337 
+object network ssh_access_server
+ nat (inside,outside) static interface service tcp ssh 2222 
 !
 nat (inside,outside) after-auto source dynamic INSIDE-NETS interface
 access-group outside_access_in in interface outside
@@ -177,5 +182,5 @@ policy-map global_policy
 service-policy global_policy global
 prompt hostname context 
 no call-home reporting anonymous
-Cryptochecksum:7aa8cb4a4dfcac1b306cff7ded7680d1
+Cryptochecksum:619cc2a26a3ad204b67790d3c099db0e
 : end

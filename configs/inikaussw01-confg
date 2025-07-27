@@ -1,7 +1,7 @@
 
 !
-! Last configuration change at 03:33:01 CDT Fri Jul 23 1999 by admin
-! NVRAM config last updated at 03:33:01 CDT Fri Jul 23 1999 by admin
+! Last configuration change at 12:20:26 CDT Sun Jul 25 1999 by admin
+! NVRAM config last updated at 12:20:27 CDT Sun Jul 25 1999 by admin
 !
 version 12.0
 no service pad
@@ -12,12 +12,13 @@ service password-encryption
 hostname INIKAUSSW01
 !
 aaa new-model
-aaa authentication login default group tacacs+ local
 aaa authentication login localauth local
-aaa authentication login CONSOLE none
-aaa authentication ppp default if-needed group tacacs+ local
-aaa authorization exec default group tacacs+ local
-aaa authorization exec CONSOLE none
+aaa authentication login TACPLUS group tacacs+ local
+aaa authentication login NOAUTH none
+aaa authorization exec localauth local
+aaa authorization exec NOAUTH none
+aaa authorization exec TACPLUS group tacacs+ local
+aaa authorization commands 3 TACPLUS group tacacs+ local
 aaa accounting delay-start
 aaa accounting exec default start-stop group tacacs+
 aaa accounting network default start-stop group tacacs+
@@ -151,6 +152,18 @@ interface VLAN10
 ip default-gateway 10.100.10.1
 logging 192.168.42.46
 tacacs-server host 192.168.42.46
+banner exec 
+****************************************************************************
+**                      USEFUL COMMANDS AND NOTES                         **
+****************************************************************************
+** 'show running-config view full' to see the configuration               **
+** 'show ip int brief' to see IP addresses assigned                       **
+** 'show ip route' to see routes                                          **
+**                                                                        **
+** If you're in a session from the console server, remember the break     **
+** sequence is <CTRL>-<SHIFT>-6 then X                                    **
+****************************************************************************
+
 banner motd 
 /==========================================================================\
 ||       __  .__   __.  __  .___________. _______   ______  __    __      ||
@@ -172,18 +185,23 @@ banner motd 
 Host   : $(hostname).($(domain))
 Line   : $(line) ($(line-desc))
 
+privilege exec level 3 show startup-config
+privilege exec level 3 show running-config
+privilege exec level 3 show
 !
 line con 0
  location Console Port
- authorization exec CONSOLE
- login authentication CONSOLE
+ login authentication NOAUTH
  transport input none
  stopbits 1
 line vty 0 4
  location Telnet VTY Line
+ authorization commands 3 TACPLUS
+ authorization exec TACPLUS
+ login authentication TACPLUS
  transport input telnet
 line vty 5 15
 !
-ntp clock-period 11259731
+ntp clock-period 11259728
 ntp server 192.168.42.1 prefer
 end

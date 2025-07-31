@@ -1,0 +1,186 @@
+#!/usr/bin/expect -f
+
+# --------------------------------------------------------------
+# Script: asa_block_ip.expect
+# Purpose: Called by swatchdog when a log event triggers.
+#          This script connects to an ASA firewall (via telnet),
+#          checks if an IP is already in a blocklist object-group,
+#          and if not, adds it and saves the config.
+# --------------------------------------------------------------
+
+# ==============================
+# ARGUMENT CHECK
+# ==============================
+if {$argc != 1} {
+    puts "Usage: $argv0 <IP>"
+    exit 1
+}
+set ip_to_block [lindex $argv 0]
+
+# ==============================
+# LOAD CREDENTIALS FROM FILE
+# ==============================
+set cred_file "/etc/swatchdog-asa.conf"
+if {![file exists $cred_file]} {
+    puts "ERROR: credentials file $cred_file not found"
+    exit 2
+}
+
+# Read config file line by line and extract key/value pairs
+set fp [open $cred_file r]
+set creds [split [read $fp] "\n"]
+close $fp
+foreach line $creds {
+    if {[regexp {^FIREWALL_IP=(.*)} $line -> val]} {set firewall_ip $val}
+    if {[regexp {^USERNAME=(.*)} $line -> val]} {set username $val}
+    if {[regexp {^PASSWORD=(.*)} $line -> val]} {set password $val}
+    if {[regexp {^ENABLE_PASSWORD=(.*)} $line -> val]} {set enable_password $val}
+    if {[regexp {^OBJECT_GROUP=(.*)} $line -> val]} {set object_group $val}
+}
+
+# ==============================
+# LOGGING FUNCTIONS
+# ==============================
+set log_file "/var/log/swatchdog-asa.log"
+
+# log_msg: Writes a message to syslog and a local log file
+proc log_msg {msg} {
+    global log_file
+    set timestamp [clock format [clock seconds] -format "%Y-%m-%d %H:%M:%S"]
+
+    # Send to syslog
+    exec logger -t swatchdog-asa "$msg"
+
+    # Append to local log file
+    set fp [open $log_file a]
+    puts $fp "$timestamp - $msg"
+    close $fp
+}
+
+# ==============================
+# TELNET SESSION START
+# ==============================
+set timeout 15
+spawn telnet $firewall_ip
+
+expect {
+    timeout {
+        log_msg "ERROR: Timeout connecting to ASA at $firewall_ip"
+        exit 3
+    }
+    eof {
+        log_msg "ERROR: Unable to connect to ASA at $firewall_ip"
+        exit 3
+    }
+    "Username:" {}
+    "login:" {}
+}
+
+# Send username
+send "$username\r"
+
+# Wait for password prompt
+expect {
+    timeout {
+        log_msg "ERROR: No password prompt (username may be wrong)"
+        exit 4
+    }
+    "Password:" {}
+}
+
+# Send password
+send "$password\r"
+
+# Wait for user EXEC prompt ">"
+expect {
+    ">" {}
+    "Login failed" {
+        log_msg "ERROR: Invalid username or password for ASA at $firewall_ip"
+        exit 5
+    }
+    timeout {
+        log_msg "ERROR: No response after sending password"
+        exit 5
+    }
+}
+
+# Enter privileged EXEC mode (enable)
+send "enable\r"
+expect {
+    "Password:" {}
+    timeout {
+        log_msg "ERROR: No enable password prompt"
+        exit 6
+    }
+}
+
+# Send enable password
+send "$enable_password\r"
+
+# Wait for privileged EXEC prompt "#"
+expect {
+    "#" {}
+    "Password:" {
+        log_msg "ERROR: Invalid enable password"
+        exit 7
+    }
+    timeout {
+        log_msg "ERROR: Enable password prompt timed out"
+        exit 7
+    }
+}
+
+# ==============================
+# CHECK IF IP IS ALREADY BLOCKED
+# ==============================
+# List the object-group contents and search for the IP
+send "show running-config object-group id $object_group\r"
+expect {
+    -re "(?i)(network-object host\\s+$ip_to_block)" {
+        # If match found, log and exit
+        log_msg "IP $ip_to_block already in $object_group. Skipping."
+        send "exit\r"
+        expect eof
+        exit 0
+    }
+    "#" {}
+    timeout {
+        log_msg "ERROR: Timeout checking object group $object_group"
+        exit 8
+    }
+}
+
+# ==============================
+# ADD THE IP TO THE OBJECT GROUP
+# ==============================
+send "conf t\r"
+expect "(config)#"
+
+send "object-group network $object_group\r"
+expect "(config-network-object-group)#"
+
+send "network-object host $ip_to_block\r"
+expect "(config-network-object-group)#"
+
+# Exit back to config mode
+send "exit\r"
+expect "(config)#"
+
+# Save the configuration
+send "write memory\r"
+expect {
+    "(config)#" {}
+    "#" {}
+}
+
+# Log successful block action
+log_msg "Blocked IP $ip_to_block by adding it to $object_group."
+
+# ==============================
+# EXIT CLEANLY
+# ==============================
+send "exit\r"
+expect "#"
+send "exit\r"
+expect eof
+

@@ -1,0 +1,13 @@
+#!/bin/bash
+##############################################################################
+#
+# swatch startup script
+#
+##############################################################################
+
+swatchdog --tail-prog=/usr/bin/tail \
+          --tail-args '--follow=name --lines=1' \
+          --tail-file="/var/log/messages \
+	               /var/log/auth.log \
+		       /var/log/syslog \
+		       /var/log/network.log"

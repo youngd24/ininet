@@ -1,0 +1,162 @@
+##############################################################################
+# Swatchdog RC file: Comprehensive monitoring for Ubuntu 24
+##############################################################################
+
+##########################
+# 1. Authentication Events
+##########################
+
+# Failed SSH root login attempts (3+ in 5 min per IP)
+watchfor /Failed password for root from ([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/
+    echo=red
+#    exec "/usr/local/bin/asa_block_ip.expect $0"
+    mail addresses=alerts\@inidev.io,subject="RED ALERT: 3+ failed root SSH logins from $1"
+    threshold track_by=$1,type=limit,count=3,seconds=300
+    bell 3
+    throttle 00:05
+
+# Failed SSH user login attempts (3+ in 5 min per IP)
+watchfor /Failed password for (?!root).* from ([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/
+    echo=yellow
+#    exec "/usr/local/bin/asa_block_ip.expect $0"
+    mail addresses=alerts\@inidev.io,subject="YELLOW ALERT: 3+ failed root SSH logins from $1"
+    threshold track_by=$1,type=limit,count=3,seconds=300
+    throttle 00:05
+
+# Invalid user login attempts (3+ in 5 min per IP)
+watchfor /Invalid user .* from ([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/
+    echo=yellow
+    mail addresses=alerts\@inidev.io,subject="ALERT: 3+ invalid user SSH logins from $1"
+    threshold track_by=$1,type=limit,count=3,seconds=300
+    throttle 00:05
+
+# Successful SSH login as root (should be rare)
+watchfor /Accepted .* for root from ([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/
+    echo=magenta
+    throttle 00:05
+
+# sudo authentication failures (3+ in 5 min)
+watchfor /sudo: .*authentication failure/
+    echo=red
+    threshold type=limit,count=3,seconds=300
+    throttle 00:05
+
+# Locked account login attempts
+watchfor /account .* locked/
+    echo=red
+
+
+##########################
+# 2. Privilege Escalation & User Management
+##########################
+
+# New user added
+watchfor /new user: name=/
+    echo=cyan
+    throttle 00:05
+
+# User added to sudo group
+watchfor /usermod.*: add 'sudo'/
+    echo=cyan
+    throttle 00:05
+
+# Password changes
+watchfor /passwd.*password updated successfully/
+    echo=cyan
+    throttle 00:05
+
+
+##########################
+# 3. System Integrity / Service Failures
+##########################
+
+# systemd failures
+watchfor /systemd.*(failed|dependency failed|dead)/
+    echo=red
+    throttle 00:05
+
+# Kernel panics, oops, bugs
+watchfor /kernel: (panic|Oops|BUG)/
+    echo=red
+    throttle 00:05
+
+# AppArmor or SELinux denials
+watchfor /audit.*DENIED/
+    echo=red
+    throttle 00:05
+
+
+##########################
+# 4. File Integrity & Security
+##########################
+
+# Changes to passwd or shadow
+watchfor /(passwd|shadow) .* changed/
+    echo=magenta
+    throttle 00:05
+
+
+##########################
+# 5. Disk, Memory, and Hardware Health
+##########################
+
+# Disk full
+watchfor /No space left on device/
+    echo=red
+    throttle 00:05
+
+# Disk I/O errors
+watchfor /(EXT4-fs error|Buffer I\/O error)/
+    echo=red
+    throttle 00:05
+
+# Out-of-memory killer invoked
+watchfor /Out of memory|oom-killer/
+    echo=red
+    throttle 00:05
+
+# Hardware errors
+watchfor /ata.*failed/
+    echo=red
+    throttle 00:05
+
+
+##########################
+# 6. Network & Firewall Events
+##########################
+
+# UFW blocks (3+ in 5 min per IP)
+watchfor /UFW BLOCK.*SRC=([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/
+    echo=yellow
+    threshold track_by=$1,type=limit,count=3,seconds=300
+    throttle 00:05
+
+# Repeated connection failures (Postfix/Apache)
+watchfor /(postfix|apache2).*(connection refused|client denied by server configuration)/
+    echo=yellow
+    throttle 00:05
+
+
+##########################
+# 7. Cron and Scheduled Job Failures
+##########################
+
+# Cron job failures
+watchfor /CRON.*(failed|error)/
+    echo=red
+    throttle 00:05
+
+# Anacron errors
+watchfor /anacron.*(Can not|error)/
+    echo=red
+    throttle 00:05
+
+
+##########################
+# 8. Reboots & Unexpected Shutdowns
+##########################
+
+# Unexpected reboots/shutdowns
+watchfor /(Starting Clean shutdown|reboot)/
+    echo=magenta
+    throttle 00:05

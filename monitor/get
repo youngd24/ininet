@@ -2,5 +2,6 @@
 #
 
 cp /etc/swatchdog/swatchdogrc .
+cp /etc/swatchdog/trusted_addresses .
 cp /etc/systemd/system/swatchdog.service .
 cp /usr/local/bin/asa_block_ip.expect .

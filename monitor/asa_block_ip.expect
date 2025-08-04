@@ -18,6 +18,25 @@ if {$argc != 1} {
 set ip_to_block [lindex $argv 0]
 
 # ==============================
+# TRUSTED IP CHECK
+# ==============================
+set trusted_file "/etc/swatchdog/trusted_addresses"
+if {[file exists $trusted_file]} {
+    set fp [open $trusted_file r]
+    set trusted_data [split [read $fp] "\n"]
+    close $fp
+
+    foreach trusted_ip $trusted_data {
+        if {[string trim $trusted_ip] eq $ip_to_block} {
+            log_msg "ERROR: Cannot block trusted IP address $ip_to_block"
+            exit 10
+        }
+    }
+} else {
+     log_msg "Attempted to block trusted IP address $ip_to_block. Exiting."
+}
+
+# ==============================
 # LOAD CREDENTIALS FROM FILE
 # ==============================
 set cred_file "/etc/swatchdog-asa.conf"

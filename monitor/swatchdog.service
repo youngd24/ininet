@@ -5,7 +5,7 @@ After=network.target syslog.target
 [Service]
 user=root
 Type=forking
-ExecStart=/usr/local/bin/swatchdog --config-file=/etc/swatchdog/swatchdogrc --tail-file="/var/log/messages /var/log/auth.log /var/log/syslog /var/log/network.log" --daemon
+ExecStart=/usr/local/bin/swatchdog --tail-prog=/usr/bin/tail --tail-args '--follow=name --lines=1' --config-file=/etc/swatchdog/swatchdogrc --tail-file="/var/log/messages /var/log/auth.log /var/log/syslog /var/log/network.log" --daemon
 Restart=always
 RestartSec=5
 

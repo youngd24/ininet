@@ -130,6 +130,10 @@ expect {
     }
 }
 
+# Disable paging
+send "terminal pager lines 0\r"
+expect "#"
+
 # ==============================
 # CHECK IF IP IS ALREADY BLOCKED
 # ==============================

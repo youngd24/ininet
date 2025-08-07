@@ -22,7 +22,7 @@ for FILE in "$CUSTOMER_DB" "$VENDOR_DB" "$VENDOR_INVOICES_DB"; do
 done
 
 echo "Starting up..."
-sleep 1
+sleep 5
 
 # ------------------ UTILITIES ------------------
 

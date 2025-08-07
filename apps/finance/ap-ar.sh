@@ -397,6 +397,7 @@ function view_accounts_receivable() {
             printf "%-4s %-20s %-12s %-10s %-12s %-8s\n",
                    $1, cname($2), $3, $4, $5, ($6==""?"Unpaid":$6);
         }' "$CUSTOMER_INVOICES_DB" > /tmp/ar_view.txt
+
     dialog --title "Accounts Receivable (Unpaid)" --textbox /tmp/ar_view.txt 20 78
     rm -f /tmp/ar_view.txt
 }
@@ -434,6 +435,84 @@ function mark_customer_invoice_paid() {
     dialog --msgbox "Customer payment recorded." 7 40
 }
 
+
+# ------------------ AR AGING DETAIL ------------------
+
+function ar_aging_detail() {
+    if [[ ! -s "$CUSTOMER_INVOICES_DB" ]]; then
+        dialog --msgbox "No customer invoices found." 7 50
+        return
+    fi
+    local TODAY
+    TODAY=$(today_ymd)
+    awk -F'|' -v CDB="$CUSTOMER_DB" -v today="$TODAY" '
+    function cname(id,   cmd,n){
+        cmd="awk -F\"|\" -v i=\"" id "\" \"$1==i{print $2; exit}\" " CDB;
+        cmd|getline n; close(cmd);
+        return (n?n:"UNKNOWN");
+    }
+    function ymd2days(y,m,d){ if(m<=2){y--;m+=12} return 365*y+int(y/4)-int(y/100)+int(y/400)+int((153*(m-3)+2)/5)+d }
+    function diff(a,b){ split(a,A,"-"); split(b,B,"-"); return ymd2days(B[1],B[2],B[3]) - ymd2days(A[1],A[2],A[3]); }
+    function bucket(due){ od=diff(due,today);
+        if(od<=0) return "Current";
+        else if(od<=30) return "1-30";
+        else if(od<=60) return "31-60";
+        else if(od<=90) return "61-90";
+        else return "90+";
+    }
+    BEGIN{
+        printf "%-4s %-20s %-12s %-10s %-12s %-7s %-6s\n","ID","Customer","Invoice #","Amount","Due Date","Days","Bucket";
+        print  "-------------------------------------------------------------------------------------";
+    }
+    $6!="Paid" {
+        od=diff($5,today);
+        printf "%-4s %-20s %-12s %10.2f %-12s %7d %-6s\n",
+               $1, cname($2), $3, $4+0.0, $5, od, bucket($5);
+    }' "$CUSTOMER_INVOICES_DB" > /tmp/ar_aging_detail.txt
+
+    dialog --title "AR Aging (Detail)" --textbox /tmp/ar_aging_detail.txt 20 86
+    rm -f /tmp/ar_aging_detail.txt
+}
+
+# ------------------ AR AGING SUMMARY ------------------
+
+function ar_aging_summary() {
+    if [[ ! -s "$CUSTOMER_INVOICES_DB" ]]; then
+        dialog --msgbox "No customer invoices found." 7 50
+        return
+    fi
+    local TODAY
+    TODAY=$(today_ymd)
+    awk -F'|' -v today="$TODAY" '
+    function ymd2days(y,m,d){ if(m<=2){y--;m+=12} return 365*y+int(y/4)-int(y/100)+int(y/400)+int((153*(m-3)+2)/5)+d }
+    function diff(a,b){ split(a,A,"-"); split(b,B,"-"); return ymd2days(B[1],B[2],B[3])-ymd2days(A[1],A[2],A[3]); }
+    function bucket(due){ od=diff(due,today);
+        if(od<=0) return "Current";
+        else if(od<=30) return "1-30";
+        else if(od<=60) return "31-60";
+        else if(od<=90) return "61-90";
+        else return "90+";
+    }
+    $6!="Paid" {
+        b=bucket($5); amt=$4+0.0; sum[b]+=amt; total+=amt;
+    }
+    END{
+        printf "%-8s %12s\n","Bucket","Amount";
+        print  "------------------------";
+        printf "%-8s %12.2f\n","Current",(sum["Current"]?sum["Current"]:0);
+        printf "%-8s %12.2f\n","1-30",(sum["1-30"]?sum["1-30"]:0);
+        printf "%-8s %12.2f\n","31-60",(sum["31-60"]?sum["31-60"]:0);
+        printf "%-8s %12.2f\n","61-90",(sum["61-90"]?sum["61-90"]:0);
+        printf "%-8s %12.2f\n","90+",(sum["90+"]?sum["90+"]:0);
+        print  "------------------------";
+        printf "%-8s %12.2f\n","TOTAL",(total?total:0);
+    }' "$CUSTOMER_INVOICES_DB" > /tmp/ar_aging_summary.txt
+
+    dialog --title "AR Aging (Summary)" --textbox /tmp/ar_aging_summary.txt 18 40
+    rm -f /tmp/ar_aging_summary.txt
+}
+
+
 # ------------------ REPORTS MENU ------------------
 
 function reports_menu() {
@@ -442,20 +521,32 @@ function reports_menu() {
         R=$(dialog --clear \
             --backtitle "$BACKTITLE" \
             --title "Reports" \
-            --menu "Select a report" 15 60 5 \
+            --menu "Select a report" 16 64 7 \
             1 "AP Aging - Summary" \
             2 "AP Aging - Detail" \
-            3 "Return to Main Menu" \
+            3 "AR Aging - Summary" \
+            4 "AR Aging - Detail" \
+            5 "Return to Main Menu" \
             3>&1 1>&2 2>&3) || { clear; return; }
         clear
         case "$R" in
             1) ap_aging_summary   ;;
             2) ap_aging_detail    ;;
-            3) break              ;;
+            3) ar_aging_summary   ;;
+            4) ar_aging_detail    ;;
+            5) break              ;;
             *) dialog --msgbox "Invalid option." 7 40 ;;
         esac
     done
 }
+
+# ------------------ ABOUT BOX ------------------
+function about_box() {
+    dialog --backtitle "$BACKTITLE" \
+           --title "About" \
+           --msgbox "INITECH Financials\nCreated by ChatGPT" 8 40
+}
+
 
 # ------------------ MAIN MENU ------------------
 
@@ -473,7 +564,8 @@ while true; do
         7 "Record Customer Payment" \
         8 "Maintain Customer Master" \
         9 "Generate Reports" \
-        10 "Exit" \
+        10 "About" \
+        11 "Exit" \
         3>&1 1>&2 2>&3)
 
     clear
@@ -487,7 +579,8 @@ while true; do
         7) mark_customer_invoice_paid ;;
         8) customer_master_menu ;;
         9) reports_menu ;;
-        10) dialog --title "Exit" --msgbox "Thank you for using INITECH Financial Systems." 7 50; break ;;
+        10) about_box ;;
+        11) dialog --title "Exit" --msgbox "Thank you for using INITECH Financial Systems." 7 50; break ;;
         *) dialog --title "Error" --msgbox "Invalid option. Please try again." 7 50 ;;
     esac
 done

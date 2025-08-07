@@ -11,8 +11,25 @@ VENDOR_DB="$ACCT_DIR/vendors.db"
 VENDOR_INVOICES_DB="$ACCT_DIR/vendor_invoices.db"
 CUSTOMER_INVOICES_DB="$ACCT_DIR/customer_invoices.db"
 
-# vars
-STARTUP_SLEEP="5"
+# Prefer GNU awk if present (Solaris-safe fallback)
+AWK=/usr/local/bin/gawk
+[ -x "$AWK" ] || AWK=/usr/xpg4/bin/awk
+[ -x "$AWK" ] || AWK=awk
+
+# Strip CRs and blank lines; ensure file exists
+sanitize_db() {
+    [ -n "$1" ] || return
+    [ -f "$1" ] || { : > "$1"; return; }
+    # Remove \r and trailing spaces, drop fully empty lines
+    "$AWK" '{ sub(/\r$/,""); sub(/[[:space:]]+$/,""); if (length($0)>0) print }' "$1" > "$1.tmp" && mv "$1.tmp" "$1"
+}
+
+# On startup, sanitize all DBs and show a quick debug line (helps catch wrong paths)
+for f in "$VENDOR_DB" "$VENDOR_INVOICES_DB" "$CUSTOMER_DB" "$CUSTOMER_INVOICES_DB"; do
+    sanitize_db "$f"
+    # Uncomment for one-time debug:
+    # printf "DBG: %s -> " "$f"; ls -l "$f" 2>/dev/null | "$AWK" '{print $5" bytes"}'
+done
 
 # Ensure accounting directory exists
 if [[ ! -d $ACCT_DIR ]]; then
@@ -26,7 +43,7 @@ for FILE in "$CUSTOMER_DB" "$VENDOR_DB" "$VENDOR_INVOICES_DB" "$CUSTOMER_INVOICE
 done
 
 echo "Starting up..."
-sleep $STARTUP_SLEEP
+sleep 1
 
 # ------------------ UTILITIES ------------------
 
@@ -40,6 +57,13 @@ function next_id() {
 # Today Y-M-D (Solaris 7 / POSIX date)
 function today_ymd() {
     date +"%Y-%m-%d"
+}
+
+# ------------------ ABOUT BOX ------------------
+function about_box() {
+    dialog --backtitle "$BACKTITLE" \
+           --title "About" \
+           --msgbox "INITECH Financials\nCreated by ChatGPT" 8 40
 }
 
 # ------------------ VENDOR MASTER ------------------
@@ -75,11 +99,7 @@ function edit_vendor() {
         return
     fi
     local LIST ID OLD NAME ADDRESS PHONE
-    LIST=$(awk -f - "$VENDOR_DB" <<'AWK'
-BEGIN { FS="|"; }
-{ printf "%s \"%s\"\n", $1, $2; }
-AWK
-)
+    LIST=$(awk -F'|' '{printf "%s \"%s\"\n",$1,$2}' "$VENDOR_DB")
     ID=$(eval dialog --menu \"Select vendor to edit:\" 20 60 15 $LIST 3>&1 1>&2 2>&3) || return
 
     OLD=$(grep "^$ID|" "$VENDOR_DB")
@@ -154,32 +174,49 @@ function add_vendor_invoice() {
     dialog --msgbox "Vendor invoice recorded." 7 40
 }
 
-# View all unpaid vendor invoices
-function view_accounts_payable() {
-    if [[ ! -s "$VENDOR_INVOICES_DB" ]]; then
-        dialog --msgbox "No vendor invoices found." 7 50
+# View all unpaid vendor invoices (preload vendor names)
+view_accounts_payable() {
+    # Check file exists and is non-empty
+    if [ ! -f "$VENDOR_INVOICES_DB" ] || [ ! -s "$VENDOR_INVOICES_DB" ]; then
+        dialog --msgbox "Vendor invoice file not found or empty:\n$VENDOR_INVOICES_DB" 8 60
         return
     fi
-    awk -F'|' -v VDB="$VENDOR_DB" '
-        function vname(id,   cmd, n) {
-            cmd = "awk -F\"|\" -v i=\"" id "\" \"$1==i{print $2; exit}\" " VDB;
-            cmd | getline n; close(cmd);
-            if (n=="") n="UNKNOWN";
-            return n;
+
+    # Build output and count unpaid after normalizing fields
+    "$AWK" -F'|' -v VDB="$VENDOR_DB" '
+    function trim(s){ sub(/^[[:space:]]+/,"",s); sub(/[[:space:]]+$/,"",s); gsub(/\r/,"",s); return s }
+    BEGIN{
+        # preload vendor names
+        while ((getline L < VDB) > 0) { split(L,a,"|"); id=trim(a[1]); if(id!="") vname[id]=trim(a[2]); }
+        close(VDB);
+        printf "%-4s %-20s %-12s %-10s %-12s %-8s\n","ID","Vendor","Invoice #","Amount","Due Date","Status";
+        print  "-------------------------------------------------------------------------------";
+        rows=0;
+    }
+    {
+        # normalize fields
+        for(i=1;i<=NF;i++){ $i=trim($i) }
+        status=$6; if(status=="") status="Unpaid";
+        if (status=="Unpaid") {
+            vend=(vname[$2]?vname[$2]:"UNKNOWN");
+            printf "%-4s %-20s %-12s %-10s %-12s %-8s\n", $1, vend, $3, $4, $5, status;
+            rows++;
         }
-        BEGIN{
-            printf "%-4s %-20s %-12s %-10s %-12s %-8s\n","ID","Vendor","Invoice #","Amount","Due Date","Status";
-            print  "-------------------------------------------------------------------------------";
-        }
-        $6=="Unpaid" || $6=="" {
-            printf "%-4s %-20s %-12s %-10s %-12s %-8s\n",
-                   $1, vname($2), $3, $4, $5, ($6==""?"Unpaid":$6);
-        }' "$VENDOR_INVOICES_DB" > /tmp/ap_view.txt
+    }
+    END{ if(rows==0) exit 99; }
+    ' "$VENDOR_INVOICES_DB" > /tmp/ap_view.txt
+
+    if [ $? -eq 99 ]; then
+        dialog --msgbox "No UNPAID vendor invoices found in:\n$VENDOR_INVOICES_DB" 8 60
+        return
+    fi
+
     dialog --title "Accounts Payable (Unpaid)" --textbox /tmp/ap_view.txt 20 78
     rm -f /tmp/ap_view.txt
 }
 
-# Mark a vendor invoice as paid
+
+# Mark a vendor invoice as paid (menu with preloaded names)
 function mark_invoice_paid() {
     if [[ ! -s "$VENDOR_INVOICES_DB" ]]; then
         dialog --msgbox "No invoices found." 7 50
@@ -187,16 +224,21 @@ function mark_invoice_paid() {
     fi
     local MENU ID PAYDATE PAYAMT TODAY INV_AMT
     TODAY=$(today_ymd)
-    MENU=$(awk -F'|' -v VDB="$VENDOR_DB" '
-        function vname(id,   cmd, n) {
-            cmd = "awk -F\"|\" -v i=\"" id "\" \"$1==i{print $2; exit}\" " VDB;
-            cmd | getline n; close(cmd);
-            if (n=="") n="UNKNOWN";
-            return n;
+
+    MENU=$("$AWK" -F'|' -v VDB="$VENDOR_DB" '
+    function trim(s){ sub(/^[[:space:]]+/,"",s); sub(/[[:space:]]+$/,"",s); gsub(/\r/,"",s); return s }
+    BEGIN{
+        while ((getline L < VDB) > 0) { split(L,a,"|"); id=trim(a[1]); if(id!="") vname[id]=trim(a[2]); }
+        close(VDB);
+    }
+    {
+        for(i=1;i<=NF;i++){ $i=trim($i) }
+        status=$6; if(status=="") status="Unpaid";
+        if (status=="Unpaid") {
+            vend=(vname[$2]?vname[$2]:"UNKNOWN");
+            printf "%s \"%s - %s - $%s - Due %s\"\n", $1, vend, $3, $4, $5;
         }
-        $6=="Unpaid" || $6=="" {
-            printf "%s \"%s - %s - $%s - Due %s\"\n", $1, vname($2), $3, $4, $5;
-        }' "$VENDOR_INVOICES_DB")
+    }' "$VENDOR_INVOICES_DB")
 
     [[ -z "$MENU" ]] && { dialog --msgbox "No unpaid invoices." 7 40; return; }
     ID=$(eval dialog --menu \"Select vendor invoice to mark PAID:\" 20 70 15 $MENU 3>&1 1>&2 2>&3) || return
@@ -212,8 +254,7 @@ function mark_invoice_paid() {
     dialog --msgbox "Vendor invoice marked as PAID." 7 40
 }
 
-# ------------------ AP AGING (Summary/Detail) ------------------
-
+# AP Aging: Summary
 function ap_aging_summary() {
     if [[ ! -s "$VENDOR_INVOICES_DB" ]]; then
         dialog --msgbox "No invoices found." 7 50
@@ -224,7 +265,9 @@ function ap_aging_summary() {
     awk -F'|' -v today="$TODAY" '
     function ymd2days(y,m,d){ if(m<=2){y--;m+=12} return 365*y+int(y/4)-int(y/100)+int(y/400)+int((153*(m-3)+2)/5)+d }
     function diff(a,b){ split(a,A,"-"); split(b,B,"-"); return ymd2days(B[1],B[2],B[3])-ymd2days(A[1],A[2],A[3]); }
-    function bucket(due){ od=diff(due,today); if(od<=0) return "Current"; else if(od<=30) return "1-30"; else if(od<=60) return "31-60"; else if(od<=90) return "61-90"; else return "90+" }
+    function bucket(due){ od=diff(due,today);
+        if(od<=0) return "Current"; else if(od<=30) return "1-30"; else if(od<=60) return "31-60"; else if(od<=90) return "61-90"; else return "90+";
+    }
     $6!="Paid" {
         b=bucket($5); amt=$4+0.0; sum[b]+=amt; total+=amt;
     }
@@ -243,6 +286,7 @@ function ap_aging_summary() {
     rm -f /tmp/ap_aging_summary.txt
 }
 
+# AP Aging: Detail (preload vendor names)
 function ap_aging_detail() {
     if [[ ! -s "$VENDOR_INVOICES_DB" ]]; then
         dialog --msgbox "No invoices found." 7 50
@@ -251,18 +295,20 @@ function ap_aging_detail() {
     local TODAY
     TODAY=$(today_ymd)
     awk -F'|' -v VDB="$VENDOR_DB" -v today="$TODAY" '
-    function vname(id,   cmd,n){ cmd="awk -F\"|\" -v i=\"" id "\" \"$1==i{print $2; exit}\" " VDB; cmd|getline n; close(cmd); return (n?n:"UNKNOWN") }
     function ymd2days(y,m,d){ if(m<=2){y--;m+=12} return 365*y+int(y/4)-int(y/100)+int(y/400)+int((153*(m-3)+2)/5)+d }
     function diff(a,b){ split(a,A,"-"); split(b,B,"-"); return ymd2days(B[1],B[2],B[3])-ymd2days(A[1],A[2],A[3]); }
     function bucket(due){ od=diff(due,today); if(od<=0) return "Current"; else if(od<=30) return "1-30"; else if(od<=60) return "31-60"; else if(od<=90) return "61-90"; else return "90+" }
+
     BEGIN{
+        while ((getline L < VDB) > 0) { split(L,a,"|"); if(a[1]!="") vname[a[1]]=a[2]; }
+        close(VDB);
         printf "%-4s %-20s %-12s %-10s %-12s %-7s %-6s\n","ID","Vendor","Invoice #","Amount","Due Date","Days","Bucket";
         print  "-------------------------------------------------------------------------------------";
     }
     $6!="Paid" {
         od=diff($5,today);
-        printf "%-4s %-20s %-12s %10.2f %-12s %7d %-6s\n",
-               $1, vname($2), $3, $4+0.0, $5, od, bucket($5);
+        v = (vname[$2] ? vname[$2] : "UNKNOWN");
+        printf "%-4s %-20s %-12s %10.2f %-12s %7d %-6s\n", $1, v, $3, $4+0.0, $5, od, bucket($5);
     }' "$VENDOR_INVOICES_DB" > /tmp/ap_aging_detail.txt
     dialog --title "AP Aging (Detail)" --textbox /tmp/ap_aging_detail.txt 20 86
     rm -f /tmp/ap_aging_detail.txt
@@ -376,33 +422,28 @@ function add_customer_invoice() {
     dialog --msgbox "Customer invoice recorded." 7 40
 }
 
-# View all unpaid customer invoices
+# View all unpaid customer invoices (preload customer names)
 function view_accounts_receivable() {
     if [[ ! -s "$CUSTOMER_INVOICES_DB" ]]; then
         dialog --msgbox "No customer invoices found." 7 50
         return
     fi
     awk -F'|' -v CDB="$CUSTOMER_DB" '
-        function cname(id,   cmd, n) {
-            cmd = "awk -F\"|\" -v i=\"" id "\" \"$1==i{print $2; exit}\" " CDB;
-            cmd | getline n; close(cmd);
-            if (n=="") n="UNKNOWN";
-            return n;
-        }
-        BEGIN{
-            printf "%-4s %-20s %-12s %-10s %-12s %-8s\n","ID","Customer","Invoice #","Amount","Due Date","Status";
-            print  "-------------------------------------------------------------------------------";
-        }
-        $6=="Unpaid" || $6=="" {
-            printf "%-4s %-20s %-12s %-10s %-12s %-8s\n",
-                   $1, cname($2), $3, $4, $5, ($6==""?"Unpaid":$6);
-        }' "$CUSTOMER_INVOICES_DB" > /tmp/ar_view.txt
-
+    BEGIN{
+        while ((getline L < CDB) > 0) { split(L,a,"|"); if (a[1]!="") cname[a[1]]=a[2]; }
+        close(CDB);
+        printf "%-4s %-20s %-12s %-10s %-12s %-8s\n","ID","Customer","Invoice #","Amount","Due Date","Status";
+        print  "-------------------------------------------------------------------------------";
+    }
+    ($6=="Unpaid" || $6=="") {
+        c = (cname[$2] ? cname[$2] : "UNKNOWN");
+        printf "%-4s %-20s %-12s %-10s %-12s %-8s\n", $1, c, $3, $4, $5, ($6==""?"Unpaid":$6);
+    }' "$CUSTOMER_INVOICES_DB" > /tmp/ar_view.txt
     dialog --title "Accounts Receivable (Unpaid)" --textbox /tmp/ar_view.txt 20 78
     rm -f /tmp/ar_view.txt
 }
 
-# Record a customer payment (mark AR invoice as paid)
+# Record a customer payment (preload names in menu)
 function mark_customer_invoice_paid() {
     if [[ ! -s "$CUSTOMER_INVOICES_DB" ]]; then
         dialog --msgbox "No invoices found." 7 50
@@ -410,16 +451,16 @@ function mark_customer_invoice_paid() {
     fi
     local MENU ID PAYDATE PAYAMT TODAY INV_AMT
     TODAY=$(today_ymd)
+
     MENU=$(awk -F'|' -v CDB="$CUSTOMER_DB" '
-        function cname(id,   cmd, n) {
-            cmd = "awk -F\"|\" -v i=\"" id "\" \"$1==i{print $2; exit}\" " CDB;
-            cmd | getline n; close(cmd);
-            if (n=="") n="UNKNOWN";
-            return n;
-        }
-        $6=="Unpaid" || $6=="" {
-            printf "%s \"%s - %s - $%s - Due %s\"\n", $1, cname($2), $3, $4, $5;
-        }' "$CUSTOMER_INVOICES_DB")
+    BEGIN{
+        while ((getline L < CDB) > 0) { split(L,a,"|"); if (a[1]!="") cname[a[1]]=a[2]; }
+        close(CDB);
+    }
+    ($6=="Unpaid" || $6=="") {
+        c = (cname[$2] ? cname[$2] : "UNKNOWN");
+        printf "%s \"%s - %s - $%s - Due %s\"\n", $1, c, $3, $4, $5;
+    }' "$CUSTOMER_INVOICES_DB")
 
     [[ -z "$MENU" ]] && { dialog --msgbox "No unpaid customer invoices." 7 40; return; }
     ID=$(eval dialog --menu \"Select customer invoice to mark PAID:\" 20 70 15 $MENU 3>&1 1>&2 2>&3) || return
@@ -435,47 +476,7 @@ function mark_customer_invoice_paid() {
     dialog --msgbox "Customer payment recorded." 7 40
 }
 
-
-# ------------------ AR AGING DETAIL ------------------
-
-function ar_aging_detail() {
-    if [[ ! -s "$CUSTOMER_INVOICES_DB" ]]; then
-        dialog --msgbox "No customer invoices found." 7 50
-        return
-    fi
-    local TODAY
-    TODAY=$(today_ymd)
-    awk -F'|' -v CDB="$CUSTOMER_DB" -v today="$TODAY" '
-    function cname(id,   cmd,n){
-        cmd="awk -F\"|\" -v i=\"" id "\" \"$1==i{print $2; exit}\" " CDB;
-        cmd|getline n; close(cmd);
-        return (n?n:"UNKNOWN");
-    }
-    function ymd2days(y,m,d){ if(m<=2){y--;m+=12} return 365*y+int(y/4)-int(y/100)+int(y/400)+int((153*(m-3)+2)/5)+d }
-    function diff(a,b){ split(a,A,"-"); split(b,B,"-"); return ymd2days(B[1],B[2],B[3]) - ymd2days(A[1],A[2],A[3]); }
-    function bucket(due){ od=diff(due,today);
-        if(od<=0) return "Current";
-        else if(od<=30) return "1-30";
-        else if(od<=60) return "31-60";
-        else if(od<=90) return "61-90";
-        else return "90+";
-    }
-    BEGIN{
-        printf "%-4s %-20s %-12s %-10s %-12s %-7s %-6s\n","ID","Customer","Invoice #","Amount","Due Date","Days","Bucket";
-        print  "-------------------------------------------------------------------------------------";
-    }
-    $6!="Paid" {
-        od=diff($5,today);
-        printf "%-4s %-20s %-12s %10.2f %-12s %7d %-6s\n",
-               $1, cname($2), $3, $4+0.0, $5, od, bucket($5);
-    }' "$CUSTOMER_INVOICES_DB" > /tmp/ar_aging_detail.txt
-
-    dialog --title "AR Aging (Detail)" --textbox /tmp/ar_aging_detail.txt 20 86
-    rm -f /tmp/ar_aging_detail.txt
-}
-
-# ------------------ AR AGING SUMMARY ------------------
-
+# AR Aging: Summary
 function ar_aging_summary() {
     if [[ ! -s "$CUSTOMER_INVOICES_DB" ]]; then
         dialog --msgbox "No customer invoices found." 7 50
@@ -487,11 +488,7 @@ function ar_aging_summary() {
     function ymd2days(y,m,d){ if(m<=2){y--;m+=12} return 365*y+int(y/4)-int(y/100)+int(y/400)+int((153*(m-3)+2)/5)+d }
     function diff(a,b){ split(a,A,"-"); split(b,B,"-"); return ymd2days(B[1],B[2],B[3])-ymd2days(A[1],A[2],A[3]); }
     function bucket(due){ od=diff(due,today);
-        if(od<=0) return "Current";
-        else if(od<=30) return "1-30";
-        else if(od<=60) return "31-60";
-        else if(od<=90) return "61-90";
-        else return "90+";
+        if(od<=0) return "Current"; else if(od<=30) return "1-30"; else if(od<=60) return "31-60"; else if(od<=90) return "61-90"; else return "90+";
     }
     $6!="Paid" {
         b=bucket($5); amt=$4+0.0; sum[b]+=amt; total+=amt;
@@ -507,11 +504,37 @@ function ar_aging_summary() {
         print  "------------------------";
         printf "%-8s %12.2f\n","TOTAL",(total?total:0);
     }' "$CUSTOMER_INVOICES_DB" > /tmp/ar_aging_summary.txt
-
     dialog --title "AR Aging (Summary)" --textbox /tmp/ar_aging_summary.txt 18 40
     rm -f /tmp/ar_aging_summary.txt
 }
 
+# AR Aging: Detail (preload customer names)
+function ar_aging_detail() {
+    if [[ ! -s "$CUSTOMER_INVOICES_DB" ]]; then
+        dialog --msgbox "No customer invoices found." 7 50
+        return
+    fi
+    local TODAY
+    TODAY=$(today_ymd)
+    awk -F'|' -v CDB="$CUSTOMER_DB" -v today="$TODAY" '
+    function ymd2days(y,m,d){ if(m<=2){y--;m+=12} return 365*y+int(y/4)-int(y/100)+int(y/400)+int((153*(m-3)+2)/5)+d }
+    function diff(a,b){ split(a,A,"-"); split(b,B,"-"); return ymd2days(B[1],B[2],B[3])-ymd2days(A[1],A[2],A[3]); }
+    function bucket(due){ od=diff(due,today); if(od<=0) return "Current"; else if(od<=30) return "1-30"; else if(od<=60) return "31-60"; else if(od<=90) return "61-90"; else return "90+" }
+
+    BEGIN{
+        while ((getline L < CDB) > 0) { split(L,a,"|"); if(a[1]!="") cname[a[1]]=a[2]; }
+        close(CDB);
+        printf "%-4s %-20s %-12s %-10s %-12s %-7s %-6s\n","ID","Customer","Invoice #","Amount","Due Date","Days","Bucket";
+        print  "-------------------------------------------------------------------------------------";
+    }
+    $6!="Paid" {
+        od=diff($5,today);
+        c = (cname[$2] ? cname[$2] : "UNKNOWN");
+        printf "%-4s %-20s %-12s %10.2f %-12s %7d %-6s\n", $1, c, $3, $4+0.0, $5, od, bucket($5);
+    }' "$CUSTOMER_INVOICES_DB" > /tmp/ar_aging_detail.txt
+    dialog --title "AR Aging (Detail)" --textbox /tmp/ar_aging_detail.txt 20 86
+    rm -f /tmp/ar_aging_detail.txt
+}
 
 # ------------------ REPORTS MENU ------------------
 
@@ -540,21 +563,13 @@ function reports_menu() {
     done
 }
 
-# ------------------ ABOUT BOX ------------------
-function about_box() {
-    dialog --backtitle "$BACKTITLE" \
-           --title "About" \
-           --msgbox "INITECH Financials\nCreated by ChatGPT" 8 40
-}
-
-
 # ------------------ MAIN MENU ------------------
 
 while true; do
     CHOICE=$(dialog --clear \
         --backtitle "$BACKTITLE" \
         --title "$TITLE" \
-        --menu "Main Menu - Select an Option" 22 76 12 \
+        --menu "Main Menu - Select an Option" 22 76 13 \
         1 "View Accounts Payable (Unpaid)" \
         2 "Enter Vendor Invoice" \
         3 "Mark Vendor Invoice Paid" \
@@ -584,3 +599,4 @@ while true; do
         *) dialog --title "Error" --msgbox "Invalid option. Please try again." 7 50 ;;
     esac
 done
+

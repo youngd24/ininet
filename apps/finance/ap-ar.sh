@@ -1,93 +1,393 @@
-#!/usr/bin/bash
+#!/usr/local/bin/bash
 
 # Title and company name
 TITLE="INITECH Financial Systems"
 BACKTITLE="INITECH - Accounts Payable / Receivable Dashboard"
 
-# Path to customer database
-CUSTOMER_DB="/export/accounting/customers.db"
-mkdir -p /export/accounting
-touch "$CUSTOMER_DB"
+# Paths
+ACCT_DIR="/export/accounting"
+CUSTOMER_DB="$ACCT_DIR/customers.db"
+VENDOR_DB="$ACCT_DIR/vendors.db"
+VENDOR_INVOICES_DB="$ACCT_DIR/vendor_invoices.db"
 
-# Function to add a customer
+# Ensure accounting directory exists
+if [[ ! -d $ACCT_DIR ]]; then
+    echo "Creating directory $ACCT_DIR"
+    mkdir -p "$ACCT_DIR" || { echo "Failed to create accounting directory"; exit 1; }
+fi
+
+# Ensure all data files exist
+for FILE in "$CUSTOMER_DB" "$VENDOR_DB" "$VENDOR_INVOICES_DB"; do
+    [[ ! -f "$FILE" ]] && { touch "$FILE" || { echo "Failed to create $FILE"; exit 1; }; }
+done
+
+echo "Starting up..."
+sleep 1
+
+# ------------------ UTILITIES ------------------
+
+# Get next numeric ID for a pipe-delimited file (ID is field 1)
+function next_id() {
+    local file="$1"
+    [[ ! -s "$file" ]] && { echo 1; return; }
+    awk -F'|' 'NF>0 { if ($1+0>max) max=$1+0 } END { print (max?max:0)+1 }' "$file"
+}
+
+# Today Y-M-D
+function today_ymd() {
+    date +"%Y-%m-%d"
+}
+
+# Days between two YYYY-MM-DD dates (date2 - date1)
+# Pure awk (no GNU date), valid Gregorian math
+function days_between() {
+    local d1="$1" d2="$2"
+    awk -v A="$d1" -v B="$d2" 'BEGIN{
+        split(A,a,"-"); y1=a[1]+0; m1=a[2]+0; d1=a[3]+0;
+        split(B,b,"-"); y2=b[1]+0; m2=b[2]+0; d2=b[3]+0;
+        print ymd2days(y2,m2,d2)-ymd2days(y1,m1,d1);
+    }
+    function ymd2days(y,m,d,   Y,M) {
+        if (m<=2){ y--; m+=12 }
+        return 365*y + int(y/4) - int(y/100) + int(y/400) + int((153*(m-3)+2)/5) + d;
+    }'
+}
+
+# Overdue days = today - due_date (negative means not due yet)
+function overdue_days() {
+    local due="$1"
+    local t="$(today_ymd)"
+    days_between "$due" "$t"
+}
+
+# Safe printf for fixed columns via awk format
+function format_ap_table() {
+    awk -F'|' '
+    BEGIN {
+        printf "%-4s %-5s %-20s %-12s %-10s %-12s %-8s %-12s %-10s\n",
+               "ID","VID","Vendor","Invoice #","Amount","Due Date","Status","Paid Date","Pay Amt";
+        print  "--------------------------------------------------------------------------------------------------------------";
+    }
+    {
+        id=$1; vid=$2; inv=$3; amt=$4; due=$5; st=$6; pdate=$7; pamt=$8;
+        if (pdate=="") pdate="-";
+        if (pamt=="")  pamt="-";
+        printf "%-4s %-5s %-20s %-12s %-10s %-12s %-8s %-12s %-10s\n",
+               id, vid, $0, inv, amt, due, st, pdate, pamt; # vendor name filled by caller
+    }'
+}
+
+# Resolve vendor name by ID
+function vendor_name_by_id() {
+    local vid="$1"
+    awk -F'|' -v id="$vid" '$1==id { print $2; found=1; exit } END{ if(!found) print "UNKNOWN" }' "$VENDOR_DB"
+}
+
+# ------------------ VENDOR MASTER ------------------
+
+function add_vendor() {
+    local NAME ADDRESS PHONE LAST_ID
+    NAME=$(dialog --inputbox "Enter Vendor Name:" 8 50 3>&1 1>&2 2>&3) || return
+    ADDRESS=$(dialog --inputbox "Enter Address:" 8 50 3>&1 1>&2 2>&3) || return
+    PHONE=$(dialog --inputbox "Enter Phone:" 8 50 3>&1 1>&2 2>&3) || return
+
+    LAST_ID=$(next_id "$VENDOR_DB")
+    echo "$LAST_ID|$NAME|$ADDRESS|$PHONE" >> "$VENDOR_DB"
+    dialog --msgbox "Vendor added successfully." 7 50
+}
+
+function view_vendors() {
+    if [[ ! -s "$VENDOR_DB" ]]; then
+        dialog --msgbox "No vendors found." 7 50
+        return
+    fi
+    awk -F'|' 'BEGIN{
+        printf "%-4s %-20s %-30s %-14s\n","ID","Vendor","Address","Phone";
+        print  "--------------------------------------------------------------------------";
+    }
+    { printf "%-4s %-20s %-30s %-14s\n",$1,$2,$3,$4 }' "$VENDOR_DB" > /tmp/vendors.txt
+    dialog --title "Vendors" --textbox /tmp/vendors.txt 20 72
+    rm -f /tmp/vendors.txt
+}
+
+function edit_vendor() {
+    if [[ ! -s "$VENDOR_DB" ]]; then
+        dialog --msgbox "No vendors to edit." 7 50
+        return
+    fi
+    local LIST ID OLD NAME ADDRESS PHONE
+    LIST=$(awk -F'|' '{printf "%s \"%s\"\n",$1,$2}' "$VENDOR_DB")
+    ID=$(eval dialog --menu \"Select vendor to edit:\" 20 60 15 $LIST 3>&1 1>&2 2>&3) || return
+
+    OLD=$(grep "^$ID|" "$VENDOR_DB")
+    NAME=$(dialog --inputbox "Edit Vendor Name:" 8 50 "$(echo "$OLD"|cut -d'|' -f2)" 3>&1 1>&2 2>&3) || return
+    ADDRESS=$(dialog --inputbox "Edit Address:" 8 50 "$(echo "$OLD"|cut -d'|' -f3)" 3>&1 1>&2 2>&3) || return
+    PHONE=$(dialog --inputbox "Edit Phone:" 8 50 "$(echo "$OLD"|cut -d'|' -f4)" 3>&1 1>&2 2>&3) || return
+
+    # Replace line
+    grep -v "^$ID|" "$VENDOR_DB" > "$VENDOR_DB.tmp" && mv "$VENDOR_DB.tmp" "$VENDOR_DB"
+    echo "$ID|$NAME|$ADDRESS|$PHONE" >> "$VENDOR_DB"
+    sort -t'|' -k1,1n "$VENDOR_DB" -o "$VENDOR_DB"
+    dialog --msgbox "Vendor updated successfully." 7 50
+}
+
+function delete_vendor() {
+    if [[ ! -s "$VENDOR_DB" ]]; then
+        dialog --msgbox "No vendors to delete." 7 50
+        return
+    fi
+    local LIST ID NAME
+    LIST=$(awk -F'|' '{printf "%s \"%s\"\n",$1,$2}' "$VENDOR_DB")
+    ID=$(eval dialog --menu \"Select vendor to delete:\" 20 60 15 $LIST 3>&1 1>&2 2>&3) || return
+    NAME=$(awk -F'|' -v id="$ID" '$1==id{print $2}' "$VENDOR_DB")
+    dialog --yesno "Delete vendor: $NAME ?" 7 50 || return
+    grep -v "^$ID|" "$VENDOR_DB" > "$VENDOR_DB.tmp" && mv "$VENDOR_DB.tmp" "$VENDOR_DB"
+    dialog --msgbox "Vendor deleted." 7 50
+}
+
+function vendor_master_menu() {
+    while true; do
+        local SUB
+        SUB=$(dialog --clear \
+            --backtitle "$BACKTITLE" \
+            --title "Maintain Vendor Master" \
+            --menu "Select a function" 15 60 6 \
+            1 "Add Vendor" \
+            2 "Edit Vendor" \
+            3 "Delete Vendor" \
+            4 "View Vendors" \
+            5 "Return to Main Menu" \
+            3>&1 1>&2 2>&3) || { clear; return; }
+        clear
+        case "$SUB" in
+            1) add_vendor ;;
+            2) edit_vendor ;;
+            3) delete_vendor ;;
+            4) view_vendors ;;
+            5) break ;;
+            *) dialog --msgbox "Invalid option." 7 40 ;;
+        esac
+    done
+}
+
+# ------------------ ACCOUNTS PAYABLE ------------------
+
+# Add vendor invoice (choose vendor from master)
+function add_vendor_invoice() {
+    if [[ ! -s "$VENDOR_DB" ]]; then
+        dialog --msgbox "No vendors exist. Add a vendor first." 7 50
+        return
+    fi
+    local VLIST VID INVOICE_NUM AMOUNT DUE_DATE STATUS ID
+    VLIST=$(awk -F'|' '{printf "%s \"%s\"\n",$1,$2}' "$VENDOR_DB")
+    VID=$(eval dialog --menu \"Select Vendor:\" 20 60 15 $VLIST 3>&1 1>&2 2>&3) || return
+
+    INVOICE_NUM=$(dialog --inputbox "Enter Invoice Number:" 8 50 3>&1 1>&2 2>&3) || return
+    AMOUNT=$(dialog --inputbox "Enter Invoice Amount (e.g. 1234.56):" 8 50 3>&1 1>&2 2>&3) || return
+    DUE_DATE=$(dialog --inputbox "Enter Due Date (YYYY-MM-DD):" 8 50 3>&1 1>&2 2>&3) || return
+    STATUS="Unpaid"
+
+    ID=$(next_id "$VENDOR_INVOICES_DB")
+    echo "$ID|$VID|$INVOICE_NUM|$AMOUNT|$DUE_DATE|$STATUS||" >> "$VENDOR_INVOICES_DB"
+    dialog --msgbox "Invoice recorded." 7 40
+}
+
+# View all unpaid invoices
+function view_accounts_payable() {
+    if [[ ! -s "$VENDOR_INVOICES_DB" ]]; then
+        dialog --msgbox "No vendor invoices found." 7 50
+        return
+    fi
+    awk -F'|' -v VDB="$VENDOR_DB" '
+        function vname(id,   cmd, n) {
+            cmd = "awk -F\"|\" -v i=\"" id "\" \"$1==i{print $2; exit}\" " VDB;
+            cmd | getline n; close(cmd);
+            if (n=="") n="UNKNOWN";
+            return n;
+        }
+        BEGIN{
+            printf "%-4s %-20s %-12s %-10s %-12s %-8s\n","ID","Vendor","Invoice #","Amount","Due Date","Status";
+            print  "-------------------------------------------------------------------------------";
+        }
+        $6=="Unpaid" || $6=="" {
+            printf "%-4s %-20s %-12s %-10s %-12s %-8s\n",
+                   $1, vname($2), $3, $4, $5, ($6==""?"Unpaid":$6);
+        }' "$VENDOR_INVOICES_DB" > /tmp/ap_view.txt
+    dialog --title "Accounts Payable (Unpaid)" --textbox /tmp/ap_view.txt 20 78
+    rm -f /tmp/ap_view.txt
+}
+
+# Mark an invoice as paid
+function mark_invoice_paid() {
+    if [[ ! -s "$VENDOR_INVOICES_DB" ]]; then
+        dialog --msgbox "No invoices found." 7 50
+        return
+    fi
+    # Build menu of unpaid invoices: ID "Vendor - Inv# - Amount - Due"
+    local MENU ID PICK PAYDATE PAYAMT TODAY
+    TODAY=$(today_ymd)
+    MENU=$(awk -F'|' -v VDB="$VENDOR_DB" '
+        function vname(id,   cmd, n) {
+            cmd = "awk -F\"|\" -v i=\"" id "\" \"$1==i{print $2; exit}\" " VDB;
+            cmd | getline n; close(cmd);
+            if (n=="") n="UNKNOWN";
+            return n;
+        }
+        $6=="Unpaid" || $6=="" {
+            printf "%s \"%s - %s - $%s - Due %s\"\n", $1, vname($2), $3, $4, $5;
+        }' "$VENDOR_INVOICES_DB")
+
+    [[ -z "$MENU" ]] && { dialog --msgbox "No unpaid invoices." 7 40; return; }
+    ID=$(eval dialog --menu \"Select invoice to mark PAID:\" 20 70 15 $MENU 3>&1 1>&2 2>&3) || return
+
+    PAYDATE=$(dialog --inputbox "Payment Date (YYYY-MM-DD):" 8 50 "$TODAY" 3>&1 1>&2 2>&3) || return
+    # Default payment amount = invoice amount
+    local INV_AMT
+    INV_AMT=$(awk -F'|' -v id="$ID" '$1==id{print $4; exit}' "$VENDOR_INVOICES_DB")
+    PAYAMT=$(dialog --inputbox "Payment Amount:" 8 50 "$INV_AMT" 3>&1 1>&2 2>&3) || return
+
+    # Rewrite the record
+    awk -F'|' -v OFS='|' -v id="$ID" -v pdate="$PAYDATE" -v pamt="$PAYAMT" '
+        $1==id {
+            # Pad missing fields to 8
+            for (i=NF+1;i<=8;i++) $i="";
+            $6="Paid"; $7=pdate; $8=pamt;
+        } { print $0 }' "$VENDOR_INVOICES_DB" > "$VENDOR_INVOICES_DB.tmp" && mv "$VENDOR_INVOICES_DB.tmp" "$VENDOR_INVOICES_DB"
+
+    dialog --msgbox "Invoice marked as PAID." 7 40
+}
+
+# ------------------ AGING REPORTS ------------------
+
+# AP Aging Summary (buckets)
+function ap_aging_summary() {
+    if [[ ! -s "$VENDOR_INVOICES_DB" ]]; then
+        dialog --msgbox "No invoices found." 7 50
+        return
+    fi
+    local TODAY
+    TODAY=$(today_ymd)
+    awk -F'|' -v VDB="$VENDOR_DB" -v today="$TODAY" '
+    function ymd2days(y,m,d){ if(m<=2){y--;m+=12} return 365*y+int(y/4)-int(y/100)+int(y/400)+int((153*(m-3)+2)/5)+d }
+    function diff(a,b,  aa,bb){ split(a,A,"-"); split(b,B,"-"); return ymd2days(B[1],B[2],B[3]) - ymd2days(A[1],A[2],A[3]) }
+    function bucket(due,  od) { od=diff(due,today);
+        if (od<=0) return "Current";
+        else if (od<=30) return "1-30";
+        else if (od<=60) return "31-60";
+        else if (od<=90) return "61-90";
+        else return "90+";
+    }
+    $6!="Paid" {
+        b=bucket($5);
+        amt=$4+0.0;
+        sum[b]+=amt;
+        total+=amt;
+    }
+    END{
+        printf "%-8s %12s\n","Bucket","Amount";
+        print  "------------------------";
+        printf "%-8s %12.2f\n","Current",(sum["Current"]?sum["Current"]:0);
+        printf "%-8s %12.2f\n","1-30",(sum["1-30"]?sum["1-30"]:0);
+        printf "%-8s %12.2f\n","31-60",(sum["31-60"]?sum["31-60"]:0);
+        printf "%-8s %12.2f\n","61-90",(sum["61-90"]?sum["61-90"]:0);
+        printf "%-8s %12.2f\n","90+",(sum["90+"]?sum["90+"]:0);
+        print  "------------------------";
+        printf "%-8s %12.2f\n","TOTAL",(total?total:0);
+    }' "$VENDOR_INVOICES_DB" > /tmp/ap_aging_summary.txt
+    dialog --title "AP Aging (Summary)" --textbox /tmp/ap_aging_summary.txt 18 40
+    rm -f /tmp/ap_aging_summary.txt
+}
+
+# AP Aging Detail (each unpaid invoice + bucket)
+function ap_aging_detail() {
+    if [[ ! -s "$VENDOR_INVOICES_DB" ]]; then
+        dialog --msgbox "No invoices found." 7 50
+        return
+    fi
+    local TODAY
+    TODAY=$(today_ymd)
+    awk -F'|' -v VDB="$VENDOR_DB" -v today="$TODAY" '
+    function vname(id,   cmd, n){ cmd="awk -F\"|\" -v i=\"" id "\" \"$1==i{print $2; exit}\" " VDB; cmd|getline n; close(cmd); if(n=="") n="UNKNOWN"; return n }
+    function ymd2days(y,m,d){ if(m<=2){y--;m+=12} return 365*y+int(y/4)-int(y/100)+int(y/400)+int((153*(m-3)+2)/5)+d }
+    function diff(a,b,  aa,bb){ split(a,A,"-"); split(b,B,"-"); return ymd2days(B[1],B[2],B[3]) - ymd2days(A[1],A[2],A[3]) }
+    function bucket(due,  od){ od=diff(due,today); if(od<=0) return "Current"; else if(od<=30) return "1-30"; else if(od<=60) return "31-60"; else if(od<=90) return "61-90"; else return "90+" }
+    BEGIN{
+        printf "%-4s %-20s %-12s %-10s %-12s %-7s %-6s\n","ID","Vendor","Invoice #","Amount","Due Date","Days","Bucket";
+        print  "-------------------------------------------------------------------------------------";
+    }
+    $6!="Paid" {
+        od=diff($5,today);
+        printf "%-4s %-20s %-12s %10.2f %-12s %7d %-6s\n",
+               $1, vname($2), $3, $4+0.0, $5, od, bucket($5);
+    }' "$VENDOR_INVOICES_DB" > /tmp/ap_aging_detail.txt
+    dialog --title "AP Aging (Detail)" --textbox /tmp/ap_aging_detail.txt 20 86
+    rm -f /tmp/ap_aging_detail.txt
+}
+
+# ------------------ CUSTOMER MASTER (unchanged from your base) ------------------
+
 function add_customer() {
-    NAME=$(dialog --inputbox "Enter Customer Name:" 8 50 3>&1 1>&2 2>&3)
-    [ $? -ne 0 ] && return
-
-    ADDRESS=$(dialog --inputbox "Enter Address:" 8 50 3>&1 1>&2 2>&3)
-    [ $? -ne 0 ] && return
-
-    PHONE=$(dialog --inputbox "Enter Phone Number:" 8 50 3>&1 1>&2 2>&3)
-    [ $? -ne 0 ] && return
-
-    LAST_ID=$(awk -F'|' 'END {print $1+1}' "$CUSTOMER_DB")
-    [ -z "$LAST_ID" ] && LAST_ID=1
-
+    local NAME ADDRESS PHONE LAST_ID
+    NAME=$(dialog --inputbox "Enter Customer Name:" 8 50 3>&1 1>&2 2>&3) || return
+    ADDRESS=$(dialog --inputbox "Enter Address:" 8 50 3>&1 1>&2 2>&3) || return
+    PHONE=$(dialog --inputbox "Enter Phone Number:" 8 50 3>&1 1>&2 2>&3) || return
+    LAST_ID=$(next_id "$CUSTOMER_DB")
     echo "$LAST_ID|$NAME|$ADDRESS|$PHONE" >> "$CUSTOMER_DB"
     dialog --msgbox "Customer added successfully." 7 50
 }
 
-# Function to view customers
 function view_customers() {
-    if [ ! -s "$CUSTOMER_DB" ]; then
+    if [[ ! -s "$CUSTOMER_DB" ]]; then
         dialog --msgbox "No customers found." 7 50
         return
     fi
-    dialog --title "Customer List" --textbox "$CUSTOMER_DB" 20 70
+    awk -F'|' 'BEGIN{
+        printf "%-4s %-20s %-30s %-14s\n","ID","Customer","Address","Phone";
+        print  "--------------------------------------------------------------------------";
+    }
+    { printf "%-4s %-20s %-30s %-14s\n",$1,$2,$3,$4 }' "$CUSTOMER_DB" > /tmp/customers.txt
+    dialog --title "Customer List" --textbox /tmp/customers.txt 20 72
+    rm -f /tmp/customers.txt
 }
 
-# Function to edit a customer
 function edit_customer() {
-    if [ ! -s "$CUSTOMER_DB" ]; then
+    if [[ ! -s "$CUSTOMER_DB" ]]; then
         dialog --msgbox "No customers to edit." 7 50
         return
     fi
-
+    local CUST_LIST ID OLD NAME ADDRESS PHONE
     CUST_LIST=$(awk -F'|' '{printf "%s \"%s\"\n", $1, $2}' "$CUSTOMER_DB")
-    ID=$(eval dialog --menu \"Select customer to edit:\" 20 60 15 $CUST_LIST 3>&1 1>&2 2>&3)
-    [ $? -ne 0 ] && return
+    ID=$(eval dialog --menu \"Select customer to edit:\" 20 60 15 $CUST_LIST 3>&1 1>&2 2>&3) || return
 
-    OLD_LINE=$(grep "^$ID|" "$CUSTOMER_DB")
-    OLD_NAME=$(echo "$OLD_LINE" | cut -d'|' -f2)
-    OLD_ADDR=$(echo "$OLD_LINE" | cut -d'|' -f3)
-    OLD_PHONE=$(echo "$OLD_LINE" | cut -d'|' -f4)
+    OLD=$(grep "^$ID|" "$CUSTOMER_DB")
+    NAME=$(dialog --inputbox "Edit Name:" 8 50 "$(echo "$OLD"|cut -d'|' -f2)" 3>&1 1>&2 2>&3) || return
+    ADDRESS=$(dialog --inputbox "Edit Address:" 8 50 "$(echo "$OLD"|cut -d'|' -f3)" 3>&1 1>&2 2>&3) || return
+    PHONE=$(dialog --inputbox "Edit Phone:" 8 50 "$(echo "$OLD"|cut -d'|' -f4)" 3>&1 1>&2 2>&3) || return
 
-    NAME=$(dialog --inputbox "Edit Name:" 8 50 "$OLD_NAME" 3>&1 1>&2 2>&3)
-    [ $? -ne 0 ] && return
-    ADDRESS=$(dialog --inputbox "Edit Address:" 8 50 "$OLD_ADDR" 3>&1 1>&2 2>&3)
-    [ $? -ne 0 ] && return
-    PHONE=$(dialog --inputbox "Edit Phone:" 8 50 "$OLD_PHONE" 3>&1 1>&2 2>&3)
-    [ $? -ne 0 ] && return
-
-    sed -i "/^$ID|/d" "$CUSTOMER_DB"
+    grep -v "^$ID|" "$CUSTOMER_DB" > "$CUSTOMER_DB.tmp" && mv "$CUSTOMER_DB.tmp" "$CUSTOMER_DB"
     echo "$ID|$NAME|$ADDRESS|$PHONE" >> "$CUSTOMER_DB"
     sort -t'|' -k1,1n "$CUSTOMER_DB" -o "$CUSTOMER_DB"
-
     dialog --msgbox "Customer updated successfully." 7 50
 }
 
-# Function to delete a customer
 function delete_customer() {
-    if [ ! -s "$CUSTOMER_DB" ]; then
+    if [[ ! -s "$CUSTOMER_DB" ]]; then
         dialog --msgbox "No customers to delete." 7 50
         return
     fi
-
+    local CUST_LIST ID NAME
     CUST_LIST=$(awk -F'|' '{printf "%s \"%s\"\n", $1, $2}' "$CUSTOMER_DB")
-    ID=$(eval dialog --menu \"Select customer to delete:\" 20 60 15 $CUST_LIST 3>&1 1>&2 2>&3)
-    [ $? -ne 0 ] && return
+    ID=$(eval dialog --menu \"Select customer to delete:\" 20 60 15 $CUST_LIST 3>&1 1>&2 2>&3) || return
 
-    NAME=$(awk -F'|' -v id="$ID" '$1==id {print $2}' "$CUSTOMER_DB")
-    dialog --yesno "Are you sure you want to delete \"$NAME\"?" 7 50
-    if [ $? -eq 0 ]; then
-        sed -i "/^$ID|/d" "$CUSTOMER_DB"
-        dialog --msgbox "Customer deleted successfully." 7 50
-    fi
+    NAME=$(awk -F'|' -v id="$ID" '$1==id{print $2}' "$CUSTOMER_DB")
+    dialog --yesno "Are you sure you want to delete \"$NAME\"?" 7 50 || return
+    grep -v "^$ID|" "$CUSTOMER_DB" > "$CUSTOMER_DB.tmp" && mv "$CUSTOMER_DB.tmp" "$CUSTOMER_DB"
+    dialog --msgbox "Customer deleted successfully." 7 50
 }
 
-# Customer Master sub-menu function
 function customer_master_menu() {
     while true; do
+        local SUBCHOICE
         SUBCHOICE=$(dialog --clear \
             --backtitle "$BACKTITLE" \
             --title "Maintain Customer Master" \
@@ -97,8 +397,7 @@ function customer_master_menu() {
             3 "Delete Customer" \
             4 "View Customers" \
             5 "Return to Main Menu" \
-            3>&1 1>&2 2>&3)
-
+            3>&1 1>&2 2>&3) || { clear; return; }
         clear
         case $SUBCHOICE in
             1) add_customer ;;
@@ -111,48 +410,59 @@ function customer_master_menu() {
     done
 }
 
-# Main menu loop
+# ------------------ REPORTS MENU ------------------
+
+function reports_menu() {
+    while true; do
+        local R
+        R=$(dialog --clear \
+            --backtitle "$BACKTITLE" \
+            --title "Reports" \
+            --menu "Select a report" 15 60 5 \
+            1 "AP Aging - Summary" \
+            2 "AP Aging - Detail" \
+            3 "Return to Main Menu" \
+            3>&1 1>&2 2>&3) || { clear; return; }
+        clear
+        case "$R" in
+            1) ap_aging_summary   ;;
+            2) ap_aging_detail    ;;
+            3) break              ;;
+            *) dialog --msgbox "Invalid option." 7 40 ;;
+        esac
+    done
+}
+
+# ------------------ MAIN MENU ------------------
+
 while true; do
     CHOICE=$(dialog --clear \
         --backtitle "$BACKTITLE" \
         --title "$TITLE" \
-        --menu "Main Menu - Select an Option" 18 60 7 \
-        1 "View Accounts Payable" \
+        --menu "Main Menu - Select an Option" 20 70 9 \
+        1 "View Accounts Payable (Unpaid)" \
         2 "Enter Vendor Invoice" \
-        3 "View Accounts Receivable" \
-        4 "Enter Customer Payment" \
-        5 "Maintain Customer Master" \
-        6 "Generate Reports" \
-        7 "Exit" \
+        3 "Mark Invoice Paid" \
+        4 "Maintain Vendor Master" \
+        5 "View Accounts Receivable" \
+        6 "Enter Customer Payment" \
+        7 "Maintain Customer Master" \
+        8 "Generate Reports" \
+        9 "Exit" \
         3>&1 1>&2 2>&3)
 
     clear
     case $CHOICE in
-        1)
-            dialog --title "Accounts Payable" --msgbox "Displaying list of unpaid vendor invoices..." 10 50
-            ;;
-        2)
-            dialog --title "Enter Vendor Invoice" --msgbox "Invoice entry form would go here." 10 50
-            ;;
-        3)
-            dialog --title "Accounts Receivable" --msgbox "Displaying list of outstanding customer payments..." 10 50
-            ;;
-        4)
-            dialog --title "Enter Customer Payment" --msgbox "Payment entry form would go here." 10 50
-            ;;
-        5)
-            customer_master_menu
-            ;;
-        6)
-            dialog --title "Reports" --msgbox "Generating financial reports..." 10 50
-            ;;
-        7)
-            dialog --title "Exit" --msgbox "Thank you for using INITECH Financial Systems." 7 50
-            break
-            ;;
-        *)
-            dialog --title "Error" --msgbox "Invalid option. Please try again." 7 50
-            ;;
+        1) view_accounts_payable ;;
+        2) add_vendor_invoice ;;
+        3) mark_invoice_paid ;;
+        4) vendor_master_menu ;;
+        5) dialog --title "Accounts Receivable" --msgbox "Displaying list of outstanding customer payments..." 10 50 ;;
+        6) dialog --title "Enter Customer Payment" --msgbox "Payment entry form would go here." 10 50 ;;
+        7) customer_master_menu ;;
+        8) reports_menu ;;
+        9) dialog --title "Exit" --msgbox "Thank you for using INITECH Financial Systems." 7 50; break ;;
+        *) dialog --title "Error" --msgbox "Invalid option. Please try again." 7 50 ;;
     esac
 done
 

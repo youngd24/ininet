@@ -1,0 +1,64 @@
+#!/usr/bin/expect -f
+
+# -------------------------------
+# Upload ap-ar.sh via FTP to wedge:/export/home/youngd/bin
+# -------------------------------
+
+# Load credentials from $HOME/.ftpcreds
+set cred_file "$env(HOME)/.ftpcreds"
+
+if {![file exists $cred_file]} {
+    puts "ERROR: Credentials file $cred_file not found"
+    exit 1
+}
+
+# Read the file into a string
+set fh [open $cred_file r]
+set creds [read $fh]
+close $fh
+
+# Extract username and password using regex
+if {![regexp {username=(.+)} $creds -> username]} {
+    puts "ERROR: username not found in $cred_file"
+    exit 2
+}
+if {![regexp {password=(.+)} $creds -> password]} {
+    puts "ERROR: password not found in $cred_file"
+    exit 3
+}
+
+# Set timeout for the session
+set timeout 10
+
+# Start FTP session
+spawn ftp wedge
+
+expect {
+    "Name*" {
+        send "$username\r"
+        exp_continue
+    }
+    "Password:" {
+        send "$password\r"
+    }
+}
+
+# Wait for the ftp prompt
+expect "ftp>"
+
+# Set binary mode
+send "binary\r"
+expect "ftp>"
+
+# Change to the target remote directory
+send "cd /export/home/youngd/bin\r"
+expect "ftp>"
+
+# Upload the file
+send "put ap-ar.sh\r"
+expect "ftp>"
+
+# Quit FTP session
+send "bye\r"
+expect eof
+

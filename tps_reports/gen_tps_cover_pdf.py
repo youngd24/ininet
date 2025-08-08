@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 """
-Generate a T.P.S. REPORT cover sheet PDF with tweaked spacing using Times New Roman font.
+Generate a T.P.S. REPORT cover sheet PDF with tweaked spacing using Times New Roman font and Initech logo from disk.
 """
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch
+from reportlab.lib.utils import ImageReader
 import argparse
 import csv
 from pathlib import Path
 
 PAGE_WIDTH, PAGE_HEIGHT = letter
-MARGIN_L, MARGIN_R, MARGIN_T, MARGIN_B = (0.9 * inch, 0.9 * inch, 0.9 * inch, 0.9 * inch)
+MARGIN_L, MARGIN_R, MARGIN_T, MARGIN_B = (0.9 * inch, 0.9 * inch, 0.25 * inch, 0.9 * inch)
 CONTENT_W = PAGE_WIDTH - MARGIN_L - MARGIN_R
 LABEL_FONT = "Times-Roman"
 TITLE_FONT = "Times-Bold"
@@ -87,9 +88,31 @@ def draw_two_label_line(c, left, right, y):
 
 def render_cover(output_path, data):
     c = canvas.Canvas(output_path, pagesize=letter)
-    draw_centered(c, "T.P.S. REPORT", y_from_top(0.5 * inch), 40)
-    draw_centered(c, "C O V E R  S H E E T", y_from_top(0.5 * inch + 40), 16)
-    y = y_from_top(1.6 * inch)
+    # Draw logo from file on disk with margin from top
+    logo_path = Path("initech.png")
+    if logo_path.exists():
+        try:
+            logo_img = ImageReader(str(logo_path))
+            logo_width = 2.5 * inch
+            logo_height = logo_width * 0.4
+            top_offset = 0.0 * inch  # push logo down from top of page
+            c.drawImage(
+                logo_img,
+                (PAGE_WIDTH - logo_width) / 2,
+                PAGE_HEIGHT - MARGIN_T - logo_height - top_offset,
+                width=logo_width,
+                height=logo_height,
+                preserveAspectRatio=True,
+                mask='auto'
+            )
+        except Exception as e:
+            print(f"Warning: could not load logo from file: {e}")
+    else:
+        print("Warning: initech.png not found, skipping logo.")
+
+    draw_centered(c, "T.P.S. REPORT", y_from_top(1.7 * inch), 40)
+    draw_centered(c, "C O V E R  S H E E T", y_from_top(1.5 * inch + 40), 16)
+    y = y_from_top(2.7 * inch)
     draw_two_label_line(c, ("Prepared By:", 90, 240, data.get("prepared_by", "")), ("Date:", 32, 120, data.get("date", "")), y)
     y -= ROW_GAP
     draw_label_line(c, "Device/Program Type:", y, 140, CONTENT_W - 150, data.get("device_program_type", ""))

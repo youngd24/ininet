@@ -55,7 +55,7 @@ send "cd /export/home/youngd/bin\r"
 expect "ftp>"
 
 # Upload the file
-send "put ap-ar.sh\r"
+send "put vapid\r"
 expect "ftp>"
 
 # Quit FTP session

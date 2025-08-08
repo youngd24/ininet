@@ -1,15 +1,21 @@
 #!/usr/local/bin/bash
+##############################################################################
+#
+# INITECH Vendor Accounts Payable Integrated Database (VAPID)
+#
+##############################################################################
 
 # Title and company name
 TITLE="INITECH Financial Systems"
 BACKTITLE="INITECH - Accounts Payable / Receivable Dashboard"
 
-# Paths
+# Vars
 ACCT_DIR="/export/accounting"
 CUSTOMER_DB="$ACCT_DIR/customers.db"
 VENDOR_DB="$ACCT_DIR/vendors.db"
 VENDOR_INVOICES_DB="$ACCT_DIR/vendor_invoices.db"
 CUSTOMER_INVOICES_DB="$ACCT_DIR/customer_invoices.db"
+STARTUP_SLEEP="5"
 
 # Prefer GNU awk if present (Solaris-safe fallback)
 AWK=/usr/local/bin/gawk
@@ -24,6 +30,11 @@ sanitize_db() {
     "$AWK" '{ sub(/\r$/,""); sub(/[[:space:]]+$/,""); if (length($0)>0) print }' "$1" > "$1.tmp" && mv "$1.tmp" "$1"
 }
 
+# Ensure all data files exist
+for FILE in "$CUSTOMER_DB" "$VENDOR_DB" "$VENDOR_INVOICES_DB" "$CUSTOMER_INVOICES_DB"; do
+    [[ ! -f "$FILE" ]] && { touch "$FILE" || { echo "Failed to create $FILE"; exit 1; }; }
+done
+
 # On startup, sanitize all DBs and show a quick debug line (helps catch wrong paths)
 for f in "$VENDOR_DB" "$VENDOR_INVOICES_DB" "$CUSTOMER_DB" "$CUSTOMER_INVOICES_DB"; do
     sanitize_db "$f"
@@ -37,13 +48,8 @@ if [[ ! -d $ACCT_DIR ]]; then
     mkdir -p "$ACCT_DIR" || { echo "Failed to create accounting directory"; exit 1; }
 fi
 
-# Ensure all data files exist
-for FILE in "$CUSTOMER_DB" "$VENDOR_DB" "$VENDOR_INVOICES_DB" "$CUSTOMER_INVOICES_DB"; do
-    [[ ! -f "$FILE" ]] && { touch "$FILE" || { echo "Failed to create $FILE"; exit 1; }; }
-done
-
 echo "Starting up..."
-sleep 1
+sleep $STARTUP_SLEEP
 
 # ------------------ UTILITIES ------------------
 

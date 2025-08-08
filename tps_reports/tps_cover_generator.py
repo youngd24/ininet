@@ -88,14 +88,13 @@ def draw_two_label_line(c, left, right, y):
 
 def render_cover(output_path, data):
     c = canvas.Canvas(output_path, pagesize=letter)
-    # Draw logo from file on disk with margin from top
     logo_path = Path("initech.png")
     if logo_path.exists():
         try:
             logo_img = ImageReader(str(logo_path))
             logo_width = 2.5 * inch
             logo_height = logo_width * 0.4
-            top_offset = 0.0 * inch  # push logo down from top of page
+            top_offset = 0.0 * inch
             c.drawImage(
                 logo_img,
                 (PAGE_WIDTH - logo_width) / 2,
@@ -148,22 +147,8 @@ def render_cover(output_path, data):
 
 def parse_args():
     p = argparse.ArgumentParser()
-    p.add_argument("--output", help="Output PDF filename (used only when not using 1.csv)")
-    p.add_argument("--prepared-by", dest="prepared_by", default="")
-    p.add_argument("--date", default="")
-    p.add_argument("--device-program-type", dest="device_program_type", default="")
-    p.add_argument("--product-code", dest="product_code", default="")
-    p.add_argument("--customer", default="")
-    p.add_argument("--vendor", default="")
-    p.add_argument("--due-date", dest="due_date", default="")
-    p.add_argument("--data-loss", dest="data_loss", default="")
-    p.add_argument("--test-date", dest="test_date", default="")
-    p.add_argument("--target-run-date", dest="target_run_date", default="")
-    p.add_argument("--program-run-time", dest="program_run_time", default="")
-    p.add_argument("--reference-guide", dest="reference_guide", default="")
-    p.add_argument("--program-language", dest="program_language", default="")
-    p.add_argument("--num-error-messages", dest="num_error_messages", default="")
-    p.add_argument("--comments", nargs="*", default=[])
+    p.add_argument("--input_file", required=True, help="CSV input file containing field values")
+    p.add_argument("--output", help="Output PDF filename (used only when not using CSV batch mode)")
     return p.parse_args()
 
 def csv_row_to_data(row: dict) -> dict:
@@ -181,14 +166,14 @@ def csv_row_to_data(row: dict) -> dict:
 
 if __name__ == "__main__":
     args = parse_args()
-    csv_path = Path("1.csv")
+    csv_path = Path(args.input_file)
 
     if csv_path.exists():
         with csv_path.open(newline="", encoding="utf-8-sig") as f:
             reader = csv.DictReader(f)
             missing = [h for h in CSV_HEADERS if h not in reader.fieldnames]
             if missing:
-                raise SystemExit(f"1.csv is missing headers: {', '.join(missing)}")
+                raise SystemExit(f"{args.input_file} is missing headers: {', '.join(missing)}")
             for idx, row in enumerate(reader, start=1):
                 data = csv_row_to_data(row)
                 date_str = data.get("date", "").replace("/", "-").replace(" ", "_")
@@ -201,6 +186,6 @@ if __name__ == "__main__":
         data = vars(args).copy()
         output = data.pop("output", None)
         if not output:
-            raise SystemExit("--output is required when 1.csv is not present")
+            raise SystemExit("--output is required when CSV file is not present")
         render_cover(output, data)
         print(f"Wrote {output}")

@@ -69,7 +69,7 @@ function today_ymd() {
 function about_box() {
     dialog --backtitle "$BACKTITLE" \
            --title "About" \
-           --msgbox "INITECH Financials\nCreated by ChatGPT" 8 40
+           --msgbox "INITECH VAPID\nCreated by ChatGPT" 8 40
 }
 
 # ------------------ VENDOR MASTER ------------------

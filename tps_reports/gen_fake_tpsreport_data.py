@@ -1,10 +1,18 @@
+#!/usr/bin/python3
+
 from datetime import date, timedelta, datetime
-from faker import Faker
 import random
 import re
 import sys
 import csv
 import argparse
+
+# Try to import Faker gracefully
+try:
+    from faker import Faker
+except ImportError:
+    print("Error: The 'faker' module is not installed. Please install it using 'pip install faker'.")
+    sys.exit(1)
 
 # Initialize Faker instance
 fake = Faker()
@@ -141,3 +149,4 @@ if __name__ == "__main__":
             for k, v in row.items():
                 print(f"{k}: {v}")
             print()
+

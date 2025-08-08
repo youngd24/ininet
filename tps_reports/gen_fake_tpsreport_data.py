@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-
 from datetime import date, timedelta, datetime
 import random
 import re
@@ -11,7 +10,7 @@ import argparse
 try:
     from faker import Faker
 except ImportError:
-    print("Error: The 'faker' module is not installed. Please install it using 'pip install faker'.")
+    print("Error: The 'faker' module is not installed. Please install it using 'pip install faker' or your OS package manager.")
     sys.exit(1)
 
 # Initialize Faker instance
@@ -22,11 +21,6 @@ DATE_START = date(1996, 1, 1)
 DATE_END = date(1998, 12, 31)
 TEST_DATE_END = date(1999, 1, 1)
 TARGET_DATE_END = date(1999, 1, 1)
-
-# Relative windows for other date fields
-TODAY = date.today()
-SIX_MONTHS_AGO = TODAY - timedelta(days=183)
-IN_SIX_MONTHS = TODAY + timedelta(days=183)
 
 # Error message bounds
 ERROR_MAX = 100
@@ -65,7 +59,7 @@ def generate_fake_data():
         "Product_Code": fake.bothify(text='???-#####'),
         "Customer": fake.company(),
         "Vendor": fake.company(),
-        "Due_Date": _iso(fake.date_between(start_date=TODAY, end_date=IN_SIX_MONTHS)),
+        "Due_Date": _iso(fake.date_between(start_date=DATE_START, end_date=DATE_END)),
         "Data_Loss": random.choice([True, False]),
         "Test_Date": _iso(fake.date_between(start_date=DATE_START, end_date=TEST_DATE_END)),
         "Target_Run_Date": _iso(fake.date_between(start_date=DATE_START, end_date=TARGET_DATE_END)),
@@ -107,7 +101,7 @@ def run_tests(sample_size: int = 100) -> None:
         d_target = _parse_iso(row["Target_Run_Date"])
 
         assert DATE_START <= d_date <= DATE_END, f"Date out of range: {d_date}"
-        assert TODAY <= d_due <= IN_SIX_MONTHS, f"Due_Date out of range: {d_due}"
+        assert DATE_START <= d_due <= DATE_END, f"Due_Date out of range: {d_due}"
         assert DATE_START <= d_test <= TEST_DATE_END, f"Test_Date out of range: {d_test}"
         assert DATE_START <= d_target <= TARGET_DATE_END, f"Target_Run_Date out of range: {d_target}"
 
@@ -149,4 +143,3 @@ if __name__ == "__main__":
             for k, v in row.items():
                 print(f"{k}: {v}")
             print()
-

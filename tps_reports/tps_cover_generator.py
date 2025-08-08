@@ -148,7 +148,6 @@ def render_cover(output_path, data):
 def parse_args():
     p = argparse.ArgumentParser()
     p.add_argument("--input_file", required=True, help="CSV input file containing field values")
-    p.add_argument("--output", help="Output PDF filename (used only when not using CSV batch mode)")
     return p.parse_args()
 
 def csv_row_to_data(row: dict) -> dict:
@@ -178,14 +177,8 @@ if __name__ == "__main__":
                 data = csv_row_to_data(row)
                 date_str = data.get("date", "").replace("/", "-").replace(" ", "_")
                 product_code = data.get("product_code", "").replace(" ", "_")
-                customer = data.get("customer", "").replace(" ", "_")
-                out_name = f"TPS_{date_str}_{product_code}_{customer}.pdf"
+                out_name = f"TPS_{date_str}_{product_code}.pdf"
                 render_cover(out_name, data)
                 print(f"Wrote {out_name}")
     else:
-        data = vars(args).copy()
-        output = data.pop("output", None)
-        if not output:
-            raise SystemExit("--output is required when CSV file is not present")
-        render_cover(output, data)
-        print(f"Wrote {output}")
+        raise SystemExit(f"Input file {args.input_file} not found")

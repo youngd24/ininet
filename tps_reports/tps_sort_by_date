@@ -1,0 +1,120 @@
+#!/usr/local/bin/bash
+# -----------------------------------------------------------------------------
+# Script: tps_sort_by_date.sh
+# Purpose: Move TPS report PDFs into year/month folders based on filename date
+#          and set directory timestamps (year b Jan 1, month b 1st of month),
+#          and set file timestamps to the date in the filename (00:00).
+# Platform: Bash 4.1 (Solaris 7 friendly)
+# Options:
+#   -n | --dry-run   Preview mode; no changes made
+#   -h | --help      Show usage
+# -----------------------------------------------------------------------------
+
+set -o nounset
+export LC_ALL=C
+shopt -s nullglob
+
+print_help() {
+  cat <<'EOF'
+Usage: ./tps_sort_by_date.sh [OPTIONS]
+
+Moves files named TPS-YYYY-MM-DD.pdf into ./YYYY/MM/ subdirectories.
+Sets directory timestamps (year b Jan 1 00:00, month b 1st 00:00).
+Sets file timestamps to the YYYY-MM-DD at 00:00.
+
+Options:
+  -n, --dry-run   Preview actions without making changes
+  -h, --help      Show this help and exit
+EOF
+}
+
+# ----------------------
+# Variables (descriptions)
+# DRYRUN     - 1 to simulate actions; 0 to execute
+# moved      - count of moved files
+# skipped    - count of skipped files
+# f          - loop path (e.g., ./TPS-1996-01-01.pdf)
+# fname      - filename without leading ./
+# year/month/day - captured date parts from filename
+# year_dir   - YYYY directory
+# month_dir  - YYYY/MM directory
+# dest_path  - final target path for the file
+# base_no_ext- filename without .pdf
+# i          - counter for uniquifying duplicates
+# year_created / month_created - flags when dirs are created this iteration
+# ----------------------
+
+DRYRUN=${DRYRUN:-0}
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -n|--dry-run) DRYRUN=1 ;;
+    -h|--help)    print_help; exit 0 ;;
+    --) shift; break ;;
+    *) printf 'Unknown option: %s\n' "$1" >&2; exit 2 ;;
+  esac
+  shift
+done
+
+_do_mkdir_p() { if [[ "$DRYRUN" = 1 ]]; then printf '[DRYRUN] mkdir -p -- %s\n' "$1"; else mkdir -p -- "$1"; fi; }
+# Solaris touch format: [[CC]YY]MMDDhhmm[.SS]; use -m to set mtime
+_do_touch_date() { local p="$1"; local d="$2"; if [[ "$DRYRUN" = 1 ]]; then printf '[DRYRUN] touch -m -t %s %s\n' "$d" "$p"; else touch -m -t "$d" "$p"; fi; }
+_do_move() { if [[ "$DRYRUN" = 1 ]]; then printf '[DRYRUN] mv -- %s %s\n' "$1" "$2"; else mv -- "$1" "$2"; fi; }
+
+moved=0
+skipped=0
+
+# ----------------------
+# Main loop
+# ----------------------
+for f in ./TPS-????-??-??.pdf; do
+  [ -f "$f" ] || continue
+  fname="${f#./}"
+
+  # Match TPS-YYYY-MM-DD.pdf and capture parts (RHS must be unquoted)
+  if [[ $fname =~ ^TPS-([0-9]{4})-([0-9]{2})-([0-9]{2})\.pdf$ ]]; then
+    year=${BASH_REMATCH[1]}
+    month=${BASH_REMATCH[2]}
+    day=${BASH_REMATCH[3]}
+
+    case $month in
+      01|02|03|04|05|06|07|08|09|10|11|12) ;;
+      *) printf 'Skipping %s (invalid month %s)\n' "$fname" "$month" >&2; skipped=$((skipped+1)); continue ;;
+    esac
+
+    year_dir="$year"
+    month_dir="$year/$month"
+
+    year_created=0; month_created=0
+    if [[ ! -d "$year_dir" ]]; then _do_mkdir_p "$year_dir"; year_created=1; fi
+    if [[ ! -d "$month_dir" ]]; then _do_mkdir_p "$month_dir"; month_created=1; fi
+
+    # Build destination path, ensure uniqueness
+    dest_path="${month_dir}/${fname}"
+    if [[ -e "$dest_path" ]]; then
+      base_no_ext="${fname%.pdf}"; i=1
+      while [[ -e "${month_dir}/${base_no_ext}_${i}.pdf" ]]; do i=$((i+1)); done
+      dest_path="${month_dir}/${base_no_ext}_${i}.pdf"
+    fi
+
+    # Move the file
+    if _do_move "$fname" "$dest_path"; then
+      printf 'Moved %s -> %s\n' "$fname" "$dest_path"; moved=$((moved+1))
+      # Set the file mtime to the exact date in the name at 00:00
+      _do_touch_date "$dest_path" "${year}${month}${day}0000"
+    else
+      printf 'Skipping %s (mv failed)\n' "$fname" >&2; skipped=$((skipped+1))
+    fi
+
+    # IMPORTANT: Re-apply directory timestamps *after* the move so they stick
+    _do_touch_date "$month_dir" "${year}${month}010000"   # month dir b 1st 00:00
+    if [[ $year_created -eq 1 || $month_created -eq 1 ]]; then
+      _do_touch_date "$year_dir"  "${year}01010000"       # year dir b Jan 1 00:00
+    fi
+  else
+    printf 'Skipping %s (name does not match TPS-YYYY-MM-DD.pdf)\n' "$fname" >&2
+    skipped=$((skipped+1))
+  fi
+done
+
+printf '\nSummary: moved=%d, skipped=%d\n' "$moved" "$skipped"
+

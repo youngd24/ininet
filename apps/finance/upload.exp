@@ -51,7 +51,7 @@ send "binary\r"
 expect "ftp>"
 
 # Change to the target remote directory
-send "cd /export/home/youngd/bin\r"
+send "cd /export/accounting\r"
 expect "ftp>"
 
 # Upload the file

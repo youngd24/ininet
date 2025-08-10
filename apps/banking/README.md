@@ -1,6 +1,6 @@
 # TABLE OF CONTENTS
 
-1. ## INTRODUCTION
+## INTRODUCTION
 
 Welcome to the INITECH Banking System — the late-90s solution for ACH, Wires, and
 a few “Special Projects” that Finance doesn’t ask about.
@@ -9,7 +9,7 @@ This build is for demonstration purposes only at Vintage Computer Fest.
 No real money moves, but a lot of fictional pennies might.
 
 
-2. SYSTEM REQUIREMENTS
+## SYSTEM REQUIREMENTS
 
 * Operating System: Solaris 7 (SunOS 5.7)
 * Shell: /usr/local/bin/bash (v2.0+)
@@ -20,7 +20,7 @@ No real money moves, but a lot of fictional pennies might.
   \*\* 1 middle manager who says “Yeahhhh…” a lot
 
 
-3. DIRECTORY STRUCTURE
+## DIRECTORY STRUCTURE
 
 ```
    /export/banking
@@ -32,7 +32,7 @@ No real money moves, but a lot of fictional pennies might.
    └── special\_projects/   # Rounding configs \& skim history
 ```
 
-4. OPERATING INSTRUCTIONS
+## OPERATING INSTRUCTIONS
    
 Run the VCF Control Panel:
 
@@ -46,18 +46,18 @@ Options include:
 * Launch INITECH TUI – main menu for banking ops.
 * View Audit Log – see what Compliance will yell about.
 
-5. SPECIAL ACCESS CODES
+## SPECIAL ACCESS CODES
 
 * TPS → Unlocks Special Projects menu for rounding-error skims.
 * 911 (wire amount) → Milton panic mode: locks down the terminal.
 
-6. COMPLIANCE NOTES
+## COMPLIANCE NOTES
 
 * OFAC checks are manual. Keep a paper list.
 * CTR filing done with actual pens.
 * Any resemblance to real banks is purely coincidental… except the funny parts.
 
-7. EASTER EGGS \& KNOWN “FEATURES”
+## EASTER EGGS \& KNOWN “FEATURES”
 
 * PC LOAD LETTER LLC – escrow account \& frequent payee.
 * TPS Consulting LLC – recipient of fractions-of-a-cent skims.

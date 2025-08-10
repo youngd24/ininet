@@ -1,7 +1,6 @@
-#TABLE OF CONTENTS
+# TABLE OF CONTENTS
 
-
-1. ##INTRODUCTION
+1. ## INTRODUCTION
 
 Welcome to the INITECH Banking System — the late-90s solution for ACH, Wires, and
 a few “Special Projects” that Finance doesn’t ask about.

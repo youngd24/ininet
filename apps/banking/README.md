@@ -64,5 +64,5 @@ Options include:
 * Signature cards feature faint red stapler imprints.
 * Wire fax coversheets say “Yeahhhh” in Comic Sans.
 
-©1999 INITECH Corp. – Bringing You \& Us Together™  
+**©1999 INITECH Corp. – Bringing You \& Us Together™**  
 *Printed in the USA on recycled TPS reports.*

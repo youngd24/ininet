@@ -85,9 +85,11 @@ ensure_env() {
            "$WIRE_FORMS"; do
     [ -d "$d" ] || mkdir -p "$d" || die "Cannot create $d"
   done
-  : > "$LOG_DIR/ops.log"       2>/dev/null || true
-  : > "$STATE_DIR/accounts.db" 2>/dev/null || true
-  : > "$WIRE_HISTORY"          2>/dev/null || true
+
+  # Preserve existing data/logs; only create if absent
+  [ -f "$STATE_DIR/accounts.db" ] || : > "$STATE_DIR/accounts.db"
+  [ -f "$LOG_DIR/ops.log" ]       || : > "$LOG_DIR/ops.log"
+  [ -f "$WIRE_HISTORY" ]          || : > "$WIRE_HISTORY"
 
   # seed OFAC list placeholder if absent
   if [ ! -f "$OFAC_LIST" ]; then

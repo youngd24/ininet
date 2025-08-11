@@ -20,8 +20,8 @@
 # -----------------------------
 # Config / Environment
 # -----------------------------
-TITLE="INITECH BANK MANAGEMENT SYSTEM"
-BACKTITLE="INITECH - Have you asked, is it good for the company?"
+TITLE="INITECH BANKING SYSTEM"
+BACKTITLE="INITECH - Financial Systems (Late 90's TUI)"
 DATA_ROOT="/export/banking"
 LOG_DIR="$DATA_ROOT/log"
 ACH_INBOX="$DATA_ROOT/ach/incoming"       # batch (received)
@@ -196,7 +196,6 @@ ofac_scan_name() {
     return 0
   fi
   while IFS= read -r pat; do
-    # skip blanks/comments
     [ -z "$pat" ] && continue
     case "$pat" in \#*) continue;; esac
     pat_upper=$(to_upper "$pat")

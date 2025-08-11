@@ -20,8 +20,8 @@
 # -----------------------------
 # Config / Environment
 # -----------------------------
-TITLE="INITECH BANKING SYSTEM"
-BACKTITLE="INITECH - Financial Systems (Late 90's TUI)"
+TITLE="INITECH BANK MANAGEMENT SYSTEM"
+BACKTITLE="INITECH - Innovation + Technology"
 DATA_ROOT="/export/banking"
 LOG_DIR="$DATA_ROOT/log"
 ACH_INBOX="$DATA_ROOT/ach/incoming"       # batch (received)

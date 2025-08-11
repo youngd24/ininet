@@ -1,0 +1,97 @@
+#!/usr/bin/expect -f
+# tui_smoketest.expect — drives the dialog-based TUI to seed and release a wire.
+# Requires: expect, dialog. Intended for Ubuntu; will likely work on other UNIXes with curses terminals.
+
+set timeout 60
+
+# Helper: get the first pending wire ID after entry
+proc get_pending_id {} {
+    # Expect's glob returns absolute path; strip to basename.
+    set files [glob -nocomplain /export/banking/wires/pending/WIRE.*]
+    if {[llength $files] == 0} { return "" }
+    set f [lindex $files 0]
+    return [file tail $f]
+}
+
+# Launch the app in a login shell to ensure PATH is sane
+spawn bash -lc "./initech_bank_mvp.sh"
+
+# 1) Access Code prompt -> press Enter to continue normally
+after 500
+send -- "\r"
+
+# 2) Main Menu: "Payments (ACH + Wires)" is option 2
+after 500
+send -- "2\r"
+
+# 3) Payments menu: "Wires: Enter Wire (pending queue)" is option 4
+after 500
+send -- "4\r"
+
+# Now a sequence of inputboxes; send values followed by Enter
+# Debit Account
+after 500
+send -- "100111222\r"
+# Credit Name
+after 300
+send -- "John Garcia\r"
+# Credit ABA
+after 300
+send -- "026009593\r"
+# Credit Account
+after 300
+send -- "123456789\r"
+# Amount
+after 300
+send -- "2500.00\r"
+# Type
+after 300
+send -- "DOMESTIC\r"
+# Memo
+after 300
+send -- "Invoice 42\r"
+# Requested Date (defaults to today; accept default)
+after 300
+send -- "\r"
+
+# A message box appears; press Enter to dismiss
+after 500
+send -- "\r"
+
+# Back at Payments menu: choose "Wires: Review/Release (dual control)" option 5
+after 500
+send -- "5\r"
+
+# At ID input prompt, compute the ID and paste it
+after 800
+set wid [get_pending_id]
+if {$wid eq ""} {
+    send_user "ERROR: No pending wire found.\n"
+    exit 1
+}
+send -- "$wid\r"
+
+# Approver ID prompt
+after 600
+send -- "checker1\r"
+
+# Confirm dialogs (possibly two: summary and high-value; ours is low so just one)
+# Press Enter to accept default (Yes)
+after 600
+send -- "\r"
+
+# Final message box after release: press Enter
+after 800
+send -- "\r"
+
+# Exit back to Payments menu; then return to Main Menu (option 10)
+after 400
+send -- "10\r"
+
+# From Main Menu choose Exit (option 6 if locked, 7 if unlocked; we are locked)
+after 400
+send -- "6\r"
+
+# Give the app time to exit cleanly
+after 400
+expect eof

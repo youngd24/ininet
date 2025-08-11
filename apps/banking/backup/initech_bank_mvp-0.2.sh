@@ -1,6 +1,4 @@
 #!/usr/local/bin/bash
-# Optional portable launcher: uncomment if you want auto-fallback on Linux.
-# [ -n "$BASH_VERSION" ] || exec /usr/bin/env bash "$0" "$@"
 ##############################################################################
 # INITECH BANKING SYSTEM (Late 90's MVP + Office Space gag)
 # Solaris 7 + dialog 1.0
@@ -26,37 +24,13 @@ DOC_STORE="$DATA_ROOT/docs"               # paper/microfilm placeholder
 STATE_DIR="$DATA_ROOT/state"              # misc state
 PROJECT_DIR="$DATA_ROOT/special_projects" # Peter's playground
 
-## Prefer system tools if present; include Solaris XPG4 fallbacks
-if command -v gawk >/dev/null 2>&1; then
-  AWK=$(command -v gawk)
-elif [ -x /usr/local/bin/gawk ]; then
-  AWK=/usr/local/bin/gawk
-elif [ -x /usr/xpg4/bin/awk ]; then
-  AWK=/usr/xpg4/bin/awk
-else
-  AWK=/usr/bin/awk
-fi
+# Prefer GNU awk if present; Solaris-safe fallback
+AWK=/usr/local/bin/gawk; [ -x "$AWK" ] || AWK=/usr/xpg4/bin/awk
+GREP=/usr/xpg4/bin/grep; [ -x "$GREP" ] || GREP=/usr/bin/grep
 
-if [ -x /usr/xpg4/bin/grep ]; then
-  GREP=/usr/xpg4/bin/grep
-else
-  GREP=/usr/bin/grep
-fi
-
-if command -v dialog >/dev/null 2>&1; then
-  DIALOG=$(command -v dialog)
-elif [ -x /usr/local/bin/dialog ]; then
-  DIALOG=/usr/local/bin/dialog
-else
-  DIALOG=/usr/bin/dialog
-fi
-
-# tail: prefer XPG4 on Solaris for -n support
-if [ -x /usr/xpg4/bin/tail ]; then
-  TAILBIN=/usr/xpg4/bin/tail
-else
-  TAILBIN=/usr/bin/tail
-fi
+# dialog path (Solaris packages often install in /usr/local/bin)
+DIALOG="/usr/local/bin/dialog"
+[ -x "$DIALOG" ] || DIALOG="/usr/bin/dialog"
 
 # Temporary file for dialog input/output (no mktemp on stock Solaris 7)
 TMP="/tmp/initech.$$"
@@ -238,7 +212,7 @@ payments_menu() {
         [ "$AMT" = "911" ] && milton_lockdown
         ID="WIRE.$(date '+%Y%m%d%H%M%S').$$"
         printf "DACC=%s|CNAME=%s|CABA=%s|CACC=%s|AMT=%s|TS=%s\n" \
-          "$DACC" "$CNAME" "$CABA" "$CACC" "$AMT" "$(date '+%Y-%m-%d %H:%M:%S')" > "$WIRE_QUEUE/$ID"
+          "$DACC" "$CNAME" "$CABA" "$CACC" "$AMT" "$(date '+%F %T')" > "$WIRE_QUEUE/$ID"
         log_op "WIRE" "Entered $ID for review"
         msg "Wire entered as $ID (pending manual verification/dual control)."
         ;;
@@ -283,7 +257,7 @@ statements_menu() {
 
     case "$CHOICE" in
       1)
-        RES=$($TAILBIN -n 10 "$STATE_DIR/accounts.db" 2>/dev/null)
+        RES=$(tail -n 10 "$STATE_DIR/accounts.db" 2>/dev/null)
         [ -z "$RES" ] && RES="No data yet."
         "$DIALOG" --backtitle "$BACKTITLE" --title "EoD Balances (Demo)" --msgbox "$RES" 18 70
         ;;
@@ -332,9 +306,9 @@ compliance_menu() {
         msg "CTR filing logged (paper form mailed to FinCEN)."
         ;;
       3)
-        _LOG=$($TAILBIN -n 30 "$LOG_DIR/ops.log" 2>/dev/null)
-        [ -z "$_LOG" ] && _LOG="No log entries."
-        "$DIALOG" --backtitle "$BACKTITLE" --title "Audit Log (last 30)" --msgbox "$_LOG" 20 80
+        TAIL=$(tail -n 30 "$LOG_DIR/ops.log" 2>/dev/null)
+        [ -z "$TAIL" ] && TAIL="No log entries."
+        "$DIALOG" --backtitle "$BACKTITLE" --title "Audit Log (last 30)" --msgbox "$TAIL" 20 80
         ;;
       4) return;;
     esac
@@ -497,3 +471,4 @@ Welcome to Special Projects, Peter."
 esac
 
 main_menu
+

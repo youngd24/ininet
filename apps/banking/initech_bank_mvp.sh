@@ -305,7 +305,7 @@ customer_menu() {
       4)
         ask_input "Lookup" "Search by Name/TaxID/Acct:" "" || continue
         Q=$(cat "$TMP.in")
-        RES=$($AWK -F'|' -v q="$Q" '{ if ($0 ~ q) print }' "$STATE_DIR/accounts.db" 2>/dev/null)
+        RES=$($AWK -F'|' -v q="$Q" 'BEGIN{uq=toupper(q)} { if (index(toupper($0), uq)) print }' "$STATE_DIR/accounts.db" 2>/dev/null)
         [ -z "$RES" ] && RES="No matches."
         "$DIALOG" --backtitle "$BACKTITLE" --title "Lookup Results" --msgbox "$RES" 15 70
         ;;

@@ -151,13 +151,22 @@ customer_menu() {
         log_op "SIGNERS" "$ACT signer '$SNAME' on $ACCT"
         msg "Signer change recorded (manual approval path required)."
         ;;
-      4)
-        ask_input "Lookup" "Search by Name/TaxID/Acct:" "" || continue
-        Q=$(cat "$TMP.in")
-        RES=$($AWK -F'|' -v q="$Q" '{ if ($0 ~ q) print }' "$STATE_DIR/accounts.db" 2>/dev/null)
-        [ -z "$RES" ] && RES="No matches."
-        "$DIALOG" --backtitle "$BACKTITLE" --title "Lookup Results" --msgbox "$RES" 15 70
-        ;;
+4)
+  ask_input "Lookup" "Search by Name/TaxID/Acct:" "" || continue
+  Q=$(cat "$TMP.in")
+
+  # Case-insensitive substring search across Name (col1), TaxID (col2), Account (col3).
+  # Works with /usr/xpg4/bin/awk on Solaris 7.
+  QL=$(printf "%s" "$Q" | tr '[:upper:]' '[:lower:]')
+  RES=$($AWK -F'|' -v q="$QL" '
+    {
+      n = tolower($1); t = tolower($2); a = tolower($3);
+      if (index(n, q) || index(t, q) || index(a, q)) print
+    }' "$STATE_DIR/accounts.db" 2>/dev/null)
+
+  [ -z "$RES" ] && RES="No matches."
+  "$DIALOG" --backtitle "$BACKTITLE" --title "Lookup Results" --msgbox "$RES" 15 70
+  ;;
       5) return;;
     esac
   done
@@ -444,31 +453,31 @@ main_menu() {
 ensure_env
 
 SPECIAL_UNLOCK="no"
+FAILS=0
+while :; do
+  ask_input "Access Code" "Enter access code (or press Enter to continue):" "" || exit 0
+  CODE=$(cat "$TMP.in")
 
-# Ask once for an access code.
-# Behavior:
-# - "TPS"  => unlock Special Projects
-# - "911"  => trigger Milton lockdown (consistent with wire gag)
-# - anything else (including empty) => proceed normally without Special Projects
-ask_input "Access Code" "Enter access code (or press Enter to continue):" "" || exit 0
-CODE=$(cat "$TMP.in")
+  # Empty = proceed without Special Projects (not a failure)
+  if [ -z "$CODE" ]; then
+    break
+  fi
 
-case "$CODE" in
-  "TPS")
+  if [ "$CODE" = "TPS" ]; then
     SPECIAL_UNLOCK="yes"
-    log_op "SECURITY" "Special Projects menu unlocked via TPS"
-    msg "Access granted.
-Welcome to Special Projects, Peter."
-    ;;
-  "911")
-    # Use the existing lockdown routine for consistency
-    milton_lockdown
-    ;;
-  *)
-    # Proceed normally—no failures, no lockout
-    [ -n "$CODE" ] && log_op "SECURITY" "Non-special access code entered; proceeding normally"
-    ;;
-esac
+    log_op "SECURITY" "Special Projects menu unlocked"
+    msg "Access granted.\nWelcome to Special Projects, Peter."
+    break
+  else
+    FAILS=$(($FAILS + 1))
+    log_op "SECURITY" "Failed unlock attempt ($FAILS) with code: $CODE"
+    if [ $FAILS -ge 3 ]; then
+      lumbergh_lockout
+    else
+      msg "Access code incorrect.\nThat'd be great if you could try again (attempt $FAILS of 3)."
+    fi
+  fi
+done
 
 main_menu
 

@@ -444,31 +444,31 @@ main_menu() {
 ensure_env
 
 SPECIAL_UNLOCK="no"
-FAILS=0
-while :; do
-  ask_input "Access Code" "Enter access code (or press Enter to continue):" "" || exit 0
-  CODE=$(cat "$TMP.in")
 
-  # Empty = proceed without Special Projects (not a failure)
-  if [ -z "$CODE" ]; then
-    break
-  fi
+# Ask once for an access code.
+# Behavior:
+# - "TPS"  => unlock Special Projects
+# - "911"  => trigger Milton lockdown (consistent with wire gag)
+# - anything else (including empty) => proceed normally without Special Projects
+ask_input "Access Code" "Enter access code (or press Enter to continue):" "" || exit 0
+CODE=$(cat "$TMP.in")
 
-  if [ "$CODE" = "TPS" ]; then
+case "$CODE" in
+  "TPS")
     SPECIAL_UNLOCK="yes"
-    log_op "SECURITY" "Special Projects menu unlocked"
-    msg "Access granted.\nWelcome to Special Projects, Peter."
-    break
-  else
-    FAILS=$(($FAILS + 1))
-    log_op "SECURITY" "Failed unlock attempt ($FAILS) with code: $CODE"
-    if [ $FAILS -ge 3 ]; then
-      lumbergh_lockout
-    else
-      msg "Access code incorrect.\nThat'd be great if you could try again (attempt $FAILS of 3)."
-    fi
-  fi
-done
+    log_op "SECURITY" "Special Projects menu unlocked via TPS"
+    msg "Access granted.
+Welcome to Special Projects, Peter."
+    ;;
+  "911")
+    # Use the existing lockdown routine for consistency
+    milton_lockdown
+    ;;
+  *)
+    # Proceed normally—no failures, no lockout
+    [ -n "$CODE" ] && log_op "SECURITY" "Non-special access code entered; proceeding normally"
+    ;;
+esac
 
 main_menu
 

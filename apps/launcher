@@ -28,8 +28,8 @@ APP2_CMD="/export/initech/finance/vapid"
 APP3_NAME="Check Email"
 APP3_CMD="pine"
 
-TITLE="INITECH Application Selection System"
-BACKTITLE="INITECH Application Selection Menu"
+TITLE="INITECH Application Selection Menu"
+BACKTITLE="INITECH = Innovation + Technology"
 
 # --- Simple retro banner for CLI run portions (no printf; Solaris-safe) ---
 banner() {

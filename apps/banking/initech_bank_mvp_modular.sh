@@ -235,8 +235,8 @@ main_menu() {
         2 "Payments (ACH + Wires)" \
         3 "Account Info & Statements" \
         4 "Fraud, Risk & Compliance" \
-	5 "Back Office Operations (Y2K)" \
-        6 "Special Projects" \
+	      5 "Back Office Operations (Y2K)" \
+        66 "Special Projects" \
         99 "Exit"  \
         3>&1 1>&2 2>&3) || exit 0
 
@@ -246,7 +246,7 @@ main_menu() {
         3) statements_menu;;
         4) compliance_menu;;
         5) ops_menu;;
-        6) special_projects_menu;;
+        66) special_projects_menu;;
         99) exit 0;;
       esac
     else

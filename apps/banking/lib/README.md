@@ -46,8 +46,14 @@ This directory contains the modular components of the ININET Banking System, des
 ### Back Office (`backoffice.sh`)
 - **End-of-Day Operations**: Posting and reconciliation stubs
 - **Document Storage**: Paper/microfilm workflow placeholders
-- **Y2K Tools**: Date conversion, scanning, and testing
 - **Special Projects**: Peter's secret menu (rounding errors, skim jobs)
+
+### Y2K Readiness (`y2k.sh`)
+- **Date Conversion**: Scan and convert accounts.db to YYYYMMDD format
+- **ACH Scanning**: Detect 2-digit date patterns in NACHA files
+- **Leap-Day Testing**: Validate leap year calculations
+- **Rollover Simulation**: Test date rollover scenarios
+- **Y2K Menu**: Complete Y2K readiness and conversion interface
 
 ### Statements Module (`statements.sh`)
 - **Balance Reporting**: End-of-day balance views

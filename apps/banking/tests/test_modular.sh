@@ -90,6 +90,14 @@ else
     exit 1
 fi
 
+echo -n "Testing y2k.sh... "
+if . "$LIB_DIR/y2k.sh" 2>/dev/null; then
+    echo "PASS"
+else
+    echo "FAIL"
+    exit 1
+fi
+
 echo ""
 echo "All modules sourced successfully!"
 echo ""
@@ -113,6 +121,16 @@ fi
 
 echo -n "Testing validate_yyyymmdd()... "
 if validate_yyyymmdd "20241201"; then
+    echo "PASS"
+else
+    echo "FAIL"
+fi
+
+echo ""
+echo "Testing Y2K functions:"
+echo "----------------------"
+echo -n "Testing y2k_leapday_selftest()... "
+if [ -n "$(y2k_leapday_selftest)" ]; then
     echo "PASS"
 else
     echo "FAIL"

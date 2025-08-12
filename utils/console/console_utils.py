@@ -62,7 +62,7 @@ def query_txt_record(hostname: str):
     Record format is: "consvr=<server>, conport=<port>"
     """
     # do we care to support multiple TXT records, as failover?
-    answer = resolver.resolve(hostname, 'TXT')[0]
+    answer = resolver.resolve(hostname, 'TXT', search=True)[0]
     ptrn = r'consvr=(?P<srv>.*?), conport=(?P<port>\d+ ?)'
     result = re.search(ptrn, str(answer))
     if result:

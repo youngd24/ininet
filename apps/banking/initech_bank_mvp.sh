@@ -78,6 +78,91 @@ trap 'rm -f "$TMP"*; clear' EXIT HUP INT TERM
 # -----------------------------
 die() { echo "ERROR: $*" >&2; exit 1; }
 
+# =============================
+# Y2K Config / Helpers (Solaris 7 + Ubuntu 24 compatible)
+# =============================
+# Windowing cutoff: 00-69 => 2000-2069, 70-99 => 1970-1999
+: "${Y2K_LOW_CUTOFF:=69}"
+
+# Optional "fake clock" for rollover testing; set FAKE_TODAY=YYYYMMDD in env to simulate
+date_ymd_now() {
+  if [ -n "$FAKE_TODAY" ]; then
+    echo "$FAKE_TODAY"
+  else
+    date '+%Y%m%d'
+  fi
+}
+
+# Normalize common date forms to YYYYMMDD using awk only
+# Supports: YYYYMMDD, YYMMDD, MM/DD/YY, MM-DD-YY, YYYY-MM-DD, YYYY/MM/DD
+normalize_date_ymd() {
+  # portable awk (prefer XPG4 if $AWK is set by the script)
+  _AWK="${AWK:-awk}"
+  echo "$1" | "$_AWK" -v cut="$Y2K_LOW_CUTOFF" '
+  function y2k_year(yy,  n){ n=yy+0; return (n<=cut)?2000+n:1900+n }
+  function valid(y,m,d,  ml,leap){
+    if (y<1900 || y>2099) return 0
+    if (m<1||m>12) return 0
+    leap = ((y%4==0 && y%100!=0) || (y%400==0)) ? 1 : 0
+    ml = (m==1||m==3||m==5||m==7||m==8||m==10||m==12)?31:(m==4||m==6||m==9||m==11)?30:(leap?29:28)
+    return (d>=1 && d<=ml)
+  }
+  {
+    gsub(/[[:space:]]+/,"",$0)
+    s=$0
+    # YYYYMMDD
+    if (s ~ /^[0-9]{8}$/) {
+      y=substr(s,1,4); m=substr(s,5,2); d=substr(s,7,2)
+      if (valid(y,m,d)) { printf("%04d%02d%02d\n",y,m,d); exit }
+    }
+    # YYMMDD
+    if (s ~ /^[0-9]{6}$/) {
+      y=y2k_year(substr(s,1,2)); m=substr(s,3,2); d=substr(s,5,2)
+      if (valid(y,m,d)) { printf("%04d%02d%02d\n",y,m,d); exit }
+    }
+    # YYYY-MM-DD or YYYY/MM/DD
+    if (s ~ /^[0-9]{4}[-\/][0-9]{2}[-\/][0-9]{2}$/) {
+      y=substr(s,1,4); m=substr(s,6,2); d=substr(s,9,2)
+      if (valid(y,m,d)) { printf("%04d%02d%02d\n",y,m,d); exit }
+    }
+    # MM/DD/YY or MM-DD-YY
+    if (s ~ /^[0-9]{2}[-\/][0-9]{2}[-\/][0-9]{2}$/) {
+      m=substr(s,1,2); d=substr(s,4,2); yy=substr(s,7,2); y=y2k_year(yy)
+      if (valid(y,m,d)) { printf("%04d%02d%02d\n",y,m,d); exit }
+    }
+    # If nothing matched, print empty
+    print ""
+  }'
+}
+
+# Return 0 if valid YYYYMMDD, else 1
+validate_yyyymmdd() {
+  local d="$1"
+  [ ${#d} -eq 8 ] || return 1
+  _AWK="${AWK:-awk}"
+  echo "$d" | "$_AWK" '
+  function valid(y,m,d,ml,leap){
+    if (y<1900 || y>2099) return 0
+    if (m<1||m>12) return 0
+    leap = ((y%4==0 && y%100!=0) || (y%400==0)) ? 1 : 0
+    ml = (m==1||m==3||m==5||m==7||m==8||m==10||m==12)?31:(m==4||m==6||m==9||m==11)?30:(leap?29:28)
+    return (d>=1 && d<=ml)
+  }
+  {
+    y=substr($0,1,4)+0; m=substr($0,5,2)+0; d=substr($0,7,2)+0
+    if (valid(y,m,d)) exit 0; else exit 1
+  '
+}
+
+# Harden append points to ensure valid dates when using simulated clock
+ensure_today_or_default() {
+  local _d
+  _d="$(date_ymd_now)"
+  if ! validate_yyyymmdd "$_d"; then
+    _d="$(date '+%Y%m%d')"
+  fi
+  echo "$_d"
+}
 ensure_env() {
   [ -x "$DIALOG" ] || die "dialog(1) not found. Install dialog in /usr/local/bin."
   for d in "$DATA_ROOT" "$LOG_DIR" "$ACH_INBOX" "$ACH_OUTBOX" "$WIRE_QUEUE" \
@@ -251,6 +336,135 @@ list_pending_ids() {
   (cd "$WIRE_QUEUE" 2>/dev/null && ls -1 WIRE.* 2>/dev/null) || true
 }
 
+# =============================
+# Y2K Scanners / Converters
+# =============================
+
+# Report suspicious (non-YYYYMMDD) dates in accounts.db (col 4)
+y2k_report_accounts() {
+  local f="${STATE_DIR:-/export/banking/state}/accounts.db"
+  if [ ! -s "$f" ]; then echo "(no accounts.db)"; return; fi
+  local _AWK="${AWK:-awk}"
+  "$_AWK" -F'|' '
+    function iso(d){ return (d ~ /^[0-9]{8}$/) }
+    {
+      d=$4
+      if (!iso(d) && d != "") {
+        printf("Line %d: %s\n", NR, $0)
+      }
+    }
+  ' "$f"
+}
+
+# Convert accounts.db in place (with .bak), normalizing date column
+y2k_convert_accounts() {
+  local f="${STATE_DIR:-/export/banking/state}/accounts.db"
+  local tmp="${f}.tmp" bak="${f}.bak"
+  [ -f "$f" ] || { echo "missing accounts.db"; return 1; }
+  cp "$f" "$bak" || return 1
+  : > "$tmp" || return 1
+  while IFS='|' read -r c1 c2 c3 c4 rest; do
+    if [ -n "$c4" ]; then
+      nd=$(normalize_date_ymd "$c4")
+      if [ -n "$nd" ] && validate_yyyymmdd "$nd"; then
+        c4="$nd"
+      fi
+    fi
+    if [ -n "$rest" ]; then
+      printf "%s|%s|%s|%s|%s\n" "$c1" "$c2" "$c3" "$c4" "$rest" >> "$tmp"
+    else
+      printf "%s|%s|%s|%s\n" "$c1" "$c2" "$c3" "$c4" >> "$tmp"
+    fi
+  done < "$f"
+  mv "$tmp" "$f"
+}
+
+# Quick grep for 2-digit years in NACHA-like files (ACH inbox/outbox)
+y2k_scan_ach() {
+  local in="${ACH_INBOX:-${STATE_DIR:-/export/banking/state}/ach/inbox}"
+  local out="${ACH_OUTBOX:-${STATE_DIR:-/export/banking/state}/ach/outbox}"
+  local _GREP="${GREP:-grep}"
+  local hits
+  hits=$("$_GREP" -E -n '([0-9]{2}[-/][0-9]{2}[-/][0-9]{2}|[0-9]{6})' "$in"/* "$out"/* 2>/dev/null || true)
+  [ -n "$hits" ] && echo "$hits" || echo "(no suspicious 2-digit date patterns found)"
+}
+
+# Leap-day 2000 invariants test
+y2k_leapday_selftest() {
+  if validate_yyyymmdd "20000229"; then
+    echo "PASS: 2000-02-29 valid (leap century)"
+  else
+    echo "FAIL: 2000-02-29 should be valid"
+  fi
+  if validate_yyyymmdd "19000229"; then
+    echo "FAIL: 1900-02-29 should be invalid"
+  else
+    echo "PASS: 1900-02-29 invalid"
+  fi
+}
+
+# Simulate date rollover using FAKE_TODAY=YYYYMMDD (session only)
+y2k_rollover_sim() {
+  local day="$1"
+  if [ -z "$day" ]; then
+    echo "Usage: y2k_rollover_sim YYYYMMDD"
+    return 1
+  fi
+  FAKE_TODAY="$day" echo "Simulated date set for this run: $day"
+}
+
+# =============================
+# Y2K Readiness & Conversion Menu
+# =============================
+y2k_menu() {
+  while :; do
+    CHOICE=$("$DIALOG" --clear --backtitle "$BACKTITLE" --title "Y2K Readiness & Conversion" \
+      --menu "Pick a function" 20 74 10 \
+      1 "Scan accounts.db for risky date formats" \
+      2 "Convert accounts.db to YYYYMMDD (makes .bak)" \
+      3 "Scan ACH inbox/outbox for 2-digit dates" \
+      4 "Leap-Day 2000 Self-Test" \
+      5 "Simulate Rollover (set FAKE_TODAY for this session)" \
+      99 "Return to Main Menu" \
+      3>&1 1>&2 2>&3)
+    [ $? -ne 0 ] && return
+
+    case "$CHOICE" in
+      1)
+        OUT=$(y2k_report_accounts)
+        [ -z "$OUT" ] && OUT="(no issues found)"
+        "$DIALOG" --backtitle "$BACKTITLE" --title "accounts.db scan" --msgbox "$OUT" 20 80
+        ;;
+      2)
+        if y2k_convert_accounts; then
+          "$DIALOG" --backtitle "$BACKTITLE" --title "Conversion" --msgbox "accounts.db normalized (backup saved)." 10 60
+        else
+          "$DIALOG" --backtitle "$BACKTITLE" --title "Conversion" --msgbox "Conversion failed." 10 60
+        fi
+        ;;
+      3)
+        OUT=$(y2k_scan_ach)
+        "$DIALOG" --backtitle "$BACKTITLE" --title "ACH date scan" --msgbox "$OUT" 20 80
+        ;;
+      4)
+        OUT=$(y2k_leapday_selftest)
+        "$DIALOG" --backtitle "$BACKTITLE" --title "Leap-day test" --msgbox "$OUT" 12 70
+        ;;
+      5)
+        ask_input "Rollover Sim" "Enter simulated date (YYYYMMDD):" "$(date '+%Y%m%d')" || continue
+        SD=$(cat "$TMP.in")
+        if validate_yyyymmdd "$SD"; then
+          y2k_rollover_sim "$SD" >/dev/null
+          "$DIALOG" --backtitle "$BACKTITLE" --title "Rollover" --msgbox "For this run, FAKE_TODAY is $SD." 10 60
+        else
+          "$DIALOG" --backtitle "$BACKTITLE" --title "Rollover" --msgbox "Invalid date." 8 40
+        fi
+        ;;
+      99) return;;
+    esac
+  done
+}
+
 # -----------------------------
 # Menus (functional)
 # -----------------------------
@@ -264,7 +478,7 @@ customer_menu() {
       2 "Close/Freeze Account" \
       3 "Manage Signers / Authorized Users" \
       4 "Lookup Customer / Accounts" \
-      5 "Return to Main Menu" \
+      99 "Return to Main Menu" \
       3>&1 1>&2 2>&3)
     [ $? -ne 0 ] && return
 
@@ -276,7 +490,7 @@ customer_menu() {
         TAXID=$(cat "$TMP.in")
         ask_input "Open Account" "Product (e.g., CHK, SAV, ANALYSIS):" "CHK" || continue
         PROD=$(cat "$TMP.in")
-        echo "$NAME|$TAXID|$PROD|$(date '+%Y%m%d')" >> "$STATE_DIR/accounts.db"
+        echo "$NAME|$TAXID|$PROD|$(ensure_today_or_default)" >> "$STATE_DIR/accounts.db"
         log_op "ACCOUNT" "Open requested: $NAME / $TAXID / $PROD"
         msg "Open request recorded (paper KYC, signature card, and core entry to be completed)."
         ;;
@@ -309,7 +523,7 @@ customer_menu() {
         [ -z "$RES" ] && RES="No matches."
         "$DIALOG" --backtitle "$BACKTITLE" --title "Lookup Results" --msgbox "$RES" 15 70
         ;;
-      5) return;;
+      99) return;;
     esac
   done
 }
@@ -328,7 +542,7 @@ payments_menu() {
       7 "Wires: Cancel Pending" \
       8 "Wires: Print Fedwire Form" \
       9 "Wires: History Log (view tail)" \
-      10 "Return to Main Menu" \
+      99 "Return to Main Menu" \
       3>&1 1>&2 2>&3)
     [ $? -ne 0 ] && return
 
@@ -476,7 +690,7 @@ payments_menu() {
         [ -z "$_H" ] && _H="No wire history yet."
         "$DIALOG" --backtitle "$BACKTITLE" --title "Wire History (last 40)" --msgbox "$_H" 20 80
         ;;
-      10) return;;
+      99) return;;
     esac
   done
 }
@@ -489,7 +703,7 @@ statements_menu() {
       1 "End-of-Day Balances (stub view)" \
       2 "Monthly Statements (paper queue)" \
       3 "Commercial Exports (BAI2/fixed-width stub)" \
-      4 "Return to Main Menu" \
+      99 "Return to Main Menu" \
       3>&1 1>&2 2>&3)
     [ $? -ne 0 ] && return
 
@@ -513,7 +727,7 @@ statements_menu() {
         log_op "EXPORT" "Generated $OUT for $SEL"
         msg "Export created: $OUT"
         ;;
-      4) return;;
+      99) return;;
     esac
   done
 }
@@ -526,7 +740,7 @@ compliance_menu() {
       1 "OFAC Check (manual log)" \
       2 "CTR Paper Filing (log stub)" \
       3 "Audit Log (tail view)" \
-      4 "Return to Main Menu" \
+      99 "Return to Main Menu" \
       3>&1 1>&2 2>&3)
     [ $? -ne 0 ] && return
 
@@ -548,7 +762,7 @@ compliance_menu() {
         [ -z "$_LOG" ] && _LOG="No log entries."
         "$DIALOG" --backtitle "$BACKTITLE" --title "Audit Log (last 30)" --msgbox "$_LOG" 20 80
         ;;
-      4) return;;
+      99) return;;
     esac
   done
 }
@@ -562,7 +776,8 @@ ops_menu() {
       2 "ACH Batch: Send Outgoing (stub)" \
       3 "End-of-Day Posting & Reconciliation (stub)" \
       4 "Document Storage (paper/microfilm placeholder)" \
-      5 "Return to Main Menu" \
+      5 "Y2K Readiness & Conversion" \
+      99 "Return to Main Menu" \
       3>&1 1>&2 2>&3)
     [ $? -ne 0 ] && return
 
@@ -584,7 +799,8 @@ ops_menu() {
       4)
         msg "Physical documents to be filed; optical/microfilm index simulated at: $DOC_STORE"
         ;;
-      5) return;;
+      5) y2k_menu;;
+      99) return;;
     esac
   done
 }
@@ -598,7 +814,7 @@ special_projects_menu() {
       2 "Run Daily Skim Job" \
       3 "Deposit Skim Funds to Slush Account" \
       4 "Generate Fake Audit Report" \
-      5 "Return to Main Menu" \
+      99 "Return to Main Menu" \
       3>&1 1>&2 2>&3)
     [ $? -ne 0 ] && return
 
@@ -622,7 +838,7 @@ special_projects_menu() {
         log_op "PROJECT" "Fake audit generated"
         msg "Audit report created.\nOmitted 'Special Projects' line item as requested."
         ;;
-      5) return;;
+      99) return;;
     esac
   done
 }
@@ -639,9 +855,9 @@ main_menu() {
         2 "Payments (ACH + Wires)" \
         3 "Account Info & Statements" \
         4 "Fraud, Risk & Compliance" \
-        5 "Back Office Operations" \
+	5 "Back Office Operations (Y2K)" \
         6 "Special Projects" \
-        7 "Exit" \
+        99 "Exit"  \
         3>&1 1>&2 2>&3) || exit 0
 
       case "$CHOICE" in
@@ -651,7 +867,7 @@ main_menu() {
         4) compliance_menu;;
         5) ops_menu;;
         6) special_projects_menu;;
-        7) clear; exit 0;;
+        99) exit 0;;
       esac
     else
       CHOICE=$("$DIALOG" --clear --backtitle "$BACKTITLE" --title "$TITLE" \
@@ -661,7 +877,7 @@ main_menu() {
         3 "Account Info & Statements" \
         4 "Fraud, Risk & Compliance" \
         5 "Back Office Operations" \
-        6 "Exit" \
+        99 "Exit"  \
         3>&1 1>&2 2>&3) || exit 0
 
       case "$CHOICE" in
@@ -670,7 +886,7 @@ main_menu() {
         3) statements_menu;;
         4) compliance_menu;;
         5) ops_menu;;
-        6) clear; exit 0;;
+        99) exit 0;;
       esac
     fi
   done
@@ -702,3 +918,4 @@ Welcome to Special Projects, Peter."
 esac
 
 main_menu
+

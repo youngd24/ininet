@@ -159,7 +159,7 @@ special_projects_menu() {
       2 "Run Daily Skim Job" \
       3 "Deposit Skim Funds to Slush Account" \
       4 "Generate Fake Audit Report" \
-      5 "Locate Milton's Stapler" \
+      5 "Reset Stapler Quest State" \
       99 "Return to Main Menu" \
       3>&1 1>&2 2>&3)
     [ $? -ne 0 ] && return
@@ -169,7 +169,7 @@ special_projects_menu() {
       2) run_daily_skim;;
       3) deposit_skim_funds;;
       4) generate_fake_audit;;
-      5) stapler_quest;;
+      5) reset_stapler_quest;;
       99) return;;
     esac
   done
@@ -255,6 +255,19 @@ maybe_show_office_space_message() {
   fi
 }
 
+# Reset stapler quest state
+reset_stapler_quest() {
+  if [ -f "$PROJECT_DIR/stapler_found.flag" ]; then
+    if confirm "Reset Stapler Quest" "Are you sure you want to reset the stapler quest?\n\nThis will allow someone to play the quest again.\n\nMilton will lose his stapler again!"; then
+      rm -f "$PROJECT_DIR/stapler_found.flag"
+      log_op "EASTER_EGG" "Stapler quest state reset by user"
+      msg "Stapler quest state has been reset.\n\nMilton's red Swingline stapler is missing again!\n\nSomeone can now enter 'Milton' as the access code to start the quest."
+    fi
+  else
+    msg "Stapler quest has not been completed yet.\n\nNo state to reset."
+  fi
+}
+
 # -----------------------------
 # Stapler Quest (Hidden Easter Egg)
 # -----------------------------
@@ -274,12 +287,6 @@ It was in the basement, next to the TPS reports.\n\n\
 Milton says thanks for finding it. He was getting really upset." 12 70
     return
   fi
-  
-  "$DIALOG" --backtitle "$BACKTITLE" --title "Stapler Quest" \
-    --msgbox "Milton's red Swingline stapler has gone missing!\n\n\
-He's getting really upset about it. Can you help find it?\n\n\
-Search through the different departments to locate it.\n\n\
-Press OK to begin your quest..." 15 70
   
   while [ "$quest_complete" = "no" ] && [ $attempts -lt 10 ]; do
     attempts=$((attempts + 1))
@@ -462,6 +469,14 @@ case "$CODE" in
     log_op "SECURITY" "Special Projects menu unlocked via TPS"
     msg "Access granted.
 Welcome to Special Projects, Peter."
+    ;;
+  "Milton")
+    log_op "SECURITY" "Stapler quest triggered via Milton access code"
+    msg "Milton's red Swingline stapler has gone missing!\n\n\
+He's getting really upset about it.\n\n\
+Can you help him find it?\n\n\
+Press OK to begin your quest..."
+    stapler_quest
     ;;
   "911")
     milton_lockdown

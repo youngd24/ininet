@@ -1,4 +1,4 @@
-#!/usr/local/bin/bash
+#!/usr/bin/sh
 # INITECH Application Selection System  style dialog launcher
 # Compatible with: Solaris 7 (bash 4.1.0, dialog 1.0) and Ubuntu 24 (bash 5.2, dialog 1.3)
 
@@ -29,7 +29,7 @@ APP3_NAME="Check Email"
 APP3_CMD="pine"
 
 APP4_NAME="System Shell"
-APP4_CMD="/usr/local/bin/bash"
+APP4_CMD="/usr/bin/sh"
 
 TITLE="INITECH Application Selection Menu"
 BACKTITLE="INITECH = Innovation + Technology"

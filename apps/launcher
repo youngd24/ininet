@@ -1,14 +1,14 @@
 #!/usr/bin/sh
 # INITECH Application Selection System  style dialog launcher
-# Compatible with: Solaris 7 (bash 4.1.0, dialog 1.0) and Ubuntu 24 (bash 5.2, dialog 1.3)
+# Compatible with: Solaris 7 (sh, dialog 1.0) and Ubuntu 24 (sh, dialog 1.3)
 
 set -u
 
 # --- Locate dialog (favor PATH, but try common spots) ---
 DIALOG_BIN=""
 for d in dialog /usr/local/bin/dialog /usr/bin/dialog; do
-  if command -v "$d" >/dev/null 2>&1; then
-    DIALOG_BIN="$(command -v "$d")"
+  if [ -x "$d" ]; then
+    DIALOG_BIN="$d"
     break
   fi
 done
@@ -40,8 +40,8 @@ banner() {
   case "$SAFE_TERM" in
     -*) SAFE_TERM="unknown" ;;
   esac
-  HOSTNAME="$(uname -n 2>/dev/null || echo unknown)"
-  NOW="$(date 2>/dev/null || echo "unknown")"
+  HOSTNAME=`uname -n 2>/dev/null || echo unknown`
+  NOW=`date 2>/dev/null || echo "unknown"`
 
   cat <<EOF
 
@@ -60,7 +60,7 @@ run_app() {
   app_label="$1"
   app_path="$2"
 
-  if ! command -v "$app_path" >/dev/null 2>&1 && [ ! -x "$app_path" ]; then
+  if [ ! -x "$app_path" ] && ! type "$app_path" >/dev/null 2>&1; then
     "$DIALOG_BIN" --title "$TITLE" --backtitle "$BACKTITLE" \
       --msgbox "$app_label\n\nCommand not found or not executable:\n$app_path" 10 70
     return 0
@@ -85,7 +85,7 @@ run_app() {
 
 # --- Main loop ---
 while :; do
-  CHOICE=$("$DIALOG_BIN" --clear \
+  CHOICE=`"$DIALOG_BIN" --clear \
     --title "$TITLE" \
     --backtitle "$BACKTITLE" \
     --menu "Select an application to run:" 18 70 8 \
@@ -93,7 +93,7 @@ while :; do
       2 "$APP2_NAME" \
       3 "$APP3_NAME" \
       4 "$APP4_NAME" \
-      Q "Quit" 2>&1 > /dev/tty)
+      Q "Quit" 2>&1 > /dev/tty`
 
   rc=$?
   case "$rc" in

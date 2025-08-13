@@ -20,7 +20,7 @@ fi
 
 # --- App definitions ---
 APP1_NAME="Bank Management System"
-APP1_CMD="/export/initech/banking/initech_bank_mvp.sh"
+APP1_CMD="/export/initech/banking/initech_bank_mvp_modular.sh"
 
 APP2_NAME="Finance System"
 APP2_CMD="/export/initech/finance/vapid"

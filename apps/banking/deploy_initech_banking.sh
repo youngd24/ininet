@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/local/bin/bash
 #
 # ININet Banking Deployment Script
 # Compatible with Solaris 7 (bash 4.1.0) and Ubuntu 24 (bash 5.2)

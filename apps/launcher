@@ -29,7 +29,7 @@ APP3_NAME="Check Email"
 APP3_CMD="pine"
 
 APP4_NAME="System Shell"
-APP4_CMD="/usr/bin/sh"
+APP4_CMD="/usr/local/bin/bash"
 
 TITLE="INITECH Application Selection Menu"
 BACKTITLE="INITECH = Innovation + Technology"

@@ -51,3 +51,44 @@ So I'm gonna need you to come in on Saturday. M'kay?" 13 70
   sleep 4
   exit 98
 }
+
+# Office Space themed error messages (only after stapler found)
+office_space_error() {
+  local error_type="$1"
+  local message="$2"
+  
+  # Check if stapler quest has been completed
+  if [ -f "$PROJECT_DIR/stapler_found.flag" ]; then
+    case "$error_type" in
+      "paper_jam")
+        "$DIALOG" --backtitle "$BACKTITLE" --title "Office Space Error" \
+          --msgbox "ERROR: Paper jam detected.\n\n\
+Please check for red Swingline stapler in document feeder.\n\n\
+Milton says this happens when people touch his stapler.\n\n\
+$message" 15 70
+        ;;
+      "tps_report")
+        "$DIALOG" --backtitle "$BACKTITLE" --title "Office Space Error" \
+          --msgbox "ERROR: TPS Report not found.\n\n\
+Did you get the memo about the TPS reports?\n\n\
+Yeah, we're putting new coversheets on all the TPS reports\n\
+before they go out now.\n\n\
+$message" 15 70
+        ;;
+      "stapler_related")
+        "$DIALOG" --backtitle "$BACKTITLE" --title "Office Space Error" \
+          --msgbox "ERROR: Stapler-related issue detected.\n\n\
+'It's my stapler!' Milton insists.\n\n\
+'I had it set up exactly the way I like it.'\n\n\
+$message" 12 70
+        ;;
+      *)
+        # Fall back to normal error display
+        "$DIALOG" --backtitle "$BACKTITLE" --title "$TITLE" --msgbox "$message" 12 70
+        ;;
+    esac
+  else
+    # Normal error display if stapler not found yet
+    "$DIALOG" --backtitle "$BACKTITLE" --title "$TITLE" --msgbox "$message" 12 70
+  fi
+}

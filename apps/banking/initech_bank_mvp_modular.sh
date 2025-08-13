@@ -154,11 +154,12 @@ ops_menu() {
 special_projects_menu() {
   while :; do
     CHOICE=$("$DIALOG" --clear --backtitle "$BACKTITLE" --title "Special Projects" \
-      --menu "Totally normal internal tools" 18 70 8 \
+      --menu "Totally normal internal tools" 18 70 9 \
       1 "Configure Rounding Error Parameters" \
       2 "Run Daily Skim Job" \
       3 "Deposit Skim Funds to Slush Account" \
       4 "Generate Fake Audit Report" \
+      5 "Locate Milton's Stapler" \
       99 "Return to Main Menu" \
       3>&1 1>&2 2>&3)
     [ $? -ne 0 ] && return
@@ -168,6 +169,7 @@ special_projects_menu() {
       2) run_daily_skim;;
       3) deposit_skim_funds;;
       4) generate_fake_audit;;
+      5) stapler_quest;;
       99) return;;
     esac
   done
@@ -221,6 +223,178 @@ y2k_menu() {
       99) return;;
     esac
   done
+}
+
+# -----------------------------
+# Office Space Easter Egg Integration
+# -----------------------------
+# This function occasionally shows Office Space themed messages
+# after the stapler quest is completed
+maybe_show_office_space_message() {
+  local context="$1"
+  
+  # Only show if stapler quest is completed
+  if [ -f "$PROJECT_DIR/stapler_found.flag" ]; then
+    # 1 in 20 chance to show Office Space message
+    if [ $((RANDOM % 20)) -eq 0 ]; then
+      case "$context" in
+        "ach_error")
+          office_space_error "paper_jam" "ACH processing failed due to paper jam.\n\nPlease check the document feeder for Milton's stapler."
+          ;;
+        "wire_error")
+          office_space_error "tps_report" "Wire transfer failed.\n\nTPS report missing from wire queue.\n\nDid you get the memo about the TPS reports?"
+          ;;
+        "compliance_error")
+          office_space_error "stapler_related" "Compliance check failed.\n\nMilton says this is related to his stapler being moved.\n\n'I had it set up exactly the way I like it!'"
+          ;;
+        "general_error")
+          office_space_error "paper_jam" "System error detected.\n\nMilton suggests checking for paper jams.\n\n'They better not touch my stapler!'"
+          ;;
+      esac
+    fi
+  fi
+}
+
+# -----------------------------
+# Stapler Quest (Hidden Easter Egg)
+# -----------------------------
+stapler_quest() {
+  local quest_complete="no"
+  local attempts=0
+  
+  # Check if quest has been completed before
+  if [ -f "$PROJECT_DIR/stapler_found.flag" ]; then
+    quest_complete="yes"
+  fi
+  
+  if [ "$quest_complete" = "yes" ]; then
+    "$DIALOG" --backtitle "$BACKTITLE" --title "Stapler Quest" \
+      --msgbox "You've already found Milton's red Swingline stapler!\n\n\
+It was in the basement, next to the TPS reports.\n\n\
+Milton says thanks for finding it. He was getting really upset." 12 70
+    return
+  fi
+  
+  "$DIALOG" --backtitle "$BACKTITLE" --title "Stapler Quest" \
+    --msgbox "Milton's red Swingline stapler has gone missing!\n\n\
+He's getting really upset about it. Can you help find it?\n\n\
+Search through the different departments to locate it.\n\n\
+Press OK to begin your quest..." 15 70
+  
+  while [ "$quest_complete" = "no" ] && [ $attempts -lt 10 ]; do
+    attempts=$((attempts + 1))
+    
+    CHOICE=$("$DIALOG" --clear --backtitle "$BACKTITLE" --title "Where to search?" \
+      --menu "Search for Milton's stapler (Attempt $attempts/10)" 18 70 8 \
+      1 "ACH Processing Department" \
+      2 "Wire Transfer Office" \
+      3 "Compliance & Risk" \
+      4 "Customer Service" \
+      5 "Back Office Operations" \
+      6 "The Basement" \
+      7 "Lumbergh's Office" \
+      99 "Give up" \
+      3>&1 1>&2 2>&3)
+    
+    [ $? -ne 0 ] && continue
+    
+    case "$CHOICE" in
+      1) # ACH Processing
+        "$DIALOG" --backtitle "$BACKTITLE" --title "ACH Department" \
+          --msgbox "You search through the ACH processing area...\n\n\
+Lots of paperwork, but no stapler here.\n\n\
+'Have you seen my stapler?' asks a voice from the next cubicle.\n\n\
+That's Milton! He sounds really upset." 12 70
+        ;;
+      2) # Wire Transfer Office
+        "$DIALOG" --backtitle "$BACKTITLE" --title "Wire Transfer Office" \
+          --msgbox "You check the wire transfer office...\n\n\
+Nothing but wire forms and confirmation slips.\n\n\
+'They took my stapler!' Milton yells from across the room.\n\n\
+'Who took it?' you ask.\n\n\
+'I don't know, but they better not touch it!'" 12 70
+        ;;
+      3) # Compliance & Risk
+        "$DIALOG" --backtitle "$BACKTITLE" --title "Compliance & Risk" \
+          --msgbox "You search through compliance files...\n\n\
+Lots of audit reports and risk assessments.\n\n\
+'It's a Swingline stapler!' Milton explains.\n\n\
+'It's not like it's a big deal or anything.'\n\n\
+But you can tell it really is a big deal to him." 12 70
+        ;;
+      4) # Customer Service
+        "$DIALOG" --backtitle "$BACKTITLE" --title "Customer Service" \
+          --msgbox "You check customer service...\n\n\
+'Have you seen a red Swingline stapler?' you ask.\n\n\
+'Oh, the red one?' says the customer service rep.\n\n\
+'Yeah, that's the one!' you say excitedly.\n\n\
+'No, sorry. Haven't seen it.'\n\n\
+Darn it!" 12 70
+        ;;
+      5) # Back Office Operations
+        "$DIALOG" --backtitle "$BACKTITLE" --title "Back Office Operations" \
+          --msgbox "You search through back office operations...\n\n\
+'It's my stapler!' Milton insists.\n\n\
+'I had it set up exactly the way I like it.'\n\n\
+'And then they moved my desk to storage room B.'\n\n\
+'And I was told that I could set it up any way I wanted to.'\n\n\
+'So I did.'" 12 70
+        ;;
+      6) # The Basement
+        "$DIALOG" --backtitle "$BACKTITLE" --title "The Basement" \
+          --msgbox "You head down to the basement...\n\n\
+It's dark and musty down here.\n\n\
+You see some old TPS reports stacked in a corner.\n\n\
+And there it is! Milton's red Swingline stapler!\n\n\
+It's sitting right next to the TPS reports, just like in the movie!\n\n\
+You found it!" 15 70
+        
+        # Quest completed!
+        quest_complete="yes"
+        echo "$(date '+%Y-%m-%d %H:%M:%S') - Stapler found by user" > "$PROJECT_DIR/stapler_found.flag"
+        log_op "EASTER_EGG" "Milton's stapler found in basement"
+        
+        "$DIALOG" --backtitle "$BACKTITLE" --title "Quest Complete!" \
+          --msgbox "🎉 CONGRATULATIONS! 🎉\n\n\
+You found Milton's red Swingline stapler!\n\n\
+It was in the basement, next to the TPS reports.\n\n\
+Milton is so happy! He says:\n\n\
+'Thank you! Thank you! I was going crazy without it!'\n\n\
+You've unlocked the 'Office Space Mode' easter egg!\n\n\
+Now when you encounter certain errors, you might see\n\
+special Office Space themed messages..." 18 70
+        ;;
+      7) # Lumbergh's Office
+        "$DIALOG" --backtitle "$BACKTITLE" --title "Lumbergh's Office" \
+          --msgbox "You check Lumbergh's office...\n\n\
+'Yeah... if you could go ahead and not look through my office,\n\
+that'd be great. M'kay?'\n\n\
+Lumbergh doesn't seem to have the stapler either.\n\n\
+'And I'm gonna need you to go ahead and come in on Saturday.\n\
+M'kay?'\n\n\
+Great, now you have to work Saturday." 15 70
+        ;;
+      99) # Give up
+        "$DIALOG" --backtitle "$BACKTITLE" --title "Quest Abandoned" \
+          --msgbox "You decide to give up the search.\n\n\
+'Fine! Fine! I'll just burn the building down!' Milton yells.\n\n\
+'Calm down, Milton!' you say.\n\n\
+'No! I'm serious this time!'\n\n\
+Maybe you should try again later..." 12 70
+        return
+        ;;
+    esac
+  done
+  
+  if [ $attempts -ge 10 ] && [ "$quest_complete" = "no" ]; then
+    "$DIALOG" --backtitle "$BACKTITLE" --title "Quest Failed" \
+      --msgbox "You've searched everywhere but couldn't find the stapler!\n\n\
+Milton is getting really upset now.\n\n\
+'I'm gonna burn the building down!' he threatens.\n\n\
+'Wait, Milton! Let me try one more time!' you plead.\n\n\
+'No! I'm serious this time!'\n\n\
+Maybe you should try again later..." 15 70
+  fi
 }
 
 # -----------------------------

@@ -132,7 +132,6 @@ function authenticate_user() {
         if [[ "$auth_success" = true ]]; then
             dialog --backtitle "$BACKTITLE" \
                    --title "Authentication Successful" \
-                   --no-shadow \
                    --msgbox "Welcome, $username!\n\nAccess granted to INITECH Financial System." 8 60
             
             # Special message for nrogers user

@@ -57,6 +57,14 @@ function authenticate_user() {
             exit 0
         fi
         
+        # Check if username is empty
+        if [[ -z "$username" ]]; then
+            dialog --backtitle "$BACKTITLE" \
+                   --title "Authentication Error" \
+                   --msgbox "Username cannot be empty. Please try again." 7 50
+            continue
+        fi
+        
         # Get password
         password=$(dialog --backtitle "$BACKTITLE" \
                          --title "Authentication Required" \
@@ -68,6 +76,14 @@ function authenticate_user() {
                    --title "Authentication Cancelled" \
                    --msgbox "Authentication cancelled. Exiting." 7 50
             exit 0
+        fi
+        
+        # Check if password is empty
+        if [[ -z "$password" ]]; then
+            dialog --backtitle "$BACKTITLE" \
+                   --title "Authentication Error" \
+                   --msgbox "Password cannot be empty. Please try again." 7 50
+            continue
         fi
         
         # Check credentials against all users in auth file

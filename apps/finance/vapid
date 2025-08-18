@@ -15,7 +15,7 @@ CUSTOMER_DB="$ACCT_DIR/customers.db"
 VENDOR_DB="$ACCT_DIR/vendors.db"
 VENDOR_INVOICES_DB="$ACCT_DIR/vendor_invoices.db"
 CUSTOMER_INVOICES_DB="$ACCT_DIR/customer_invoices.db"
-STARTUP_SLEEP="5"
+STARTUP_SLEEP="0"
 AUTH_FILE="/export/initech/auth"
 
 # ------------------ AUTHENTICATION ------------------
@@ -101,6 +101,10 @@ function authenticate_user() {
     done
 }
 
+
+echo "Starting up..."
+sleep $STARTUP_SLEEP
+
 # Perform authentication before proceeding
 authenticate_user
 
@@ -135,8 +139,6 @@ if [[ ! -d $ACCT_DIR ]]; then
     mkdir -p "$ACCT_DIR" || { echo "Failed to create accounting directory"; exit 1; }
 fi
 
-echo "Starting up..."
-sleep $STARTUP_SLEEP
 
 # ------------------ UTILITIES ------------------
 

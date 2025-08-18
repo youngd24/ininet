@@ -15,7 +15,7 @@ CUSTOMER_DB="$ACCT_DIR/customers.db"
 VENDOR_DB="$ACCT_DIR/vendors.db"
 VENDOR_INVOICES_DB="$ACCT_DIR/vendor_invoices.db"
 CUSTOMER_INVOICES_DB="$ACCT_DIR/customer_invoices.db"
-STARTUP_SLEEP="0"
+STARTUP_SLEEP="3"
 AUTH_FILE="/export/initech/auth"
 
 # ------------------ AUTHENTICATION ------------------

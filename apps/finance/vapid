@@ -16,6 +16,93 @@ VENDOR_DB="$ACCT_DIR/vendors.db"
 VENDOR_INVOICES_DB="$ACCT_DIR/vendor_invoices.db"
 CUSTOMER_INVOICES_DB="$ACCT_DIR/customer_invoices.db"
 STARTUP_SLEEP="5"
+AUTH_FILE="/export/initech/auth"
+
+# ------------------ AUTHENTICATION ------------------
+
+function authenticate_user() {
+    local username password
+    
+    # Check if auth file exists
+    if [[ ! -f "$AUTH_FILE" ]]; then
+        dialog --backtitle "$BACKTITLE" \
+               --title "Authentication Error" \
+               --msgbox "Authentication file not found: $AUTH_FILE\n\nAccess denied." 8 60
+        exit 1
+    fi
+    
+    # Check if auth file is readable and not empty
+    if [[ ! -r "$AUTH_FILE" ]] || [[ ! -s "$AUTH_FILE" ]]; then
+        dialog --backtitle "$BACKTITLE" \
+               --title "Authentication Error" \
+               --msgbox "Authentication file is empty or unreadable.\n\nAccess denied." 8 60
+        exit 1
+    fi
+    
+    # Authentication loop
+    local attempts=0
+    local max_attempts=3
+    
+    while [[ $attempts -lt $max_attempts ]]; do
+        # Get username
+        username=$(dialog --backtitle "$BACKTITLE" \
+                         --title "Authentication Required" \
+                         --inputbox "Username:" 8 40 3>&1 1>&2 2>&3)
+        
+        if [[ $? -ne 0 ]]; then
+            # User cancelled
+            dialog --backtitle "$BACKTITLE" \
+                   --title "Authentication Cancelled" \
+                   --msgbox "Authentication cancelled. Exiting." 7 50
+            exit 0
+        fi
+        
+        # Get password
+        password=$(dialog --backtitle "$BACKTITLE" \
+                         --title "Authentication Required" \
+                         --passwordbox "Password:" 8 40 3>&1 1>&2 2>&3)
+        
+        if [[ $? -ne 0 ]]; then
+            # User cancelled
+            dialog --backtitle "$BACKTITLE" \
+                   --title "Authentication Cancelled" \
+                   --msgbox "Authentication cancelled. Exiting." 7 50
+            exit 0
+        fi
+        
+        # Check credentials against all users in auth file
+        local auth_success=false
+        
+        # Use grep to find exact username:password match
+        if grep -Fxq "$username:$password" "$AUTH_FILE" 2>/dev/null; then
+            auth_success=true
+        fi
+        
+        if [[ "$auth_success" = true ]]; then
+            dialog --backtitle "$BACKTITLE" \
+                   --title "Authentication Successful" \
+                   --msgbox "Welcome, $username!\n\nAccess granted to INITECH Financial Systems." 8 60
+            return 0
+        else
+            attempts=$((attempts + 1))
+            local remaining=$((max_attempts - attempts))
+            
+            if [[ $remaining -gt 0 ]]; then
+                dialog --backtitle "$BACKTITLE" \
+                       --title "Authentication Failed" \
+                       --msgbox "Invalid username or password.\n\nRemaining attempts: $remaining" 8 60
+            else
+                dialog --backtitle "$BACKTITLE" \
+                       --title "Authentication Failed" \
+                       --msgbox "Maximum authentication attempts exceeded.\n\nAccess denied." 8 60
+                exit 1
+            fi
+        fi
+    done
+}
+
+# Perform authentication before proceeding
+authenticate_user
 
 # Prefer GNU awk if present (Solaris-safe fallback)
 AWK=/usr/local/bin/gawk

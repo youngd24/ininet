@@ -73,8 +73,8 @@ function authenticate_user() {
         # Check credentials against all users in auth file
         local auth_success=false
         
-        # Use grep to find exact username:password match
-        if grep -Fxq "$username:$password" "$AUTH_FILE" 2>/dev/null; then
+        # Use basic grep compatible with Solaris 7
+        if grep "$username:$password" "$AUTH_FILE" >/dev/null 2>&1; then
             auth_success=true
         fi
         

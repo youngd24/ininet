@@ -7,7 +7,7 @@
 
 # Title and company name
 TITLE="INITECH Financial Systems"
-BACKTITLE="INITECH - Accounts Payable / Receivable Dashboard"
+BACKTITLE="INITECH - Corporate Financial System"
 
 # Vars
 ACCT_DIR="/export/accounting"
@@ -15,8 +15,13 @@ CUSTOMER_DB="$ACCT_DIR/customers.db"
 VENDOR_DB="$ACCT_DIR/vendors.db"
 VENDOR_INVOICES_DB="$ACCT_DIR/vendor_invoices.db"
 CUSTOMER_INVOICES_DB="$ACCT_DIR/customer_invoices.db"
-STARTUP_SLEEP="3"
+STARTUP_SLEEP="2"
 AUTH_FILE="/export/initech/auth"
+
+# Prefer GNU awk if present (Solaris-safe fallback)
+AWK=/usr/local/bin/gawk
+[ -x "$AWK" ] || AWK=/usr/xpg4/bin/awk
+[ -x "$AWK" ] || AWK=awk
 
 # ------------------ AUTHENTICATION ------------------
 
@@ -89,15 +94,45 @@ function authenticate_user() {
         # Check credentials against all users in auth file
         local auth_success=false
         
-        # Use basic grep compatible with Solaris 7, but exclude comment lines
-        if grep -v "^#" "$AUTH_FILE" | grep "$username:$password" >/dev/null 2>&1; then
-            auth_success=true
-        fi
+        # Parse auth file line by line, excluding comments
+        for line in `cat $AUTH_FILE | grep -v '#'`; do
+            [ -z "$line" ] && continue
+            USERNAME=`echo $line | awk -F: '{print $1}'`
+            PASSWORD=`echo $line | awk -F: '{print $2}'`
+            ACCTACCESS=`echo $line | awk -F: '{print $3}'`
+            
+            # Check if credentials match and account has access
+            if [[ "$username" = "$USERNAME" && "$password" = "$PASSWORD" ]]; then
+                if [[ "$ACCTACCESS" = "1" ]]; then
+                    auth_success=true
+                    break
+                else
+                    # Credentials match but access denied
+                    dialog --backtitle "$BACKTITLE" \
+                           --title "Access Denied" \
+                           --msgbox "Account access is disabled for user: $username" 7 50
+                    attempts=$((attempts + 1))
+                    local remaining=$((max_attempts - attempts))
+                    
+                    if [[ $remaining -gt 0 ]]; then
+                        dialog --backtitle "$BACKTITLE" \
+                               --title "Authentication Failed" \
+                               --msgbox "Remaining attempts: $remaining" 7 50
+                    else
+                        dialog --backtitle "$BACKTITLE" \
+                               --title "Authentication Failed" \
+                               --msgbox "Maximum authentication attempts exceeded.\n\nAccess denied." 8 60
+                        exit 1
+                    fi
+                    continue 2  # Continue to next authentication attempt
+                fi
+            fi
+        done
         
         if [[ "$auth_success" = true ]]; then
             dialog --backtitle "$BACKTITLE" \
                    --title "Authentication Successful" \
-                   --msgbox "Welcome, $username!\n\nAccess granted to INITECH Financial Systems." 8 60
+                   --msgbox "Welcome, $username!\n\nAccess granted to INITECH Financial System." 8 60
             
             # Special message for nrogers user
             if [[ "$username" = "nrogers" ]]; then
@@ -132,10 +167,6 @@ sleep $STARTUP_SLEEP
 # Perform authentication before proceeding
 authenticate_user
 
-# Prefer GNU awk if present (Solaris-safe fallback)
-AWK=/usr/local/bin/gawk
-[ -x "$AWK" ] || AWK=/usr/xpg4/bin/awk
-[ -x "$AWK" ] || AWK=awk
 
 # Strip CRs and blank lines; ensure file exists
 sanitize_db() {

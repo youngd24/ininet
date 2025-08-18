@@ -98,6 +98,14 @@ function authenticate_user() {
             dialog --backtitle "$BACKTITLE" \
                    --title "Authentication Successful" \
                    --msgbox "Welcome, $username!\n\nAccess granted to INITECH Financial Systems." 8 60
+            
+            # Special message for nrogers user
+            if [[ "$username" = "nrogers" ]]; then
+                dialog --backtitle "$BACKTITLE" \
+                       --title "Corporate Accounts Payable" \
+                       --msgbox "Corporate accounts payable, please hold" 7 50
+            fi
+            
             return 0
         else
             attempts=$((attempts + 1))

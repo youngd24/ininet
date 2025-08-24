@@ -1,5 +1,13 @@
 #!/bin/bash
+##############################################################################
+#
+# createUser.sh
+#
+# Create a RAS (AIM) user via the API
+#
+##############################################################################
 
+# Gotta give us sumpin to go on
 if [ "$#" -ne 2 ]; then
     echo "Usage: $0 <screen_name> <password>"
     exit 1

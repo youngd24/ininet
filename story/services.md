@@ -22,6 +22,18 @@
 
 ---
 
+## Network Shares
+
+Some shares available:
+
+| Server | Share | Description      | Path                    |
+| ------ | ----- | ---------------- | ----------------------- |
+| NWS001 | DATA  | Various things   | \\\NWS001\Data          |
+| NWS001 | DATA  | Music            | \\\NWS001\Data\Music    |
+| NWS001 | DATA  | Software         | \\\NWS001\Data\Software |
+
+---
+
 ## Business Application Services
 
 ### Bank Management System (BMS)

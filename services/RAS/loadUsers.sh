@@ -19,8 +19,7 @@ logmsg() {
     printf '%s\n' "$*" | tee -a "$LOGFILE" >/dev/null
 }
 
-# Flip through the password file, skip comments and blank lines
-logmsg "Loading all users into RAS using API..."
+echo "Loading all users into RAS using API..."
 
 # do work
 for line in `cat $PASSFILE | grep -v '#'`; do
@@ -30,6 +29,8 @@ for line in `cat $PASSFILE | grep -v '#'`; do
     PASSWORD=`echo $line | awk -F: '{print $2}'`
 
     logmsg "Creating $USERNAME"
-    "$CREATE_SCRIPT" "$USERNAME" "$PASSWORD" | tee -a "$LOGFILE"
+    # Capture and log output of CREATE_SCRIPT
+    output=$("$CREATE_SCRIPT" "$USERNAME" "$PASSWORD")
+    logmsg "$output"
 done
 

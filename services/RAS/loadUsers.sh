@@ -11,8 +11,16 @@ PASSFILE="../../auth0/passwd"
 CREATE_SCRIPT="./createUser.sh"
 LOGFILE="batch.log"
 
+# Remove existing log at startup (start clean)
+[ -f "$LOGFILE" ] && rm -f "$LOGFILE"
+
+# Logger: print to stdout and append to log
+logmsg() {
+    printf '%s\n' "$*" | tee -a "$LOGFILE" >/dev/null
+}
+
 # Flip through the password file, skip comments and blank lines
-echo "Loading all users into RAS using API..." | tee $LOGFILE
+logmsg "Loading all users into RAS using API..."
 
 # do work
 for line in `cat $PASSFILE | grep -v '#'`; do
@@ -21,7 +29,7 @@ for line in `cat $PASSFILE | grep -v '#'`; do
     USERNAME=`echo $line | awk -F: '{print $1}'`
     PASSWORD=`echo $line | awk -F: '{print $2}'`
 
-    echo "Creating $USERNAME" | tee -a $LOGFILE
-    ./createUser.sh $USERNAME $PASSWORD | tee -a $LOGFILE
-
+    logmsg "Creating $USERNAME"
+    "$CREATE_SCRIPT" "$USERNAME" "$PASSWORD" | tee -a "$LOGFILE"
 done
+

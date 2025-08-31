@@ -19,7 +19,7 @@ SCREEN_NAME="$1"
 echo "Using screen name: '$SCREEN_NAME'"
 
 # First API call
-curl -s -H "Content-Type: application/json" \
-     -X DELETE -d "{\"screen_name\":\"$SCREEN_NAME\"}" \
+curl -s -X DELETE -H "Content-Type: application/json" \
+     -d "{\"screen_name\":\"$SCREEN_NAME\"}" \
      http://localhost:8080/user
 

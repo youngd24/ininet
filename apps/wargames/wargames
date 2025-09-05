@@ -104,13 +104,19 @@ class Leaderboard:
 
     def stop_for_draws(self):
         if self.draws >= self.draw_limit:
+
+            slowPrintLine("Loading...")
+            time.sleep(3)
+            # Use ANSI clear to avoid external deps
+            sys.stdout.write("\033[H\033[2J")
+            sys.stdout.flush()
             slowPrintLine("GREETINGS PROFESSOR FALKEN")
             slowPrintLine("\n")
             slowPrintLine("A STRANGE GAME.")
             slowPrintLine("THE ONLY WINNING MOVE IS")
             slowPrintLine("NOT TO PLAY.")
             slowPrintLine("\n")
-            slowPrintLine("YOUR CODE IS: X04TGCA7E42")
+            slowPrintLine("LAUNCH CODE: CPE1704TKS")
             slowPrintLine("\n")
             while True:
                 ans = input("HOW ABOUT A NICE GAME OF CHESS (Y/N): ").strip().lower()
@@ -119,12 +125,12 @@ class Leaderboard:
 
 class TTT:
     def __init__(self, humans=2, human_mark=X, ai_delay=0):
-        self.humans = humans              # 2=HvsH, 1=HvsAI, 0=AIvsAI
-        self.human_mark = human_mark      # only used when humans == 1
-        self.ai_mark = O if human_mark == X else X
-        self.ai_delay = max(0, int(ai_delay))
-        self.leader = Leaderboard()
-        self.board = [" "] * 10  # 1..9 used
+        self.humans     = humans                        # 2=HvsH, 1=HvsAI, 0=AIvsAI
+        self.human_mark = human_mark                    # only used when humans == 1
+        self.ai_mark    = O if human_mark == X else X   #
+        self.ai_delay   = max(0, int(ai_delay))         #
+        self.leader     = Leaderboard()                 #
+        self.board      = [" "] * 10                    # 1..9 used
 
     # ----------- UI helpers -----------
     def cls(self):
@@ -217,9 +223,9 @@ class TTT:
         while True:
             self.cls()
             if self.humans == 2:
-                print("Human vs Human")
+                print("HUMAN VS HUMAN")
             elif self.humans == 1:
-                print(f"Human ({self.human_mark}) vs Computer ({self.ai_mark})")
+                print(f"HUMAN ({self.human_mark}) VS COMPUTER ({self.ai_mark})")
             else:
                 slowPrintLine("COMPUTER VS COMPUTER")
             self.print_grid()
@@ -245,14 +251,14 @@ class TTT:
                 self.cls()
                 self.print_grid()
                 if self.humans == 0:
-                    print(f"Computer ({current}) wins!")
+                    print(f"COMPUTER ({current}) WINS!")
                 elif self.humans == 1:
                     if current == self.ai_mark:
-                        print(f"Computer ({current}) wins!")
+                        print(f"COMPUTER ({current}) WINS!")
                     else:
-                        print(f"Player {current} wins!")
+                        print(f"PLAYER {current} WINS!")
                 else:
-                    print(f"Player {current} wins!")
+                    print(f"PLAYER {current} WINS!")
                 self.leader.record_win(current)
                 self.leader.print_board()
                 return
@@ -339,7 +345,7 @@ def run_ttt(args):
         game.leader.stop_for_draws()
 
         if game.humans == 0:
-            slowPrintLine("\nNEXT AI VS AI STARTING IN 2 SECONDS...")
+            slowPrintLine("\nNEXT GAME STARTING IN 2 SECONDS...")
             time.sleep(2)
             continue
 
@@ -376,7 +382,7 @@ def main():
             run_ttt(args)
             sys.exit(0)
         else:
-            slowPrintLine("UNAUTHORIZED!")
+            slowPrintLine("UNAUTHORIZED ACCESS!")
             time.sleep(5)
 
 if __name__ == "__main__":

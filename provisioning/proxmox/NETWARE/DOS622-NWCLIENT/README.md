@@ -19,7 +19,7 @@ DOS 6.11 Installation:
 
 To import into Proxmox:
 
-- Transfer the file up to the pve host
+- Transfer the file(s) from the vzdump directory up to the pve host
 - SSH into it
 
 ```

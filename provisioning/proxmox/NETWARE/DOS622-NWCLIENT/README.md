@@ -33,3 +33,5 @@ I don't know why you can't rename these files, but for whatever reason whenever 
 Bring up your Netware server, make sure it's on the same network then start up this machine. Once it's up, type:
 
 ```F:\LOGIN```
+
+If you followed along on one of my other videos, building a Netware 4.11 server, you'll be attached to the one you built. If you used my STIMPY machine image, you'll attach to that.

@@ -1,4 +1,4 @@
-Pre-built DOS 6.22 Netware VLM client Proxmox VM based on my video here:
+Pre-built DOS 6.22 Netware VLM client Proxmox VM based on my video here: https://youtu.be/A89KfL6U1tE
 
 Virtual Machine:
 

@@ -23,7 +23,7 @@ To import into Proxmox:
 - SSH into it
 
 ```
-qmrestore vzdump-qemu-101-2025_09_24-11_37_44.vma.zst <vmid>
+qmrestore vzdump-$whatever_is_there.vma.zst <vmid>
 ```
 
 Where vmid is whatever numeric ID you want to assign to it.

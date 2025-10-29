@@ -1,0 +1,164 @@
+
+!
+! No configuration change since last restart
+!
+version 12.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname INIKAUSRTR01
+!
+boot-start-marker
+boot-end-marker
+!
+logging buffered 4096 informational
+!
+aaa new-model
+!
+!
+aaa authentication login localauth local
+aaa authentication login TACPLUS group tacacs+ local
+aaa authentication login NOAUTH none
+aaa authorization exec localauth local 
+aaa authorization exec NOAUTH none 
+aaa authorization exec TACPLUS group tacacs+ local 
+aaa authorization commands 3 TACPLUS group tacacs+ local 
+aaa accounting delay-start 
+aaa accounting exec default start-stop group tacacs+
+aaa accounting network default start-stop group tacacs+
+!
+aaa session-id common
+!
+resource policy
+!
+clock timezone CST -6
+clock summer-time CDT recurring
+no network-clock-participate slot 1 
+no network-clock-participate wic 0 
+ip cef
+!
+!
+no ip dhcp use vrf connected
+ip dhcp excluded-address 10.100.10.1 10.100.10.25
+ip dhcp excluded-address 10.100.10.100 10.100.10.254
+!
+ip dhcp pool AUSLAN
+   network 10.100.10.0 255.255.255.0
+   default-router 10.100.10.1 
+   domain-name initech.net
+   netbios-node-type h-node
+   dns-server 192.168.42.46 
+!
+!
+ip domain name initech.net
+ip name-server 192.168.42.46
+ipx routing 000c.85ff.14e0
+ipx internal-network 7C8C2BDF
+!
+!
+!
+!
+!
+!
+!
+interface FastEthernet0/0
+ description Internal network
+ no ip address
+ duplex auto
+ speed auto
+!
+interface FastEthernet0/0.10
+ encapsulation dot1Q 10
+ ip address 10.100.10.1 255.255.255.0
+ ipx network 10000010 encapsulation SAP
+!
+interface Serial0/0
+ description To TELFRSW01 SERIAL0/1
+ ip address 172.16.10.2 255.255.255.0
+ encapsulation frame-relay
+ ipx network 90000001
+ fair-queue
+ frame-relay lmi-type ansi
+!
+router eigrp 666
+ redistribute connected
+ network 10.100.10.0 0.0.0.255
+ network 172.16.10.0 0.0.0.255
+ no auto-summary
+ no eigrp log-neighbor-changes
+!
+!
+no ip http server
+no ip http secure-server
+!
+logging 192.168.42.46
+!
+!
+!
+ipx router eigrp 201
+ network all
+ log-neighbor-changes
+!
+!
+!
+tacacs-server host 192.168.42.46
+tacacs-server directed-request
+!
+control-plane
+!
+banner exec 
+****************************************************************************
+**                      USEFUL COMMANDS AND NOTES                         **
+****************************************************************************
+** 'show running-config view full' to see the configuration               **
+** 'show ip int brief' to see IP addresses assigned                       **
+** 'show ip route' to see routes                                          **
+**                                                                        **
+** If you're in a session from the console server, remember the break     **
+** sequence is <CTRL>-<SHIFT>-6 then X                                    **
+****************************************************************************
+
+banner motd 
+/==========================================================================\
+||       __  .__   __.  __  .___________. _______   ______  __    __      ||
+||     |  | |  \ |  | |  | |           ||   ____| /      ||  |  |  |      ||
+||     |  | |   \|  | |  | `---|  |----`|  |__   |  ,----'|  |__|  |      ||
+||     |  | |  . `  | |  |     |  |     |   __|  |  |     |   __   |      ||
+||     |  | |  |\   | |  |     |  |     |  |____ |  `----.|  |  |  |      ||
+||     |__| |__| \__| |__|     |__|     |_______| \______||__|  |__|      ||
+||------------------------------------------------------------------------||
+||           UNAUTHORIZED ACCESS PROHIBITED, ALL ACCESS LOGGED            ||
+||------------------------------------------------------------------------||
+||                                                                        ||
+||  Systems Support               |   Ask yourself,                       ||
+||  techops@initech.net           |   Is it good for the company?         ||
+||  617-555-1212                  |   - Someone that doesn't matter       ||
+||                                                                        ||
+\==========================================================================/
+
+Host   : $(hostname).($(domain))
+Line   : $(line) ($(line-desc))
+
+privilege exec level 3 show running-config view full
+privilege exec level 3 show running-config view
+privilege exec level 3 show running-config
+privilege exec level 3 show
+!
+line con 0
+ location Console Port
+ login authentication NOAUTH
+ transport preferred none
+line aux 0
+line vty 0 4
+ location Telnet VTY Line
+ authorization commands 3 TACPLUS
+ authorization exec TACPLUS
+ login authentication TACPLUS
+ transport input telnet
+!
+ntp logging
+ntp clock-period 17179953
+ntp server 192.168.42.46 prefer
+!
+end

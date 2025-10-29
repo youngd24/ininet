@@ -1,0 +1,254 @@
+
+!
+! Last configuration change at 20:14:59 CST Tue Oct 28 2025 by admin
+! NVRAM config last updated at 20:15:00 CST Tue Oct 28 2025 by admin
+!
+version 12.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname INIHQRTR01
+!
+boot-start-marker
+boot-end-marker
+!
+logging buffered 4096 informational
+!
+aaa new-model
+!
+!
+aaa authentication login localauth local
+aaa authentication login TACPLUS group tacacs+ local
+aaa authentication login NOAUTH none
+aaa authorization exec localauth local 
+aaa authorization exec NOAUTH none 
+aaa authorization exec TACPLUS group tacacs+ local 
+aaa authorization commands 3 TACPLUS group tacacs+ local 
+aaa accounting delay-start 
+aaa accounting exec default start-stop group tacacs+
+aaa accounting network default start-stop group tacacs+
+!
+aaa session-id common
+!
+resource policy
+!
+clock timezone CST -6
+clock summer-time CDT recurring
+clock save interval 8
+!
+!
+ip cef
+ip domain name initech.net
+ip name-server 192.168.42.46
+no ip dhcp use vrf connected
+ip dhcp excluded-address 192.168.42.1 192.168.42.25
+ip dhcp excluded-address 192.168.22.1 192.168.22.25
+!
+ip dhcp pool VLAN42_POOL
+   network 192.168.42.0 255.255.255.0
+   default-router 192.168.42.1 
+   domain-name initech.net
+   dns-server 192.168.42.46 
+   netbios-name-server 192.168.42.89 
+   netbios-node-type h-node
+   option 42 ip 192.168.42.46 
+!
+ip dhcp pool VLAN22_POOL
+   network 192.168.22.0 255.255.255.0
+   default-router 192.168.22.1 
+   dns-server 192.168.42.46 
+   netbios-name-server 192.168.42.89 
+   netbios-node-type h-node
+   option 42 ip 192.168.42.46 
+!
+!
+!
+ipx routing 00e0.1ef2.b601
+ipx internal-network D8A5B4A5
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+! 
+!
+!
+!
+!
+interface FastEthernet0/0
+ description Trunk port to b02-sw01 Gi0/1/13
+ no ip address
+ duplex auto
+ speed auto
+!
+interface FastEthernet0/0.57
+ encapsulation dot1Q 57
+ ip address 192.168.57.75 255.255.255.0
+ no snmp trap link-status
+ ipx network 5000057 encapsulation SAP
+!
+interface Serial0/0
+ description To Frame Router TELFRSW01 SERIAL0/0
+ ip address 172.16.10.1 255.255.255.0
+ ip virtual-reassembly
+ encapsulation frame-relay
+ ipx network 90000001
+ frame-relay lmi-type ansi
+!
+interface FastEthernet0/1
+ description To PIX External inside Ethernet1
+ ip address 192.168.25.2 255.255.255.0
+ ip virtual-reassembly
+ duplex auto
+ speed auto
+!
+interface Serial0/1
+ description POINT-TO-POINT T1 TO INIKEDC DEV OFC
+ ip address 172.16.20.1 255.255.255.0
+ encapsulation ppp
+ ipx network 90000002
+!
+interface Serial0/2
+ no ip address
+ shutdown
+ clock rate 2000000
+!
+interface Ethernet1/0
+ description 10BASE2 LAN
+ ip address 192.168.22.1 255.255.255.0
+ half-duplex
+!
+interface Serial1/0
+ description POINT-TO-POINT T1 TO INIKEDC DEV OFC (VCF CHANGE)
+ ip address 172.16.20.1 255.255.255.0
+ encapsulation ppp
+ shutdown
+ ipx network 90000002
+ no dce-terminal-timing-enable
+ service-module t1 clock source internal
+!
+interface Ethernet1/1
+ no ip address
+ half-duplex
+!
+interface Ethernet1/1.42
+ description VLAN 42 router interface
+ encapsulation dot1Q 42
+ ip address 192.168.42.1 255.255.255.0
+ ip virtual-reassembly
+ no snmp trap link-status
+ ipx network 5000042 encapsulation SAP
+!
+router eigrp 666
+ redistribute connected
+ redistribute static
+ network 172.16.10.0 0.0.0.255
+ network 172.16.20.0 0.0.0.255
+ network 192.168.22.0
+ network 192.168.25.0
+ network 192.168.42.0
+ network 192.168.57.0
+ no auto-summary
+!
+no ip http server
+no ip http secure-server
+ip route 0.0.0.0 0.0.0.0 192.168.25.1
+ip route 192.168.1.0 255.255.255.0 192.168.57.1
+ip route 192.168.5.0 255.255.255.0 192.168.57.1
+ip route 192.168.12.0 255.255.255.0 192.168.57.1
+!
+!
+!
+logging source-interface Ethernet1/1.42
+logging 192.168.42.46
+!
+!
+!
+!
+ipx router eigrp 201
+ network all
+ log-neighbor-changes
+!
+!
+!
+tacacs-server host 192.168.42.46
+tacacs-server directed-request
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+!
+!
+banner exec 
+******************************************************************************
+**                       USEFUL COMMANDS AND NOTES                          **
+******************************************************************************
+** 'show running-config view full' to see the configuration                 **
+** 'show ip int brief' to see IP addresses assigned                         **
+** 'show ip route' to see routes                                            **
+**                                                                          **
+** If you're in a session from the console server, remember the break       **
+** sequence is <CTRL>-<SHIFT>-6 then X                                      **
+******************************************************************************
+
+banner motd 
+/==========================================================================\
+||       __  .__   __.  __  .___________. _______   ______  __    __      ||
+||     |  | |  \ |  | |  | |           ||   ____| /      ||  |  |  |      ||
+||     |  | |   \|  | |  | `---|  |----`|  |__   |  ,----'|  |__|  |      ||
+||     |  | |  . `  | |  |     |  |     |   __|  |  |     |   __   |      ||
+||     |  | |  |\   | |  |     |  |     |  |____ |  `----.|  |  |  |      ||
+||     |__| |__| \__| |__|     |__|     |_______| \______||__|  |__|      ||
+||------------------------------------------------------------------------||
+||           UNAUTHORIZED ACCESS PROHIBITED, ALL ACCESS LOGGED            ||
+||------------------------------------------------------------------------||
+||                                                                        ||
+||  Systems Support               |   Ask yourself,                       ||
+||  techops@initech.net           |   Is it good for the company?         ||
+||  617-555-1212                  |   - Someone that doesn't matter       ||
+||                                                                        ||
+\==========================================================================/
+
+Host   : $(hostname).($(domain))
+Line   : $(line) ($(line-desc))
+
+privilege exec level 3 show running-config view full
+privilege exec level 3 show running-config view
+privilege exec level 3 show running-config
+privilege exec level 3 show
+!
+line con 0
+ location Console Port
+ exec-timeout 5 0
+ transport preferred none
+line aux 0
+line vty 0 4
+ location Telnet VTY Line
+ exec-timeout 0 0
+ authorization commands 3 TACPLUS
+ authorization exec TACPLUS
+ login authentication TACPLUS
+ transport input telnet
+!
+ntp logging
+ntp clock-period 17179648
+ntp source Ethernet1/1.42
+ntp server 192.168.42.46 source Ethernet1/1.42 prefer
+!
+end

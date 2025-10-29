@@ -1,0 +1,222 @@
+
+!
+! No configuration change since last restart
+!
+version 12.0
+no service pad
+service timestamps debug uptime
+service timestamps log uptime
+service password-encryption
+!
+hostname INIHQMDSW01
+!
+aaa new-model
+aaa authentication login localauth local
+aaa authentication login TACPLUS group tacacs+ local
+aaa authentication login NOAUTH none
+aaa authorization exec localauth local
+aaa authorization exec NOAUTH none
+aaa authorization exec TACPLUS group tacacs+ local
+aaa authorization commands 3 TACPLUS group tacacs+ local
+aaa accounting delay-start
+aaa accounting exec default start-stop group tacacs+
+aaa accounting network default start-stop group tacacs+
+!
+!
+!
+!
+!
+clock timezone CST -6
+clock summer-time CDT recurring
+!
+ip subnet-zero
+ip domain-name initech.net
+ip name-server 192.168.42.46
+!
+!
+!
+interface FastEthernet0/1
+ switchport access vlan 42
+ spanning-tree portfast
+!
+interface FastEthernet0/2
+ switchport access vlan 42
+ spanning-tree portfast
+!
+interface FastEthernet0/3
+ switchport access vlan 42
+ spanning-tree portfast
+!
+interface FastEthernet0/4
+ switchport access vlan 42
+ spanning-tree portfast
+!
+interface FastEthernet0/5
+ switchport access vlan 42
+ spanning-tree portfast
+!
+interface FastEthernet0/6
+ switchport access vlan 42
+ spanning-tree portfast
+!
+interface FastEthernet0/7
+ switchport access vlan 42
+ spanning-tree portfast
+!
+interface FastEthernet0/8
+ switchport access vlan 42
+ spanning-tree portfast
+!
+interface FastEthernet0/9
+ switchport access vlan 42
+ spanning-tree portfast
+!
+interface FastEthernet0/10
+ switchport access vlan 42
+ spanning-tree portfast
+!
+interface FastEthernet0/11
+ switchport access vlan 42
+ spanning-tree portfast
+!
+interface FastEthernet0/12
+ switchport access vlan 42
+ spanning-tree portfast
+!
+interface FastEthernet0/13
+ switchport access vlan 42
+ spanning-tree portfast
+!
+interface FastEthernet0/14
+ switchport access vlan 42
+ spanning-tree portfast
+!
+interface FastEthernet0/15
+ spanning-tree portfast
+!
+interface FastEthernet0/16
+ switchport access vlan 42
+ spanning-tree portfast
+!
+interface FastEthernet0/17
+ switchport access vlan 25
+ spanning-tree portfast
+!
+interface FastEthernet0/18
+ switchport access vlan 25
+ spanning-tree portfast
+!
+interface FastEthernet0/19
+ switchport access vlan 25
+ spanning-tree portfast
+!
+interface FastEthernet0/20
+ switchport access vlan 25
+!
+interface FastEthernet0/21
+ description ** TRUNK PORT ***
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface FastEthernet0/22
+ description ** TRUNK PORT ***
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface FastEthernet0/23
+ description ** TRUNK PORT ***
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface FastEthernet0/24
+ description ** TRUNK PORT ***
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface GigabitEthernet0/1
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface GigabitEthernet0/2
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface VLAN1
+ no ip directed-broadcast
+ no ip route-cache
+ shutdown
+!
+interface VLAN42
+ ip address 192.168.42.6 255.255.255.0
+ no ip directed-broadcast
+ no ip route-cache
+!
+ip default-gateway 192.168.42.1
+logging source-interface VLAN42
+logging 192.168.42.46
+snmp-server engineID local 00000009020000036BE18900
+snmp-server community public RO
+snmp-server location HQ Data Center
+snmp-server contact Systems Support [techops@initech.net]
+snmp-server enable traps snmp
+snmp-server enable traps vlan-membership
+snmp-server enable traps c2900
+snmp-server enable traps config
+snmp-server enable traps entity
+snmp-server enable traps hsrp
+snmp-server enable traps vtp
+snmp-server enable traps cluster
+tacacs-server host 192.168.42.46
+banner exec 
+******************************************************************************
+**                       USEFUL COMMANDS AND NOTES                          **
+******************************************************************************
+** 'show running-config view full' to see the configuration                 **
+** 'show ip int brief' to see IP addresses assigned                         **
+** 'show ip route' to see routes                                            **
+**                                                                          **
+** If you're in a session from the console server, remember the break       **
+** sequence is <CTRL>-<SHIFT>-6 then X                                      **
+******************************************************************************
+
+banner motd 
+/==========================================================================\
+||       __  .__   __.  __  .___________. _______   ______  __    __      ||
+||     |  | |  \ |  | |  | |           ||   ____| /      ||  |  |  |      ||
+||     |  | |   \|  | |  | `---|  |----`|  |__   |  ,----'|  |__|  |      ||
+||     |  | |  . `  | |  |     |  |     |   __|  |  |     |   __   |      ||
+||     |  | |  |\   | |  |     |  |     |  |____ |  `----.|  |  |  |      ||
+||     |__| |__| \__| |__|     |__|     |_______| \______||__|  |__|      ||
+||------------------------------------------------------------------------||
+||           UNAUTHORIZED ACCESS PROHIBITED, ALL ACCESS LOGGED            ||
+||------------------------------------------------------------------------||
+||                                                                        ||
+||  Systems Support               |   Ask yourself,                       ||
+||  techops@initech.net           |   Is it good for the company?         ||
+||  617-555-1212                  |   - Someone that doesn't matter       ||
+||                                                                        ||
+\==========================================================================/
+
+Host   : $(hostname).($(domain))
+Line   : $(line) ($(line-desc))
+
+privilege exec level 3 show startup-config
+privilege exec level 3 show running-config
+privilege exec level 3 show
+!
+line con 0
+ location Console Port
+ transport input none
+ stopbits 1
+line vty 0 4
+ location Telnet VTY Line
+ authorization commands 3 TACPLUS
+ authorization exec TACPLUS
+ login authentication TACPLUS
+ transport input telnet
+line vty 5 15
+ transport input none
+!
+ntp clock-period 11259535
+ntp server 192.168.42.46 prefer
+end

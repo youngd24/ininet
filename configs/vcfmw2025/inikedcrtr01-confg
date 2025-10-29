@@ -1,0 +1,177 @@
+
+!
+! No configuration change since last restart
+!
+version 12.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname INIKEDCRTR01
+!
+boot-start-marker
+boot-end-marker
+!
+!
+aaa new-model
+!
+!
+aaa authentication login default group tacacs+ local
+aaa authentication login localauth local
+aaa authentication login CONSOLE none
+aaa authentication ppp default if-needed group tacacs+ local
+aaa authorization exec default group tacacs+ local 
+aaa authorization exec CONSOLE none 
+aaa accounting delay-start 
+aaa accounting exec default start-stop group tacacs+
+aaa accounting network default start-stop group tacacs+
+!
+!
+aaa session-id common
+clock timezone CST -6
+clock summer-time CDT recurring
+no network-clock-participate slot 1 
+no network-clock-participate wic 0 
+ip cef
+!
+!
+no ip dhcp use vrf connected
+ip dhcp excluded-address 10.100.30.1 10.100.30.25
+ip dhcp excluded-address 10.100.30.100 10.100.30.254
+!
+ip dhcp pool EDCLAN
+   network 10.100.30.0 255.255.255.0
+   default-router 10.100.30.1 
+   domain-name initech.net
+   netbios-node-type h-node
+   dns-server 192.168.42.46 
+!
+!
+ip domain name initech.net
+ip name-server 192.168.42.46
+!
+multilink bundle-name authenticated
+ipx routing 000f.90bb.a980
+ipx internal-network B4DD5EA1
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+archive
+ log config
+  hidekeys
+! 
+!
+!
+!
+!
+!
+!
+!
+interface FastEthernet0/0
+ no ip address
+ duplex auto
+ speed auto
+!
+interface FastEthernet0/0.30
+ encapsulation dot1Q 30
+ ip address 10.100.30.1 255.255.255.0
+ ipx network 10000030 encapsulation SAP
+!
+interface Serial0/0
+ description POINT-TO-POINT T1 TO INIHQRTR01 SERIAL0/1
+ ip address 172.16.20.2 255.255.255.0
+ encapsulation ppp
+ ipx network 90000002
+!
+router eigrp 666
+ redistribute connected
+ redistribute static
+ network 10.100.30.0 0.0.0.255
+ network 172.16.20.0 0.0.0.255
+ no auto-summary
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+!
+logging 192.168.42.46
+!
+!
+!
+!
+!
+!
+ipx router eigrp 201
+ network all
+ log-neighbor-changes
+!
+!
+!
+tacacs-server host 192.168.42.46
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+!
+!
+banner motd 
+/==========================================================================\
+||       __  .__   __.  __  .___________. _______   ______  __    __      ||
+||     |  | |  \ |  | |  | |           ||   ____| /      ||  |  |  |      ||
+||     |  | |   \|  | |  | `---|  |----`|  |__   |  ,----'|  |__|  |      ||
+||     |  | |  . `  | |  |     |  |     |   __|  |  |     |   __   |      ||
+||     |  | |  |\   | |  |     |  |     |  |____ |  `----.|  |  |  |      ||
+||     |__| |__| \__| |__|     |__|     |_______| \______||__|  |__|      ||
+||------------------------------------------------------------------------||
+||           UNAUTHORIZED ACCESS PROHIBITED, ALL ACCESS LOGGED            ||
+||------------------------------------------------------------------------||
+||                                                                        ||
+||  Systems Support               |   Ask yourself,                       ||
+||  techops@initech.net           |   Is it good for the company?         ||
+||  617-555-1212                  |   - Someone that doesn't matter       ||
+||                                                                        ||
+\==========================================================================/
+
+Host   : $(hostname).($(domain))
+Line   : $(line) ($(line-desc))
+
+!
+line con 0
+ location Console Port
+ login authentication CONSOLE
+ transport preferred none
+line aux 0
+line vty 0 4
+ location Telnet VTY Line
+ transport input telnet
+!
+ntp logging
+ntp clock-period 17208280
+ntp server 192.168.42.46 prefer
+!
+end

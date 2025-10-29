@@ -1,0 +1,350 @@
+
+!
+! Last configuration change at 23:20:53 cst Mon Oct 27 2025 by admin
+! NVRAM config last updated at 23:20:57 cst Mon Oct 27 2025 by admin
+! NVRAM config last updated at 23:20:57 cst Mon Oct 27 2025 by admin
+version 15.1
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname inivgwu01-02
+!
+boot-start-marker
+boot-end-marker
+!
+!
+logging buffered 100000
+no logging console
+logging monitor informational
+!
+aaa new-model
+!
+!
+aaa authentication login localauth local
+aaa authentication login TACPLUS group tacacs+ local
+aaa authentication login NOAUTH none
+aaa authorization console
+aaa authorization exec localauth local 
+aaa authorization exec NOAUTH none 
+aaa authorization exec TACPLUS group tacacs+ local 
+aaa authorization commands 3 TACPLUS group tacacs+ local 
+aaa accounting delay-start
+aaa accounting exec default start-stop group tacacs+
+aaa accounting network default start-stop group tacacs+
+!
+!
+!
+!
+!
+aaa session-id common
+!
+clock timezone cst -6 0
+clock summer-time cst recurring
+!
+crypto pki token default removal timeout 0
+!
+!
+dot11 syslog
+ip source-route
+!
+ip cef
+!
+!
+!
+!
+ip domain list dy.net
+ip domain name initech.net
+ip name-server 192.168.42.46
+no ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+voice-card 0
+!
+!
+!
+voice service voip
+ ip address trusted list
+  ipv4 208.100.60.8
+  ipv4 192.168.42.40
+  ipv4 192.168.42.41
+ no ip address trusted authenticate
+ allow-connections h323 to h323
+ allow-connections h323 to sip
+ allow-connections sip to h323
+ allow-connections sip to sip
+ no supplementary-service sip moved-temporarily
+ sip
+  bind control source-interface GigabitEthernet0/0
+  bind media source-interface GigabitEthernet0/0
+  registrar server
+  no call service stop
+!
+voice class codec 1
+ codec preference 1 g711ulaw
+ codec preference 2 g711alaw
+!
+!
+!
+!
+voice translation-rule 1
+ rule 1 /^7088879793$/ /4202/
+ rule 2 /^7088879794$/ /4203/
+!
+voice translation-rule 2
+ rule 1 /^4200$/ /7088879793/
+ rule 2 /^4201$/ /7088879794/
+ rule 3 /^4202$/ /7088879793/
+ rule 4 /^4203$/ /7088879794/
+!
+!
+voice translation-profile inbound-did
+ translate called 1
+!
+voice translation-profile outbound-voip
+ translate calling 2
+!
+!
+!
+!
+license udi pid CISCO3825 sn FTX1221A1DE
+archive
+ path flash:
+ maximum 7
+ time-period 1440
+!
+redundancy
+!
+!
+ip ssh version 2
+! 
+!
+!
+!
+!
+!
+!
+!
+interface GigabitEthernet0/0
+ ip address 192.168.42.40 255.255.255.0
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/1
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+ip default-gateway 192.168.42.1
+ip forward-protocol nd
+ip http server
+no ip http secure-server
+!
+!
+ip route 0.0.0.0 0.0.0.0 192.168.42.1
+!
+logging trap debugging
+logging facility local0
+logging source-interface GigabitEthernet0/0
+logging 192.168.42.46
+!
+!
+!
+!
+snmp-server community public RO
+snmp-server location U01 Upstairs Lab
+snmp-server contact System Support [sysops@initech.net]
+!
+tacacs-server host 192.168.42.46
+!
+!
+!
+control-plane
+!
+!
+voice-port 0/0/0
+ no vad
+ timeouts call-disconnect 2
+ timeouts wait-release 2
+ description FXS port to station
+ station-id name EXT 4200
+ station-id number 4200
+ caller-id enable
+!
+voice-port 0/0/1
+ no vad
+ timeouts call-disconnect 2
+ timeouts wait-release 2
+ description FXS port to station
+ caller-id enable
+!
+voice-port 0/0/2
+ no vad
+ timeouts call-disconnect 2
+ timeouts wait-release 2
+ description FXS port to station
+ caller-id enable
+!
+voice-port 0/0/3
+ no vad
+ timeouts call-disconnect 2
+ timeouts wait-release 2
+ description FXS port to station
+ caller-id enable
+!
+voice-port 0/2/0
+ shutdown
+ description FXO port
+!
+voice-port 0/2/1
+ shutdown
+ description FXO port
+!
+voice-port 0/2/2
+ shutdown
+ description FXO port
+!
+voice-port 0/2/3
+ shutdown
+ description FXO port
+!
+!
+!
+mgcp profile default
+!
+!
+dial-peer voice 4200 pots
+ description To FXS port 0/0/0
+ huntstop
+ destination-pattern 4200
+ port 0/0/0
+ forward-digits 0
+!
+dial-peer voice 4201 pots
+ description To FXS port 0/0/1
+ huntstop
+ destination-pattern 4201
+ port 0/0/1
+ forward-digits 0
+!
+dial-peer voice 4202 pots
+ description To FXS port 0/0/2
+ huntstop
+ destination-pattern 4202
+ port 0/0/2
+ forward-digits 0
+!
+dial-peer voice 4203 pots
+ description To FXS port 0/0/3
+ huntstop
+ destination-pattern 4203
+ port 0/0/3
+ forward-digits 0
+!
+dial-peer voice 9793 voip
+ description Inbound from voip.ms
+ translation-profile incoming inbound-did
+ session protocol sipv2
+ session target dns:chicago.voip.ms
+ incoming called-number 7088879793
+ dtmf-relay rtp-nte
+ codec g711ulaw
+ no vad
+!
+dial-peer voice 9794 voip
+ description Inbound from voip.ms
+ translation-profile incoming inbound-did
+ session protocol sipv2
+ session target dns:chicago.voip.ms
+ incoming called-number 7088879794
+ dtmf-relay rtp-nte
+ codec g711ulaw
+ no vad
+!
+dial-peer voice 300 voip
+ description Outbound to voip.ms 10-digit
+ translation-profile outgoing outbound-voip
+ preference 1
+ destination-pattern [2-9]..[2-9]......
+ session protocol sipv2
+ session target dns:chicago.voip.ms
+ dtmf-relay rtp-nte
+ codec g711ulaw
+ no vad
+!
+dial-peer voice 301 voip
+ description Outbound to voip.ms 1+10-digit
+ translation-profile outgoing outbound-voip
+ preference 1
+ destination-pattern 1[2-9]..[2-9]......
+ session protocol sipv2
+ session target dns:chicago.voip.ms
+ dtmf-relay rtp-nte
+ codec g711ulaw
+ no vad
+!
+dial-peer voice 410 voip
+ destination-pattern 410[0-9]
+ session protocol sipv2
+ session target dns:inivgwu01-01.initech.net
+ codec g711ulaw
+ no vad
+!
+!
+sip-ua 
+ retry invite 3
+ retry register 3
+ registrar dns:chicago.voip.ms expires 300
+ sip-server dns:chicago.voip.ms
+!
+!
+!
+telephony-service
+ max-conferences 12 gain -6
+ transfer-system full-consult
+!
+!
+banner motd C
+/==========================================================================\
+||       __  .__   __.  __  .___________. _______   ______  __    __      ||
+||     |  | |  \ |  | |  | |           ||   ____| /      ||  |  |  |      ||
+||     |  | |   \|  | |  | `---|  |----`|  |__   |  ,----'|  |__|  |      ||
+||     |  | |  . `  | |  |     |  |     |   __|  |  |     |   __   |      ||
+||     |  | |  |\   | |  |     |  |     |  |____ |  `----.|  |  |  |      ||
+||     |__| |__| \__| |__|     |__|     |_______| \______||__|  |__|      ||
+||------------------------------------------------------------------------||
+||           UNAUTHORIZED ACCESS PROHIBITED, ALL ACCESS LOGGED            ||
+||------------------------------------------------------------------------||
+||                                                                        ||
+||  Systems Support               |   Ask yourself,                       ||
+||  techops@initech.net           |   Is it good for the company?         ||
+||  617-555-1212                  |   - Someone that doesn't matter       ||
+||                                                                        ||
+\==========================================================================/
+
+Host   : $(hostname).($(domain))
+Line   : $(line) ($(line-desc))
+
+!
+line con 0
+line aux 0
+line vty 0 4
+ session-timeout 120 
+ location Telnet VTY Line
+ exec-timeout 0 0
+ authorization commands 3 TACPLUS
+ authorization exec TACPLUS
+ login authentication TACPLUS
+ transport input all
+!
+scheduler allocate 20000 1000
+ntp server 192.168.42.46
+end

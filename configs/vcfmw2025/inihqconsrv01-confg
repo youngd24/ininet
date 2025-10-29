@@ -1,0 +1,207 @@
+
+!
+! Last configuration change at 20:35:53 CDT Mon Oct 27 2025 by admin
+! NVRAM config last updated at 20:35:53 CDT Mon Oct 27 2025 by admin
+!
+version 12.3
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname INIHQCONSRV01
+!
+boot-start-marker
+boot-end-marker
+!
+no logging console
+no logging monitor
+!
+clock timezone CST -6
+clock summer-time CDT recurring
+aaa new-model
+!
+!
+aaa authentication login localauth local
+aaa authentication login TACPLUS group tacacs+ local
+aaa authentication login NOAUTH none
+aaa authorization console
+aaa authorization exec localauth local 
+aaa authorization exec NOAUTH none 
+aaa authorization exec TACPLUS group tacacs+ local 
+aaa authorization commands 3 TACPLUS group tacacs+ local 
+aaa accounting delay-start 
+aaa accounting exec default start-stop group tacacs+
+aaa accounting network default start-stop group tacacs+
+aaa session-id common
+ip subnet-zero
+ip cef
+!
+!
+ip domain name initech.net
+ip host P46 2046 10.10.10.10
+ip host P47 2047 10.10.10.10
+ip host P48 2048 10.10.10.10
+ip host P33 2033 10.10.10.10
+ip host P34 2034 10.10.10.10
+ip host P35 2035 10.10.10.10
+ip host P36 2036 10.10.10.10
+ip host P37 2037 10.10.10.10
+ip host P38 2038 10.10.10.10
+ip host P39 2039 10.10.10.10
+ip host P40 2040 10.10.10.10
+ip host P41 2041 10.10.10.10
+ip host P42 2042 10.10.10.10
+ip host P43 2043 10.10.10.10
+ip host P44 2044 10.10.10.10
+ip host P45 2045 10.10.10.10
+ip name-server 192.168.42.46
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ ip address 10.10.10.10 255.255.255.0
+!
+interface FastEthernet0/0
+ ip address 192.168.42.18 255.255.255.0
+ duplex auto
+ speed auto
+!
+interface Async1
+ no ip address
+ encapsulation slip
+!
+interface Async2
+ no ip address
+ encapsulation slip
+!
+ip default-gateway 192.168.42.1
+ip http server
+ip classless
+ip route 0.0.0.0 0.0.0.0 192.168.42.1
+!
+!
+logging 192.168.42.46
+!
+menu CONMENU title 
+******************************************************************************
+************************    INITECH CONSOLE SERVER   *************************
+******************************************************************************
+|                  To exit session and return to the menu press              |
+|                         <CTRL>+<SHFT>+<6> then <X>.                        |
+******************************************************************************
+
+menu CONMENU prompt  Please enter your selection: 
+menu CONMENU text 33 INIHQRTR01 (3640)
+menu CONMENU command 33 resume inihqrtr01 /connect telnet inihqrtr01
+menu CONMENU text 34 INHQMDSW01 (3500XL)
+menu CONMENU command 34 resume inihqmdsw01 /connect telnet inihqmdsw01
+menu CONMENU text 35 INIHQFW01 (PIX 520)
+menu CONMENU command 35 resume P35 /connect telnet P35
+menu CONMENU text 36 TELFRSW01 (2600)
+menu CONMENU command 36 resume telfrsw01 /connect telnet telfrsw01
+menu CONMENU text 37 INIKAUSRTR01 (2600)
+menu CONMENU command 37 resume inikausrtr01 /connect telnet inikausrtr01
+menu CONMENU text 38 INIKAUSSW01 (3500XL)
+menu CONMENU command 38 resume inikaussw01 /connect telnet inikaussw01
+menu CONMENU text 39 INIKEDCRTR01 (2600)
+menu CONMENU command 39 resume inikaedcrtr01 /connect telnet inikedcrtr01
+menu CONMENU text 40 INIKEDCSW01 (2900XL)
+menu CONMENU command 40 resume inikedcsw01 /connect telnet inikedcsw01
+menu CONMENU text 41 INIKMCIRTR01 (2600)
+menu CONMENU command 41 resume inikmcirtr01 /connect telnet inikmcirtr01
+menu CONMENU text 42 INIKMCISW01 (2900XL)
+menu CONMENU command 42 resume inikmcisw01 /connect telnet inikmcisw01
+menu CONMENU text 99 Exit
+menu CONMENU command 99 logout
+menu CONMENU clear-screen
+!
+tacacs-server host 192.168.42.46
+tacacs-server directed-request
+!
+!
+!
+!
+!
+dial-peer cor custom
+!
+!
+!
+banner exec 
+****************************************************************************
+**                      USEFUL COMMANDS AND NOTES                         **
+****************************************************************************
+** 'show running-config view full' to see the configuration               **
+** 'show ip int brief' to see IP addresses assigned                       **
+** 'show ip route' to see routes                                          **
+**                                                                        **
+** If you're in a session from the console server, remember the break     **
+** sequence is <CTRL>-<SHIFT>-6 then X                                    **
+****************************************************************************
+
+banner motd 
+/==========================================================================\
+||       __  .__   __.  __  .___________. _______   ______  __    __      ||
+||     |  | |  \ |  | |  | |           ||   ____| /      ||  |  |  |      ||
+||     |  | |   \|  | |  | `---|  |----`|  |__   |  ,----'|  |__|  |      ||
+||     |  | |  . `  | |  |     |  |     |   __|  |  |     |   __   |      ||
+||     |  | |  |\   | |  |     |  |     |  |____ |  `----.|  |  |  |      ||
+||     |__| |__| \__| |__|     |__|     |_______| \______||__|  |__|      ||
+||------------------------------------------------------------------------||
+||           UNAUTHORIZED ACCESS PROHIBITED, ALL ACCESS LOGGED            ||
+||------------------------------------------------------------------------||
+||                                                                        ||
+||  Systems Support               |   Ask yourself,                       ||
+||  techops@initech.net           |   Is it good for the company?         ||
+||  617-555-1212                  |   - Someone that doesn't matter       ||
+||                                                                        ||
+\==========================================================================/
+
+Host   : $(hostname).($(domain))
+Line   : $(line) ($(line-desc))
+
+!
+line con 0
+ location HQ Console Port
+ authorization commands 3 TACPLUS
+ authorization exec TACPLUS
+ login authentication TACPLUS
+line 1 2
+ modem Dialin
+ modem autoconfigure discovery
+ transport input all
+ stopbits 1
+ speed 115200
+ flowcontrol hardware
+line 33 48
+ location Console Server 2600 Async Serial Port
+ exec-timeout 0 0
+ no exec
+ transport input all
+line aux 0
+ authorization exec NOAUTH
+ login authentication NOAUTH
+line vty 0 4
+ location Telnet VTY Line
+ authorization commands 3 TACPLUS
+ authorization exec TACPLUS
+ login authentication TACPLUS
+ transport input telnet
+!
+ntp clock-period 17180595
+ntp server 192.168.42.46
+!
+end

@@ -1,0 +1,168 @@
+
+!
+! Last configuration change at 17:55:12 CST Tue Oct 28 2025 by admin
+! NVRAM config last updated at 03:31:39 CST Tue Oct 28 2025 by admin
+!
+version 12.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname TELFRSW01
+!
+boot-start-marker
+boot-end-marker
+!
+logging buffered 4096 informational
+!
+aaa new-model
+!
+!
+aaa authentication login localauth local
+aaa authentication login TACPLUS group tacacs+ local
+aaa authentication login NOAUTH none
+aaa authorization exec localauth local 
+aaa authorization exec NOAUTH none 
+aaa authorization exec TACPLUS group tacacs+ local 
+aaa authorization commands 3 TACPLUS group tacacs+ local 
+aaa accounting delay-start 
+aaa accounting exec default start-stop group tacacs+
+aaa accounting network default start-stop group tacacs+
+!
+aaa session-id common
+!
+resource policy
+!
+clock timezone CST -6
+clock summer-time CDT recurring
+no network-clock-participate slot 1 
+no network-clock-participate wic 0 
+ip cef
+!
+!
+!
+!
+ip domain name initech.net
+ip name-server 192.168.42.46
+frame-relay switching
+!
+!
+!
+!
+!
+!
+!
+interface FastEthernet0/0
+ description MGMT LAN Interface
+ ip address 192.168.42.21 255.255.255.0
+ duplex auto
+ speed auto
+!
+interface Serial0/0
+ description To INIHQRTR01 SERIAL0/0
+ no ip address
+ encapsulation frame-relay
+ service-module t1 clock source internal
+ frame-relay lmi-type ansi
+ frame-relay intf-type dce
+ frame-relay route 102 interface Serial0/1 201
+ frame-relay route 103 interface Serial1/0 301
+!
+interface Serial0/1
+ description To INIAUS01 SERIAL0/0
+ no ip address
+ encapsulation frame-relay
+ service-module t1 clock source internal
+ frame-relay lmi-type ansi
+ frame-relay intf-type dce
+ frame-relay route 201 interface Serial0/0 102
+!
+interface Serial1/0
+ description To INIKMCI01 SERIAL0/0
+ no ip address
+ encapsulation frame-relay
+ service-module t1 clock source internal
+ frame-relay lmi-type ansi
+ frame-relay intf-type dce
+ frame-relay route 301 interface Serial0/0 103
+!
+interface Serial1/1
+ description TO TELFRSW02 SERIAL 1/3
+ no ip address
+ encapsulation frame-relay
+ frame-relay lmi-type ansi
+ frame-relay intf-type nni
+!
+interface Serial1/2
+ no ip address
+ no keepalive
+ clock rate 2000000
+!
+ip default-gateway 192.168.42.1
+ip route 0.0.0.0 0.0.0.0 192.168.42.1
+!
+no ip http server
+no ip http secure-server
+!
+logging 192.168.42.46
+!
+tacacs-server host 192.168.42.46
+tacacs-server directed-request
+!
+control-plane
+!
+banner exec 
+****************************************************************************
+**                      USEFUL COMMANDS AND NOTES                         **
+****************************************************************************
+** 'show running-config view full' to see the configuration               **
+** 'show ip int brief' to see IP addresses assigned                       **
+** 'show ip route' to see routes                                          **
+**                                                                        **
+** If you're in a session from the console server, remember the break     **
+** sequence is <CTRL>-<SHIFT>-6 then X                                    **
+****************************************************************************
+
+banner motd 
+/==========================================================================\
+||       __  .__   __.  __  .___________. _______   ______  __    __      ||
+||     |  | |  \ |  | |  | |           ||   ____| /      ||  |  |  |      ||
+||     |  | |   \|  | |  | `---|  |----`|  |__   |  ,----'|  |__|  |      ||
+||     |  | |  . `  | |  |     |  |     |   __|  |  |     |   __   |      ||
+||     |  | |  |\   | |  |     |  |     |  |____ |  `----.|  |  |  |      ||
+||     |__| |__| \__| |__|     |__|     |_______| \______||__|  |__|      ||
+||------------------------------------------------------------------------||
+||           UNAUTHORIZED ACCESS PROHIBITED, ALL ACCESS LOGGED            ||
+||------------------------------------------------------------------------||
+||                                                                        ||
+||  Systems Support               |   Ask yourself,                       ||
+||  techops@initech.net           |   Is it good for the company?         ||
+||  617-555-1212                  |   - Someone that doesn't matter       ||
+||                                                                        ||
+\==========================================================================/
+
+Host   : $(hostname).($(domain))
+Line   : $(line) ($(line-desc))
+
+privilege exec level 3 show running-config view full
+privilege exec level 3 show running-config view
+privilege exec level 3 show running-config
+privilege exec level 3 show
+!
+line con 0
+ location Console Port
+ logging synchronous
+line aux 0
+line vty 0 4
+ location Telnet VTY Line
+ exec-timeout 0 0
+ authorization commands 3 TACPLUS
+ authorization exec TACPLUS
+ login authentication TACPLUS
+ transport input telnet
+!
+ntp logging
+ntp clock-period 17208322
+ntp server 192.168.42.46 prefer
+!
+end

@@ -1,0 +1,149 @@
+
+!
+! No configuration change since last restart
+!
+version 12.2
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname INIKMCIRTR01
+!
+aaa new-model
+aaa authentication login localauth local
+aaa authentication login TACPLUS group tacacs+ local
+aaa authentication login NOAUTH none
+aaa authorization exec localauth local 
+aaa authorization exec NOAUTH none 
+aaa authorization exec TACPLUS group tacacs+ local 
+aaa authorization commands 3 TACPLUS group tacacs+ local 
+aaa accounting delay-start
+aaa accounting exec default start-stop group tacacs+
+aaa accounting network default start-stop group tacacs+\
+!
+clock timezone CST -6
+clock summer-time CDT recurring
+ip subnet-zero
+ip cef
+!
+!
+ip domain-name initech.net
+ip name-server 192.168.42.46
+ip dhcp excluded-address 10.100.20.1 10.100.20.25
+ip dhcp excluded-address 10.100.20.100 10.100.20.254
+!
+ip dhcp pool MCIPOOL
+   network 10.100.20.0 255.255.255.0
+   default-router 10.100.20.1 
+   domain-name initech.net
+   netbios-node-type h-node
+   dns-server 192.168.42.46 
+!
+ipx routing 000f.2453.ce60
+ipx internal-network A6CD4EC2
+call rsvp-sync
+!
+!
+!
+!
+!
+!
+!
+!
+interface FastEthernet0/0
+ no ip address
+ duplex auto
+ speed auto
+!
+interface FastEthernet0/0.20
+ encapsulation dot1Q 20
+ ip address 10.100.20.1 255.255.255.0
+ ipx network 10000020 encapsulation SAP
+!
+interface Serial0/0
+ description To TELFRSW01 SERIAL0/2
+ ip address 172.16.10.3 255.255.255.0
+ encapsulation frame-relay
+ ipx network 90000001
+ frame-relay lmi-type ansi
+!
+router eigrp 666
+ redistribute connected
+ network 10.100.20.0 0.0.0.255
+ network 172.16.10.0 0.0.0.255
+ no auto-summary
+ no eigrp log-neighbor-changes
+!
+ip classless
+no ip http server
+!
+logging 192.168.42.46
+!
+!
+ipx router eigrp 201
+ network all
+ log-neighbor-changes
+!
+!
+!
+tacacs-server host 192.168.42.46
+tacacs-server directed-request
+!
+dial-peer cor custom
+!
+!
+!
+banner exec 
+****************************************************************************
+**                      USEFUL COMMANDS AND NOTES                         **
+****************************************************************************
+** 'show running-config view full' to see the configuration               **
+** 'show ip int brief' to see IP addresses assigned                       **
+** 'show ip route' to see routes                                          **
+**                                                                        **
+** If you're in a session from the console server, remember the break     **
+** sequence is <CTRL>-<SHIFT>-6 then X                                    **
+****************************************************************************
+
+banner motd 
+/==========================================================================\
+||       __  .__   __.  __  .___________. _______   ______  __    __      ||
+||     |  | |  \ |  | |  | |           ||   ____| /      ||  |  |  |      ||
+||     |  | |   \|  | |  | `---|  |----`|  |__   |  ,----'|  |__|  |      ||
+||     |  | |  . `  | |  |     |  |     |   __|  |  |     |   __   |      ||
+||     |  | |  |\   | |  |     |  |     |  |____ |  `----.|  |  |  |      ||
+||     |__| |__| \__| |__|     |__|     |_______| \______||__|  |__|      ||
+||------------------------------------------------------------------------||
+||           UNAUTHORIZED ACCESS PROHIBITED, ALL ACCESS LOGGED            ||
+||------------------------------------------------------------------------||
+||                                                                        ||
+||  Systems Support               |   Ask yourself,                       ||
+||  techops@initech.net           |   Is it good for the company?         ||
+||  617-555-1212                  |   - Someone that doesn't matter       ||
+||                                                                        ||
+\==========================================================================/
+
+Host   : $(hostname).($(domain))
+Line   : $(line) ($(line-desc))
+
+privilege exec level 3 show running-config view full
+privilege exec level 3 show running-config view
+privilege exec level 3 show running-config
+privilege exec level 3 show
+!
+line con 0
+ location Console Port
+ logging synchronous
+ login authentication NOAUTH
+ transport preferred none
+line aux 0
+line vty 0 4
+ location Telnet VTY Line
+ authorization commands 3 TACPLUS
+ authorization exec TACPLUS
+ login authentication TACPLUS
+ transport input telnet
+!
+ntp clock-period 17208239
+ntp server 192.168.42.46 prefer
+end

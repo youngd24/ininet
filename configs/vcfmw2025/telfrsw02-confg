@@ -1,0 +1,156 @@
+
+!
+! Last configuration change at 03:29:50 CST Tue Oct 28 2025 by admin
+! NVRAM config last updated at 03:31:42 CST Tue Oct 28 2025 by admin
+!
+version 12.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname TELFRSW02
+!
+boot-start-marker
+boot-end-marker
+!
+card type t1 0 0
+card type t1 0 1
+card type t1 1 0
+logging buffered 4096 informational
+!
+no aaa new-model
+!
+resource policy
+!
+clock timezone CST -6
+clock summer-time CDT recurring
+no network-clock-participate slot 1 
+no network-clock-participate wic 0 
+ip cef
+!
+!
+!
+!
+ip domain name initech.net
+ip name-server 192.168.42.46
+frame-relay switching
+!
+!
+!
+!
+!
+controller T1 0/0
+ framing esf
+ linecode b8zs
+ channel-group 1 timeslots 1-24 speed 64
+!
+controller T1 0/1
+ framing esf
+ linecode b8zs
+ channel-group 1 timeslots 1-24 speed 64
+!
+controller T1 0/2
+ framing esf
+ linecode b8zs
+ channel-group 1 timeslots 1-24 speed 64
+!
+controller T1 0/3
+ framing esf
+ linecode b8zs
+ channel-group 1 timeslots 1-24 speed 64
+!
+controller T1 1/0
+ framing esf
+ linecode b8zs
+ channel-group 1 timeslots 1-24 speed 64
+!
+controller T1 1/1
+ framing esf
+ linecode b8zs
+ channel-group 1 timeslots 1-24 speed 64
+!
+!
+!
+interface FastEthernet0/0
+ description MGMT LAN Interface
+ ip address 192.168.42.22 255.255.255.0
+ duplex auto
+ speed auto
+!
+interface Serial0/0:1
+ no ip address
+!
+interface Serial0/1:1
+ no ip address
+!
+interface Serial0/2:1
+ no ip address
+!
+interface Serial0/3:1
+ no ip address
+!
+interface Serial1/0:1
+ no ip address
+!
+interface Serial1/1:1
+ no ip address
+!
+interface Serial1/2
+ no ip address
+ no keepalive
+ clock rate 2000000
+!
+interface Serial1/3
+ description TO TELFRSW01 SERIAL 1/1
+ no ip address
+ encapsulation frame-relay
+ clock rate 2000000
+ frame-relay lmi-type ansi
+ frame-relay intf-type nni
+!
+ip default-gateway 192.168.42.1
+!
+no ip http server
+no ip http secure-server
+!
+logging 192.168.42.46
+!
+!
+control-plane
+!
+banner motd C
+/==========================================================================\
+||       __  .__   __.  __  .___________. _______   ______  __    __      ||
+||     |  | |  \ |  | |  | |           ||   ____| /      ||  |  |  |      ||
+||     |  | |   \|  | |  | `---|  |----`|  |__   |  ,----'|  |__|  |      ||
+||     |  | |  . `  | |  |     |  |     |   __|  |  |     |   __   |      ||
+||     |  | |  |\   | |  |     |  |     |  |____ |  `----.|  |  |  |      ||
+||     |__| |__| \__| |__|     |__|     |_______| \______||__|  |__|      ||
+||------------------------------------------------------------------------||
+||           UNAUTHORIZED ACCESS PROHIBITED, ALL ACCESS LOGGED            ||
+||------------------------------------------------------------------------||
+||                                                                        ||
+||  Systems Support               |   Ask yourself,                       ||
+||  techops@initech.net           |   Is it good for the company?         ||
+||  617-555-1212                  |   - Someone that doesn't matter       ||
+||                                                                        ||
+\==========================================================================/
+
+Host   : $(hostname).($(domain))
+Line   : $(line) ($(line-desc))
+
+!
+line con 0
+ location Console Port
+ logging synchronous
+line aux 0
+line vty 0 4
+ location Telnet VTY Line
+ exec-timeout 0 0
+ login local
+!
+ntp logging
+ntp clock-period 17208385
+ntp server 192.168.42.46 prefer
+!
+end

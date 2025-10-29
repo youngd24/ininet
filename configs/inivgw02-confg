@@ -1,0 +1,369 @@
+
+!
+! Last configuration change at 15:33:48 cst Fri Oct 10 2025 by admin
+! NVRAM config last updated at 15:33:50 cst Fri Oct 10 2025 by admin
+! NVRAM config last updated at 15:33:50 cst Fri Oct 10 2025 by admin
+version 15.1
+service timestamps debug datetime msec localtime show-timezone
+service timestamps log datetime msec localtime show-timezone
+service password-encryption
+!
+hostname INIVGW02
+!
+boot-start-marker
+boot-end-marker
+!
+!
+logging buffered 100000
+no logging console
+logging monitor informational
+!
+aaa new-model
+!
+!
+aaa authentication login localauth local
+aaa authentication login TACPLUS group tacacs+ local
+aaa authentication login NOAUTH none
+aaa authorization console
+aaa authorization exec localauth local 
+aaa authorization exec NOAUTH none 
+aaa authorization exec TACPLUS group tacacs+ local 
+aaa authorization commands 3 TACPLUS group tacacs+ local 
+aaa accounting delay-start
+aaa accounting exec default start-stop group tacacs+
+aaa accounting network default start-stop group tacacs+
+!
+!
+!
+!
+!
+aaa session-id common
+!
+clock timezone cst -6 0
+clock summer-time cst recurring
+!
+dot11 syslog
+ip source-route
+!
+ip cef
+!
+!
+!
+!
+ip domain list dy.net
+ip domain name initech.net
+ip name-server 192.168.42.46
+no ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+voice-card 0
+!
+!
+!
+voice service voip
+ ip address trusted list
+  ipv4 208.100.60.8
+ ip address trusted call-block cause not-in-cug
+ allow-connections sip to sip
+ no supplementary-service sip handle-replaces
+ sip
+  bind control source-interface Vlan42
+  bind media source-interface Vlan42
+  registrar server expires max 600 min 60
+!
+voice class codec 1
+ codec preference 1 g711ulaw
+ codec preference 2 g711alaw
+!
+!
+!
+!
+voice translation-rule 1
+ rule 1 /^13126680980$/ /9/
+ rule 2 /^3126680980$/ /9/
+ rule 3 /^26680980$/ /9/
+ rule 4 /^6680980$/ /9/
+ rule 5 /^468616$/ /9/
+!
+voice translation-rule 2
+ rule 1 /^9$/ /3126680980/
+!
+!
+voice translation-profile inbound-did
+ translate called 1
+!
+voice translation-profile outbound-legend
+ translate calling 2
+!
+!
+!
+application
+ service playaudiofile flash:audio.vxml
+ !
+!
+crypto pki token default removal timeout 0
+!
+!
+!
+!
+license udi pid CISCO3825 sn FTX1126A4WK
+vtp mode client
+vtp version 2
+!
+redundancy
+!
+!
+! 
+!
+!
+!
+!
+!
+!
+!
+interface GigabitEthernet0/0
+ no ip address
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/1
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface FastEthernet2/0
+ switchport access vlan 42
+ no ip address
+!
+interface FastEthernet2/1
+ no ip address
+!
+interface FastEthernet2/2
+ no ip address
+!
+interface FastEthernet2/3
+ no ip address
+!
+interface FastEthernet2/4
+ no ip address
+!
+interface FastEthernet2/5
+ no ip address
+!
+interface FastEthernet2/6
+ no ip address
+!
+interface FastEthernet2/7
+ no ip address
+!
+interface FastEthernet2/8
+ no ip address
+!
+interface FastEthernet2/9
+ no ip address
+!
+interface FastEthernet2/10
+ no ip address
+!
+interface FastEthernet2/11
+ no ip address
+!
+interface FastEthernet2/12
+ no ip address
+!
+interface FastEthernet2/13
+ no ip address
+!
+interface FastEthernet2/14
+ no ip address
+!
+interface FastEthernet2/15
+ description TRUNK PORT TO MOCA ADAPTER TO BASEMENT
+ switchport mode trunk
+ no ip address
+!
+interface Vlan1
+ no ip address
+!
+interface Vlan42
+ ip address 192.168.42.41 255.255.255.0
+!
+ip default-gateway 192.168.42.1
+ip forward-protocol nd
+ip http server
+no ip http secure-server
+!
+!
+ip route 0.0.0.0 0.0.0.0 192.168.42.1
+!
+logging trap debugging
+logging facility local0
+logging source-interface Vlan42
+logging 192.168.42.46
+!
+!
+!
+!
+!
+tacacs-server host 192.168.42.46
+!
+!
+!
+control-plane
+!
+!
+voice-port 0/0/0
+!
+voice-port 0/0/1
+!
+voice-port 0/0/2
+!
+voice-port 0/0/3
+!
+voice-port 0/1/0
+ no vad
+ timeouts call-disconnect 2
+ timeouts wait-release 2
+ description Connected to Merlin Legend Trunk Port
+ caller-id enable
+!
+voice-port 0/1/1
+!
+voice-port 0/1/2
+!
+voice-port 0/1/3
+!
+voice-port 0/2/0
+!
+voice-port 0/2/1
+!
+voice-port 0/2/2
+!
+voice-port 0/2/3
+!
+!
+!
+mgcp profile default
+!
+!
+dial-peer voice 4009 pots
+ huntstop
+ service playaudiofile
+ destination-pattern 4009
+!
+dial-peer voice 4000 pots
+ destination-pattern 4000
+ port 0/0/0
+!
+dial-peer voice 4001 pots
+ destination-pattern 4001
+ port 0/0/1
+!
+dial-peer voice 4002 pots
+ destination-pattern 4002
+ port 0/0/2
+!
+dial-peer voice 4003 pots
+ destination-pattern 4003
+ port 0/0/3
+!
+dial-peer voice 100 voip
+ description Inbound from voip.ms
+ translation-profile incoming inbound-did
+ session protocol sipv2
+ session target ipv4:208.100.60.8
+ incoming called-number 468616
+ dtmf-relay rtp-nte
+ codec g711ulaw
+ no vad
+!
+dial-peer voice 300 voip
+ description Outbound to voip.ms 10-digit
+ translation-profile outgoing outbound-legend
+ preference 1
+ destination-pattern [2-9]..[2-9]......
+ session protocol sipv2
+ session target ipv4:208.100.60.8
+ dtmf-relay rtp-nte
+ codec g711ulaw
+ no vad
+!
+dial-peer voice 301 voip
+ description Outbound to voip.ms 1+10-digit
+ translation-profile outgoing outbound-legend
+ preference 1
+ destination-pattern 1[2-9]..[2-9]......
+ session protocol sipv2
+ session target ipv4:208.100.60.8
+ dtmf-relay rtp-nte
+ codec g711ulaw
+ no vad
+!
+dial-peer voice 200 pots
+ description To Merlin Legend System
+ huntstop
+ destination-pattern 9
+ port 0/1/0
+ forward-digits 0
+!
+!
+sip-ua 
+ retry invite 3
+ retry response 3
+ retry bye 3
+ retry cancel 3
+ timers connect 100
+ registrar dns:chicago.voip.ms expires 300
+ sip-server dns:chicago.voip.ms
+!
+!
+!
+telephony-service
+ max-conferences 12 gain -6
+ transfer-system full-consult
+!
+!
+banner motd 
+/==========================================================================\
+||       __  .__   __.  __  .___________. _______   ______  __    __      ||
+||     |  | |  \ |  | |  | |           ||   ____| /      ||  |  |  |      ||
+||     |  | |   \|  | |  | `---|  |----`|  |__   |  ,----'|  |__|  |      ||
+||     |  | |  . `  | |  |     |  |     |   __|  |  |     |   __   |      ||
+||     |  | |  |\   | |  |     |  |     |  |____ |  `----.|  |  |  |      ||
+||     |__| |__| \__| |__|     |__|     |_______| \______||__|  |__|      ||
+||------------------------------------------------------------------------||
+||           UNAUTHORIZED ACCESS PROHIBITED, ALL ACCESS LOGGED            ||
+||------------------------------------------------------------------------||
+||                                                                        ||
+||  Systems Support               |   Ask yourself,                       ||
+||  techops@initech.net           |   Is it good for the company?         ||
+||  617-555-1212                  |   - Someone that doesn't matter       ||
+||                                                                        ||
+\==========================================================================/
+
+Host   : $(hostname).($(domain))
+Line   : $(line) ($(line-desc))
+
+!
+line con 0
+line aux 0
+line vty 0 4
+ session-timeout 120  output
+ location Telnet VTY Line
+ exec-timeout 0 0
+ authorization commands 3 TACPLUS
+ authorization exec TACPLUS
+ login authentication TACPLUS
+ transport input telnet
+!
+scheduler allocate 20000 1000
+ntp server 192.168.42.46
+end

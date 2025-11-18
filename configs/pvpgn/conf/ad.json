@@ -1,0 +1,9 @@
+{
+	"ads":
+	[
+		{"filename": "greenaccent001.smk", "url": "http://inigame.io", "client": "NULL", "lang": "NULL"},
+		{"filename": "redaccent001.smk", "url": "http://inigame.io", "client": "NULL", "lang": "NULL"},
+		{"filename": "greenhatch001.smk", "url": "http://inigame.io", "client": "NULL", "lang": "NULL"},
+		{"filename": "redhatch001.smk", "url": "http://inigame.io", "client": "NULL", "lang": "NULL"}
+	]
+}

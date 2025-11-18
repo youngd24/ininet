@@ -1,0 +1,12 @@
+%EHello %l, welcome to %s!
+%IRunning version dev-99-q2 on bnet.inigame.io.
+%IThis server is hosted by INIGAME
+%I
+%IThere are %a user accounts on this server.
+%IThere are currently %U users in %G games of %N,
+%Iand %u users playing %g games and chatting in %c channels.
+%IHaving trouble with a command? Type /help to
+%Ilearn more about it.
+%IType /language to switch translation.
+%I
+%M%m

@@ -1,0 +1,235 @@
+
+!
+! Last configuration change at 23:57:49 cst Wed Mar 25 2026
+! NVRAM config last updated at 05:13:35 cst Fri Mar 27 2026
+!
+version 15.2
+no service pad
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname U01-USERLAND01
+!
+boot-start-marker
+boot-end-marker
+!
+no logging console
+no logging monitor
+!
+aaa new-model
+!
+!
+aaa authentication login localauth local
+aaa authentication login TACPLUS group tacacs+ local
+aaa authentication login NOAUTH none
+aaa authorization console
+aaa authorization exec localauth local 
+aaa authorization exec NOAUTH none 
+aaa authorization exec TACPLUS group tacacs+ local 
+aaa authorization commands 3 TACPLUS group tacacs+ local 
+aaa accounting delay-start
+aaa accounting exec default start-stop group tacacs+
+aaa accounting network default start-stop group tacacs+
+!
+!
+!
+!
+!
+!
+aaa session-id common
+clock timezone cst -6 0
+clock summer-time cst recurring
+system mtu routing 1500
+!
+!
+!
+!
+!
+!
+ip domain-list dy.net
+ip domain-name initech.net
+ip name-server 192.168.42.46
+!
+!
+!
+!
+!
+!
+!
+!
+archive
+ path flash:
+ maximum 7
+ time-period 1440
+!
+spanning-tree mode rapid-pvst
+spanning-tree extend system-id
+!
+!
+!
+!
+!
+!
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+interface GigabitEthernet0/1
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+ spanning-tree portfast edge
+!
+interface GigabitEthernet0/2
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+ spanning-tree portfast edge
+!
+interface GigabitEthernet0/3
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+ spanning-tree portfast edge
+!
+interface GigabitEthernet0/4
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+ spanning-tree portfast edge
+!
+interface GigabitEthernet0/5
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+ spanning-tree portfast edge
+!
+interface GigabitEthernet0/6
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+ spanning-tree portfast edge
+!
+interface GigabitEthernet0/7
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+ spanning-tree portfast edge
+!
+interface GigabitEthernet0/8
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+ spanning-tree portfast edge
+!
+interface GigabitEthernet0/9
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+ spanning-tree portfast edge
+!
+interface GigabitEthernet0/10
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+ spanning-tree portfast edge
+!
+interface GigabitEthernet0/11
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+ spanning-tree portfast edge
+!
+interface GigabitEthernet0/12
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+ spanning-tree portfast edge
+!
+interface GigabitEthernet0/13
+ description Connection to INIVGWU01-03 router
+ switchport access vlan 42
+ switchport mode access
+!
+interface GigabitEthernet0/14
+ description ** RESERVED FUTURE UPLINK **
+ switchport access vlan 42
+ switchport mode access
+!
+interface GigabitEthernet0/15
+ description ** Fiber uplink to Kernel Space switch **
+ switchport mode trunk
+!
+interface GigabitEthernet0/16
+ description ** RESERVED FUTURE UPLINK **
+ switchport mode trunk
+!
+interface Vlan1
+ no ip address
+!
+interface Vlan42
+ ip address 192.168.42.16 255.255.255.0
+!
+ip default-gateway 192.168.42.1
+ip forward-protocol nd
+!
+ip http server
+ip http secure-server
+ip route 0.0.0.0 0.0.0.0 192.168.42.1
+ip ssh version 2
+!
+!
+logging trap debugging
+logging facility local0
+logging host 192.168.42.46
+!
+!
+snmp-server community public RO
+snmp-server location U01 Userland
+snmp-server contact System Support [sysops@initech.net]
+snmp mib flash cache
+tacacs-server host 192.168.42.46
+!
+!
+banner motd 
+/==========================================================================\
+||       __  .__   __.  __  .___________. _______   ______  __    __      ||
+||     |  | |  \ |  | |  | |           ||   ____| /      ||  |  |  |      ||
+||     |  | |   \|  | |  | `---|  |----`|  |__   |  ,----'|  |__|  |      ||
+||     |  | |  . `  | |  |     |  |     |   __|  |  |     |   __   |      ||
+||     |  | |  |\   | |  |     |  |     |  |____ |  `----.|  |  |  |      ||
+||     |__| |__| \__| |__|     |__|     |_______| \______||__|  |__|      ||
+||------------------------------------------------------------------------||
+||           UNAUTHORIZED ACCESS PROHIBITED, ALL ACCESS LOGGED            ||
+||------------------------------------------------------------------------||
+||                                                                        ||
+||  Systems Support               |   Ask yourself,                       ||
+||  techops@initech.net           |   Is it good for the company?         ||
+||  617-555-1212                  |   - Someone that doesn't matter       ||
+||                                                                        ||
+\==========================================================================/
+
+Host   : $(hostname).($(domain))
+Line   : $(line) ($(line-desc))
+
+
+!
+line con 0
+line vty 0 4
+ location Telnet VTY Line
+ exec-timeout 0 0
+ authorization commands 3 TACPLUS
+ authorization exec TACPLUS
+ login authentication TACPLUS
+ transport input all
+line vty 5 15
+!
+ntp server 192.168.42.46
+!
+end

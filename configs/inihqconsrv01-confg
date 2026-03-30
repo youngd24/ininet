@@ -1,7 +1,7 @@
 
 !
-! Last configuration change at 06:40:05 CDT Sun Jul 25 1999 by admin
-! NVRAM config last updated at 06:41:34 CDT Sun Jul 25 1999 by admin
+! Last configuration change at 01:54:06 CDT Mon Mar 30 2026 by admin
+! NVRAM config last updated at 01:54:09 CDT Mon Mar 30 2026 by admin
 !
 version 12.3
 service timestamps debug datetime msec
@@ -38,22 +38,22 @@ ip cef
 !
 !
 ip domain name initech.net
-ip host P33 2033 10.10.10.10
-ip host P34 2034 10.10.10.10
-ip host P35 2035 10.10.10.10
-ip host P36 2036 10.10.10.10
-ip host P37 2037 10.10.10.10
-ip host P38 2038 10.10.10.10
-ip host P39 2039 10.10.10.10
-ip host P40 2040 10.10.10.10
-ip host P41 2041 10.10.10.10
-ip host P42 2042 10.10.10.10
 ip host P43 2043 10.10.10.10
 ip host P44 2044 10.10.10.10
 ip host P45 2045 10.10.10.10
 ip host P46 2046 10.10.10.10
-ip host P47 2047 10.10.10.10
+ip host P33 2033 10.10.10.10
 ip host P48 2048 10.10.10.10
+ip host P47 2047 10.10.10.10
+ip host P42 2042 10.10.10.10
+ip host P41 2041 10.10.10.10
+ip host P40 2040 10.10.10.10
+ip host P39 2039 10.10.10.10
+ip host P38 2038 10.10.10.10
+ip host P37 2037 10.10.10.10
+ip host P34 2034 10.10.10.10
+ip host P35 2035 10.10.10.10
+ip host P36 2036 10.10.10.10
 ip name-server 192.168.42.46
 !
 !
@@ -94,6 +94,8 @@ ip classless
 ip route 0.0.0.0 0.0.0.0 192.168.42.1
 !
 !
+logging trap debugging
+logging facility local0
 logging 192.168.42.46
 !
 menu CONMENU title 
@@ -104,35 +106,35 @@ menu CONMENU title 
 |                         <CTRL>+<SHFT>+<6> then <X>.                        |
 ******************************************************************************
 
-menu CONMENU prompt  Please enter your selection: 
-menu CONMENU text 33 INIHQRTR01 (3640)
-menu CONMENU command 33 resume inihqrtr01 /connect telnet inihqrtr01
-menu CONMENU text 34 INHQMDSW01 (3500XL)
-menu CONMENU command 34 resume inihqmdsw01 /connect telnet inihqmdsw01
-menu CONMENU text 35 INIHQFW01 (PIX 520)
-menu CONMENU command 35 resume P35 /connect telnet P35
-menu CONMENU text 36 TELFRSW01 (2600)
-menu CONMENU command 36 resume telfrsw01 /connect telnet telfrsw01
-menu CONMENU text 37 INIKAUSRTR01 (2600)
-menu CONMENU command 37 resume inikausrtr01 /connect telnet inikausrtr01
-menu CONMENU text 38 INIKAUSSW01 (3500XL)
-menu CONMENU command 38 resume inikaussw01 /connect telnet inikaussw01
-menu CONMENU text 39 INIKEDCRTR01 (2600)
-menu CONMENU command 39 resume inikaedcrtr01 /connect telnet inikedcrtr01
-menu CONMENU text 40 INIKEDCSW01 (2900XL)
-menu CONMENU command 40 resume inikedcsw01 /connect telnet inikedcsw01
-menu CONMENU text 41 INIKMCIRTR01 (2600)
-menu CONMENU command 41 resume inikmcirtr01 /connect telnet inikmcirtr01
-menu CONMENU text 42 INIKMCISW01 (2900XL)
-menu CONMENU command 42 resume inikmcisw01 /connect telnet inikmcisw01
-menu CONMENU text 50 Solaris 7 Login (wedge)
-menu CONMENU command 50 telnet wedge.initech.net
-menu CONMENU text 51 NetBSD 10 Login (lobot)
-menu CONMENU command 51 telnet lobot.initech.net
-menu CONMENU text 52 Citadel/UX BBS
-menu CONMENU command 52 telnet wedge 1337
+menu CONMENU prompt C Please enter your selection: 
+menu CONMENU text 33 B02-SW01
+menu CONMENU command 33 resume P33 /connect
+menu CONMENU text 34 INIVGWU01-02
+menu CONMENU command 34 resume P34 /connect 
+menu CONMENU text 35 INIHQPM3-01
+menu CONMENU command 35 resume P35 /connect
+menu CONMENU text 36 ATLAS
+menu CONMENU command 36 resume P36 /connect
+menu CONMENU text 37 INIKAUSRTR01
+menu CONMENU command 37 resume P37 /connect
+menu CONMENU text 38 INIKAUSSW01
+menu CONMENU command 38 resume P38 /connect
+menu CONMENU text 39 INIKEDCRTR01
+menu CONMENU command 39 resume P39 /connect
+menu CONMENU text 40 INIKEDCSW0
+menu CONMENU command 40 resume P40 /connect
+menu CONMENU text 41 INIKMCIRTR01
+menu CONMENU command 41 resume P41 /connect
+menu CONMENU text 42 INIKMCISW01
+menu CONMENU command 42 resume P48 /connect
 menu CONMENU text 99 Exit
 menu CONMENU command 99 logout
+menu CONMENU text 43 1751
+menu CONMENU text 44 1720
+menu CONMENU text 45 PIX
+menu CONMENU text 46 TELFRSW03
+menu CONMENU text 47 TELFRSW02
+menu CONMENU text 48 TELFRSW01
 menu CONMENU clear-screen
 !
 tacacs-server host 192.168.42.46
@@ -147,37 +149,13 @@ dial-peer cor custom
 !
 !
 banner exec 
-****************************************************************************
-**                      USEFUL COMMANDS AND NOTES                         **
-****************************************************************************
-** 'show running-config view full' to see the configuration               **
-** 'show ip int brief' to see IP addresses assigned                       **
-** 'show ip route' to see routes                                          **
-**                                                                        **
-** If you're in a session from the console server, remember the break     **
-** sequence is <CTRL>-<SHIFT>-6 then X                                    **
-****************************************************************************
+*************************************
+** <CTRL>-<SHIFT>-6 then X to exit **
+*************************************
 
 banner motd 
-/==========================================================================\
-||       __  .__   __.  __  .___________. _______   ______  __    __      ||
-||     |  | |  \ |  | |  | |           ||   ____| /      ||  |  |  |      ||
-||     |  | |   \|  | |  | `---|  |----`|  |__   |  ,----'|  |__|  |      ||
-||     |  | |  . `  | |  |     |  |     |   __|  |  |     |   __   |      ||
-||     |  | |  |\   | |  |     |  |     |  |____ |  `----.|  |  |  |      ||
-||     |__| |__| \__| |__|     |__|     |_______| \______||__|  |__|      ||
-||------------------------------------------------------------------------||
-||           UNAUTHORIZED ACCESS PROHIBITED, ALL ACCESS LOGGED            ||
-||------------------------------------------------------------------------||
-||                                                                        ||
-||  Systems Support               |   Ask yourself,                       ||
-||  techops@initech.net           |   Is it good for the company?         ||
-||  617-555-1212                  |   - Someone that doesn't matter       ||
-||                                                                        ||
-\==========================================================================/
 
-Host   : $(hostname).($(domain))
-Line   : $(line) ($(line-desc))
+** INITECH CONSOLE ACCESS SERVER **
 
 !
 line con 0
@@ -186,6 +164,9 @@ line con 0
  authorization exec TACPLUS
  login authentication TACPLUS
 line 1 2
+ location 2600 Analog Dial-In Modem
+ exec-timeout 0 0
+ modem answer-timeout 120
  modem Dialin
  modem autoconfigure discovery
  transport input all
@@ -195,9 +176,8 @@ line 1 2
 line 33 48
  location Console Server 2600 Async Serial Port
  exec-timeout 0 0
- authorization commands 3 TACPLUS
- authorization exec TACPLUS
- login authentication TACPLUS
+ authorization exec NOAUTH
+ login authentication NOAUTH
  no exec
  transport input all
 line aux 0
@@ -205,12 +185,13 @@ line aux 0
  login authentication NOAUTH
 line vty 0 4
  location Telnet VTY Line
+ exec-timeout 0 0
  authorization commands 3 TACPLUS
  authorization exec TACPLUS
  login authentication TACPLUS
  transport input telnet
 !
-ntp clock-period 17180839
-ntp server 192.168.42.1 prefer
+ntp clock-period 17180408
+ntp server 192.168.42.46
 !
 end

@@ -1,0 +1,271 @@
+
+!
+! No configuration change since last restart
+!
+version 15.0
+no service pad
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname INIHQIHSW02
+!
+boot-start-marker
+boot-end-marker
+!
+logging buffered 100000
+no logging console
+no logging monitor
+!
+aaa new-model
+!
+!
+aaa authentication login localauth local
+aaa authentication login TACPLUS group tacacs+ local
+aaa authentication login NOAUTH none
+aaa authorization exec localauth local 
+aaa authorization exec NOAUTH none 
+aaa authorization exec TACPLUS group tacacs+ local 
+aaa authorization commands 3 TACPLUS group tacacs+ local 
+aaa accounting delay-start
+aaa accounting exec default start-stop group tacacs+
+aaa accounting network default start-stop group tacacs+
+!
+!
+!
+!
+!
+!
+aaa session-id common
+clock timezone cst -6 0
+clock summer-time cst recurring
+system mtu routing 1500
+!
+!
+ip domain-list dy.net
+ip domain-name initech.net
+ip name-server 192.168.42.46
+!
+!
+crypto pki trustpoint TP-self-signed-3863496448
+ enrollment selfsigned
+ subject-name cn=IOS-Self-Signed-Certificate-3863496448
+ revocation-check none
+ rsakeypair TP-self-signed-3863496448
+!
+!
+crypto pki certificate chain TP-self-signed-3863496448
+ certificate self-signed 01
+  3082022B 30820194 A0030201 02020101 300D0609 2A864886 F70D0101 05050030 
+  31312F30 2D060355 04031326 494F532D 53656C66 2D536967 6E65642D 43657274 
+  69666963 6174652D 33383633 34393634 3438301E 170D3933 30333031 30303031 
+  30325A17 0D323030 31303130 30303030 305A3031 312F302D 06035504 03132649 
+  4F532D53 656C662D 5369676E 65642D43 65727469 66696361 74652D33 38363334 
+  39363434 3830819F 300D0609 2A864886 F70D0101 01050003 818D0030 81890281 
+  8100866E 3F768FCB 0C57E459 2C841905 574909A5 88C3555A EB57D61B 59D2C227 
+  F05DD26F 24421804 C1C537B5 8FF7E33A 753B2516 1F50F763 F8830C66 3FE4D1ED 
+  734DCB07 E75FC7A1 D33FB121 6DE6E2A9 614E199C 5FECD810 F4EA7678 830B9E5F 
+  6884D9C3 2B5A94D9 9D29C320 50B17631 748C2F6B EEDB8A3E 697BBCE2 B4BF98B3 
+  3AAB0203 010001A3 53305130 0F060355 1D130101 FF040530 030101FF 301F0603 
+  551D2304 18301680 143EFAAA ECA68E36 2571B7A7 E26647C6 7B6909F8 A6301D06 
+  03551D0E 04160414 3EFAAAEC A68E3625 71B7A7E2 6647C67B 6909F8A6 300D0609 
+  2A864886 F70D0101 05050003 81810048 732735D2 ABA1594A EC180D16 A878CFFF 
+  90AA7BB8 520A9285 7FAECB73 D753779E D32341D3 5F34B0A9 9684080F 62454B09 
+  F2BBFD8A 2182362B BDEA61B5 918700A2 D69048DB 58D7B6B4 CB6FCA86 B8C6CFC6 
+  80A2AA86 E90D5722 FD878C70 86C95C03 A434F351 927FAD43 54A9015C 7E68C086 
+  3B8C5E86 B6AF3173 CCD6EE30 C0BEF2
+  	quit
+!
+!
+!
+!
+!
+spanning-tree mode pvst
+spanning-tree extend system-id
+!
+vlan internal allocation policy ascending
+!
+ip ssh version 2
+!
+!
+!
+!
+!
+interface FastEthernet0/1
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+!
+interface FastEthernet0/2
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+!
+interface FastEthernet0/3
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+!
+interface FastEthernet0/4
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+!
+interface FastEthernet0/5
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+!
+interface FastEthernet0/6
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+!
+interface FastEthernet0/7
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+!
+interface FastEthernet0/8
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+!
+interface FastEthernet0/9
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+!
+interface FastEthernet0/10
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+!
+interface FastEthernet0/11
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+!
+interface FastEthernet0/12
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+!
+interface FastEthernet0/13
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+!
+interface FastEthernet0/14
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+!
+interface FastEthernet0/15
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+!
+interface FastEthernet0/16
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+!
+interface FastEthernet0/17
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+!
+interface FastEthernet0/18
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+!
+interface FastEthernet0/19
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+!
+interface FastEthernet0/20
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+!
+interface FastEthernet0/21
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+!
+interface FastEthernet0/22
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+!
+interface FastEthernet0/23
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+!
+interface FastEthernet0/24
+ description VLAN 42 Access Port
+ switchport access vlan 42
+ switchport mode access
+!
+interface GigabitEthernet0/1
+ description ** UPLINK TO CORE **
+ switchport mode trunk
+!
+interface GigabitEthernet0/2
+ description ** RESERVED UPLINK PORT **
+ switchport mode trunk
+!
+interface Vlan1
+ no ip address
+ shutdown
+!
+interface Vlan42
+ ip address 192.168.42.12 255.255.255.0
+!
+ip default-gateway 192.168.42.1
+ip http server
+ip http secure-server
+logging trap notifications
+logging host 192.168.42.46
+snmp-server location U01 Telecom Rack
+!
+!
+!
+banner motd 
+/==========================================================================\
+||       __  .__   __.  __  .___________. _______   ______  __    __      ||
+||     |  | |  \ |  | |  | |           ||   ____| /      ||  |  |  |      ||
+||     |  | |   \|  | |  | `---|  |----`|  |__   |  ,----'|  |__|  |      ||
+||     |  | |  . `  | |  |     |  |     |   __|  |  |     |   __   |      ||
+||     |  | |  |\   | |  |     |  |     |  |____ |  `----.|  |  |  |      ||
+||     |__| |__| \__| |__|     |__|     |_______| \______||__|  |__|      ||
+||------------------------------------------------------------------------||
+||           UNAUTHORIZED ACCESS PROHIBITED, ALL ACCESS LOGGED            ||
+||------------------------------------------------------------------------||
+||                                                                        ||
+||  Systems Support               |   Ask yourself,                       ||
+||  techops@initech.net           |   Is it good for the company?         ||
+||  617-555-1212                  |   - Someone that doesn't matter       ||
+||                                                                        ||
+\==========================================================================/
+
+Host   : $(hostname).($(domain))
+Line   : $(line) ($(line-desc))
+
+!
+line con 0
+line vty 0 4
+ location Telnet VTY Line
+ exec-timeout 0 0
+ authorization commands 3 TACPLUS
+ authorization exec TACPLUS
+ login authentication TACPLUS
+ transport input all
+line vty 5 15
+!
+ntp server 192.168.42.46
+end

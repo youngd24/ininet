@@ -8,7 +8,7 @@ service timestamps debug uptime
 service timestamps log uptime
 service password-encryption
 !
-hostname INIHQMDSW01
+hostname INIHQMDSW02
 !
 aaa new-model
 aaa authentication login localauth local
@@ -26,8 +26,6 @@ aaa accounting network default start-stop group tacacs+
 !
 !
 !
-clock timezone CST -6
-clock summer-time CDT recurring
 !
 ip subnet-zero
 ip domain-name initech.net
@@ -40,8 +38,8 @@ interface FastEthernet0/1
  spanning-tree portfast
 !
 interface FastEthernet0/2
- switchport access vlan 42
- spanning-tree portfast
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
 !
 interface FastEthernet0/3
  switchport access vlan 42
@@ -92,6 +90,7 @@ interface FastEthernet0/14
  spanning-tree portfast
 !
 interface FastEthernet0/15
+ switchport access vlan 42
  spanning-tree portfast
 !
 interface FastEthernet0/16
@@ -99,85 +98,67 @@ interface FastEthernet0/16
  spanning-tree portfast
 !
 interface FastEthernet0/17
- switchport access vlan 25
+ switchport access vlan 42
  spanning-tree portfast
 !
 interface FastEthernet0/18
- switchport access vlan 25
+ switchport access vlan 42
  spanning-tree portfast
 !
 interface FastEthernet0/19
- switchport access vlan 25
+ switchport access vlan 42
  spanning-tree portfast
 !
 interface FastEthernet0/20
- switchport access vlan 25
+ switchport access vlan 42
+ spanning-tree portfast
 !
 interface FastEthernet0/21
- description ** TRUNK PORT ***
- switchport trunk encapsulation dot1q
- switchport mode trunk
+ switchport access vlan 42
+ spanning-tree portfast
 !
 interface FastEthernet0/22
- description ** TRUNK PORT ***
- switchport trunk encapsulation dot1q
- switchport mode trunk
+ switchport access vlan 42
+ spanning-tree portfast
 !
 interface FastEthernet0/23
- description ** TRUNK PORT ***
- switchport trunk encapsulation dot1q
- switchport mode trunk
+ switchport access vlan 42
+ spanning-tree portfast
 !
 interface FastEthernet0/24
- description ** TRUNK PORT ***
- switchport trunk encapsulation dot1q
- switchport mode trunk
+ switchport access vlan 42
+ spanning-tree portfast
 !
 interface GigabitEthernet0/1
- switchport trunk encapsulation dot1q
- switchport mode trunk
-!
-interface GigabitEthernet0/2
+ description Trunk Port To INIHQMDSW01
  switchport trunk encapsulation dot1q
  switchport mode trunk
 !
 interface VLAN1
+ no ip address
  no ip directed-broadcast
  no ip route-cache
  shutdown
 !
 interface VLAN42
- ip address 192.168.42.6 255.255.255.0
+ ip address 192.168.42.7 255.255.255.0
  no ip directed-broadcast
  no ip route-cache
 !
 ip default-gateway 192.168.42.1
-logging source-interface VLAN42
 logging 192.168.42.46
-snmp-server engineID local 00000009020000036BE18900
-snmp-server community public RO
-snmp-server location HQ Data Center
-snmp-server contact Systems Support [techops@initech.net]
-snmp-server enable traps snmp
-snmp-server enable traps vlan-membership
-snmp-server enable traps c2900
-snmp-server enable traps config
-snmp-server enable traps entity
-snmp-server enable traps hsrp
-snmp-server enable traps vtp
-snmp-server enable traps cluster
 tacacs-server host 192.168.42.46
 banner exec 
-******************************************************************************
-**                       USEFUL COMMANDS AND NOTES                          **
-******************************************************************************
-** 'show running-config view full' to see the configuration                 **
-** 'show ip int brief' to see IP addresses assigned                         **
-** 'show ip route' to see routes                                            **
-**                                                                          **
-** If you're in a session from the console server, remember the break       **
-** sequence is <CTRL>-<SHIFT>-6 then X                                      **
-******************************************************************************
+****************************************************************************
+**                      USEFUL COMMANDS AND NOTES                         **
+****************************************************************************
+** 'show running-config view full' to see the configuration               **
+** 'show ip int brief' to see IP addresses assigned                       **
+** 'show ip route' to see routes                                          **
+**                                                                        **
+** If you're in a session from the console server, remember the break     **
+** sequence is <CTRL>-<SHIFT>-6 then X                                    **
+****************************************************************************
 
 banner motd 
 /==========================================================================\
@@ -200,12 +181,8 @@ banner motd 
 Host   : $(hostname).($(domain))
 Line   : $(line) ($(line-desc))
 
-privilege exec level 3 show startup-config
-privilege exec level 3 show running-config
-privilege exec level 3 show
 !
 line con 0
- location Console Port
  transport input none
  stopbits 1
 line vty 0 4
@@ -215,8 +192,7 @@ line vty 0 4
  login authentication TACPLUS
  transport input telnet
 line vty 5 15
- transport input none
 !
-ntp clock-period 11259535
+ntp clock-period 11259232
 ntp server 192.168.42.46 prefer
 end

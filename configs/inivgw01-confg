@@ -1,14 +1,14 @@
 
 !
-! Last configuration change at 19:19:14 cst Fri Oct 24 2025 by admin
-! NVRAM config last updated at 19:19:16 cst Fri Oct 24 2025 by admin
-! NVRAM config last updated at 19:19:16 cst Fri Oct 24 2025 by admin
+! Last configuration change at 23:20:53 cst Mon Oct 27 2025 by admin
+! NVRAM config last updated at 23:20:57 cst Mon Oct 27 2025 by admin
+! NVRAM config last updated at 23:20:57 cst Mon Oct 27 2025 by admin
 version 15.1
-service timestamps debug datetime msec localtime show-timezone
-service timestamps log datetime msec localtime show-timezone
+service timestamps debug datetime msec
+service timestamps log datetime msec
 service password-encryption
 !
-hostname inivgwu01-01
+hostname inivgwu01-02
 !
 boot-start-marker
 boot-end-marker
@@ -41,6 +41,9 @@ aaa session-id common
 !
 clock timezone cst -6 0
 clock summer-time cst recurring
+!
+crypto pki token default removal timeout 0
+!
 !
 dot11 syslog
 ip source-route
@@ -77,8 +80,8 @@ voice service voip
  allow-connections sip to sip
  no supplementary-service sip moved-temporarily
  sip
-  bind control source-interface Vlan42
-  bind media source-interface Vlan42
+  bind control source-interface GigabitEthernet0/0
+  bind media source-interface GigabitEthernet0/0
   registrar server
   no call service stop
 !
@@ -87,38 +90,17 @@ voice class codec 1
  codec preference 2 g711alaw
 !
 !
-voice register global
- mode cme
- source-address 192.168.42.41 port 5060
- max-dn 10
- max-pool 10
- authenticate register
- create profile sync 073393254748037A
-!
-voice register dn  1
- number 4150
- allow watch
- name Grandstream4150
-!
-voice register pool  1
- id mac EC74.D74E.CAF4
- type 7960
- number 1 dn 1
- dtmf-relay rtp-nte
- codec g711ulaw
-!
 !
 !
 voice translation-rule 1
- rule 1 /^7088879791$/ /4102/
- rule 2 /^7088879792$/ /4103/
+ rule 1 /^7088879793$/ /4202/
+ rule 2 /^7088879794$/ /4203/
 !
 voice translation-rule 2
- rule 1 /^4100$/ /7088879791/
- rule 2 /^4101$/ /7088879792/
- rule 3 /^4102$/ /7088879791/
- rule 4 /^4103$/ /7088879792/
- rule 5 /^4150$/ /7088879791/
+ rule 1 /^4200$/ /7088879793/
+ rule 2 /^4201$/ /7088879794/
+ rule 3 /^4202$/ /7088879793/
+ rule 4 /^4203$/ /7088879794/
 !
 !
 voice translation-profile inbound-did
@@ -128,28 +110,18 @@ voice translation-profile outbound-voip
  translate calling 2
 !
 !
-ivr prompt memory 8000
-!
-application
- service playaudiofile flash:/audio.vxml
- !
-!
-crypto pki token default removal timeout 0
 !
 !
-!
-!
-license udi pid CISCO3825 sn FTX1126A4WK
+license udi pid CISCO3825 sn FTX1221A1DE
 archive
  path flash:
  maximum 7
  time-period 1440
-vtp mode client
-vtp version 2
 !
 redundancy
 !
 !
+ip ssh version 2
 ! 
 !
 !
@@ -159,7 +131,7 @@ redundancy
 !
 !
 interface GigabitEthernet0/0
- no ip address
+ ip address 192.168.42.40 255.255.255.0
  duplex auto
  speed auto
  media-type rj45
@@ -171,112 +143,24 @@ interface GigabitEthernet0/1
  speed auto
  media-type rj45
 !
-interface FastEthernet2/0
- description ESW-16 NM switch port
- switchport access vlan 42
- no ip address
-!
-interface FastEthernet2/1
- description ESW-16 NM switch port
- switchport access vlan 42
- no ip address
-!
-interface FastEthernet2/2
- description ESW-16 NM switch port
- switchport access vlan 42
- no ip address
-!
-interface FastEthernet2/3
- description ESW-16 NM switch port
- switchport access vlan 42
- no ip address
-!
-interface FastEthernet2/4
- description ESW-16 NM switch port
- switchport access vlan 42
- no ip address
-!
-interface FastEthernet2/5
- description ESW-16 NM switch port
- switchport access vlan 42
- no ip address
-!
-interface FastEthernet2/6
- description ESW-16 NM switch port
- switchport access vlan 42
- no ip address
-!
-interface FastEthernet2/7
- description ESW-16 NM switch port
- switchport access vlan 42
- no ip address
-!
-interface FastEthernet2/8
- description ESW-16 NM switch port
- switchport access vlan 42
- no ip address
-!
-interface FastEthernet2/9
- description ESW-16 NM switch port
- switchport access vlan 42
- no ip address
-!
-interface FastEthernet2/10
- description ESW-16 NM switch port
- switchport access vlan 42
- no ip address
-!
-interface FastEthernet2/11
- description ESW-16 NM switch port
- switchport access vlan 42
- no ip address
-!
-interface FastEthernet2/12
- description ESW-16 NM switch port
- switchport access vlan 42
- no ip address
-!
-interface FastEthernet2/13
- description ESW-16 NM switch port
- switchport access vlan 42
- no ip address
-!
-interface FastEthernet2/14
- description ESW-16 NM switch port
- switchport access vlan 42
- no ip address
-!
-interface FastEthernet2/15
- description TRUNK PORT TO MOCA ADAPTER TO BASEMENT
- switchport mode trunk
- no ip address
-!
-interface Vlan1
- no ip address
- shutdown
-!
-interface Vlan42
- description INITECH Corp Net
- ip address 192.168.42.41 255.255.255.0
-!
 ip default-gateway 192.168.42.1
 ip forward-protocol nd
 ip http server
 no ip http secure-server
-ip http client source-interface Vlan42
 !
 !
 ip route 0.0.0.0 0.0.0.0 192.168.42.1
 !
 logging trap debugging
 logging facility local0
-logging source-interface Vlan42
+logging source-interface GigabitEthernet0/0
 logging 192.168.42.46
 !
 !
 !
 !
-snmp-server location Ground Floor Telecom Room
+snmp-server community public RO
+snmp-server location U01 Upstairs Lab
 snmp-server contact System Support [sysops@initech.net]
 !
 tacacs-server host 192.168.42.46
@@ -290,45 +174,31 @@ voice-port 0/0/0
  no vad
  timeouts call-disconnect 2
  timeouts wait-release 2
- description FXS port to local station
+ description FXS port to station
+ station-id name EXT 4200
+ station-id number 4200
  caller-id enable
 !
 voice-port 0/0/1
  no vad
  timeouts call-disconnect 2
  timeouts wait-release 2
- description FXS port to local station
+ description FXS port to station
  caller-id enable
 !
 voice-port 0/0/2
  no vad
  timeouts call-disconnect 2
  timeouts wait-release 2
- description FXS port to Legend
+ description FXS port to station
  caller-id enable
 !
 voice-port 0/0/3
  no vad
  timeouts call-disconnect 2
  timeouts wait-release 2
- description FXS port to Legend
+ description FXS port to station
  caller-id enable
-!
-voice-port 0/1/0
- shutdown
- description FXS port
-!
-voice-port 0/1/1
- shutdown
- description FXS port
-!
-voice-port 0/1/2
- shutdown
- description FXS port
-!
-voice-port 0/1/3
- shutdown
- description FXS port
 !
 voice-port 0/2/0
  shutdown
@@ -351,84 +221,50 @@ voice-port 0/2/3
 mgcp profile default
 !
 !
-dial-peer voice 4100 pots
+dial-peer voice 4200 pots
  description To FXS port 0/0/0
  huntstop
- destination-pattern 4100
+ destination-pattern 4200
  port 0/0/0
  forward-digits 0
 !
-dial-peer voice 4101 pots
+dial-peer voice 4201 pots
  description To FXS port 0/0/1
  huntstop
- destination-pattern 4101
+ destination-pattern 4201
  port 0/0/1
  forward-digits 0
 !
-dial-peer voice 4102 pots
+dial-peer voice 4202 pots
  description To FXS port 0/0/2
  huntstop
- destination-pattern 4102
+ destination-pattern 4202
  port 0/0/2
  forward-digits 0
 !
-dial-peer voice 4103 pots
+dial-peer voice 4203 pots
  description To FXS port 0/0/3
  huntstop
- destination-pattern 4103
+ destination-pattern 4203
  port 0/0/3
  forward-digits 0
 !
-dial-peer voice 420 voip
- description Dial-Peer to call phones on the other 3825
- destination-pattern 420[0-3]
- session protocol sipv2
- session target dns:inivgwu01-02.initech.net
- codec g711ulaw
- no vad
-!
-dial-peer voice 5555 voip
- service playaudiofile out-bound
- destination-pattern 5555
- session target loopback:rtp
- codec g711ulaw
- no vad
-!
-dial-peer voice 5556 voip
- description Direct inbound to VoiceXML app
- translation-profile incoming inbound-did
- service playaudiofile
- session protocol sipv2
- incoming called-number 13126680980
- dtmf-relay rtp-nte
- codec g711ulaw
- no vad
-!
-dial-peer voice 4150 voip
- description SIP Extension 4150
- destination-pattern 4150
- session protocol sipv2
- session target dns:inivgwu01-01.initech.net
- dtmf-relay rtp-nte
- codec g711ulaw
- no vad
-!
-dial-peer voice 9791 voip
+dial-peer voice 9793 voip
  description Inbound from voip.ms
  translation-profile incoming inbound-did
  session protocol sipv2
  session target dns:chicago.voip.ms
- incoming called-number 7088879791
+ incoming called-number 7088879793
  dtmf-relay rtp-nte
  codec g711ulaw
  no vad
 !
-dial-peer voice 9792 voip
+dial-peer voice 9794 voip
  description Inbound from voip.ms
  translation-profile incoming inbound-did
  session protocol sipv2
  session target dns:chicago.voip.ms
- incoming called-number 7088879792
+ incoming called-number 7088879794
  dtmf-relay rtp-nte
  codec g711ulaw
  no vad
@@ -455,6 +291,13 @@ dial-peer voice 301 voip
  codec g711ulaw
  no vad
 !
+dial-peer voice 410 voip
+ destination-pattern 410[0-9]
+ session protocol sipv2
+ session target dns:inivgwu01-01.initech.net
+ codec g711ulaw
+ no vad
+!
 !
 sip-ua 
  retry invite 3
@@ -469,7 +312,7 @@ telephony-service
  transfer-system full-consult
 !
 !
-banner motd 
+banner motd C
 /==========================================================================\
 ||       __  .__   __.  __  .___________. _______   ______  __    __      ||
 ||     |  | |  \ |  | |  | |           ||   ____| /      ||  |  |  |      ||
@@ -494,6 +337,7 @@ Line   : $(line) ($(line-desc))
 line con 0
 line aux 0
 line vty 0 4
+ session-timeout 120 
  location Telnet VTY Line
  exec-timeout 0 0
  authorization commands 3 TACPLUS

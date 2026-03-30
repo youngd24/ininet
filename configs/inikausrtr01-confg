@@ -1,7 +1,6 @@
 
 !
-! Last configuration change at 06:51:46 CDT Sun Jul 25 1999 by admin
-! NVRAM config last updated at 06:51:47 CDT Sun Jul 25 1999 by admin
+! No configuration change since last restart
 !
 version 12.4
 service timestamps debug datetime msec
@@ -159,7 +158,7 @@ line vty 0 4
  transport input telnet
 !
 ntp logging
-ntp clock-period 17180179
-ntp server 192.168.42.1 prefer
+ntp clock-period 17179953
+ntp server 192.168.42.46 prefer
 !
 end

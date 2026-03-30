@@ -22,7 +22,6 @@ name-server 192.168.42.46
 !
 !
 no auto-config
-auto-config authname adtran encrypted password 3c3ad81149fbeb91c4ad15db806e6abc68da
 !
 event-history on
 logging forwarding on
@@ -238,9 +237,7 @@ voice user 4501
   no cos
   first-name "Extension"
   last-name "4501"
-  password encrypted "3236064bfa8f2edecabf378b8bdecbb626b8" 
   no special-ring-cadences
-  sip-authentication password encrypted "161214f02c7d3ea8b41ff99f9d434ab7057c" 
   no nls
   no echo-cancellation
   rtp frame-packetization 10
@@ -253,9 +250,7 @@ voice user 4502
   no cos
   first-name "Extension"
   last-name "4502"
-  password encrypted "3236064bfa8f2edecabf378b8bdecbb626b8" 
   no special-ring-cadences
-  sip-authentication password encrypted "353137ad1740f72c81782ec3266d6bc6f99f" 
   no nls
   no echo-cancellation
   rtp frame-packetization 10
@@ -268,9 +263,7 @@ voice user 4503
   no cos
   first-name "Extension"
   last-name "4503"
-  password encrypted "3236064bfa8f2edecabf378b8bdecbb626b8" 
   no special-ring-cadences
-  sip-authentication password encrypted "353137ad1740f72c81782ec3266d6bc6f99f" 
   no nls
   no echo-cancellation
   rtp frame-packetization 10
@@ -283,9 +276,7 @@ voice user 4504
   no cos
   first-name "Extension"
   last-name "4504"
-  password encrypted "3236064bfa8f2edecabf378b8bdecbb626b8" 
   no special-ring-cadences
-  sip-authentication password encrypted "353137ad1740f72c81782ec3266d6bc6f99f" 
   no nls
   no echo-cancellation
   rtp frame-packetization 10
@@ -298,9 +289,7 @@ voice user 4505
   no cos
   first-name "Extension"
   last-name "4505"
-  password encrypted "3236064bfa8f2edecabf378b8bdecbb626b8" 
   no special-ring-cadences
-  sip-authentication password encrypted "353137ad1740f72c81782ec3266d6bc6f99f" 
   no nls
   no echo-cancellation
   rtp frame-packetization 10
@@ -313,9 +302,7 @@ voice user 4506
   no cos
   first-name "Extension"
   last-name "4506"
-  password encrypted "3236064bfa8f2edecabf378b8bdecbb626b8" 
   no special-ring-cadences
-  sip-authentication password encrypted "353137ad1740f72c81782ec3266d6bc6f99f" 
   no nls
   no echo-cancellation
   rtp frame-packetization 10
@@ -328,9 +315,7 @@ voice user 4507
   no cos
   first-name "Extension"
   last-name "4507"
-  password encrypted "3236064bfa8f2edecabf378b8bdecbb626b8" 
   no special-ring-cadences
-  sip-authentication password encrypted "353137ad1740f72c81782ec3266d6bc6f99f" 
   no nls
   no echo-cancellation
   rtp frame-packetization 10
@@ -343,9 +328,7 @@ voice user 4508
   no cos
   first-name "Extension"
   last-name "4508"
-  password encrypted "3236064bfa8f2edecabf378b8bdecbb626b8" 
   no special-ring-cadences
-  sip-authentication password encrypted "353137ad1740f72c81782ec3266d6bc6f99f" 
   no nls
   no echo-cancellation
   rtp frame-packetization 10

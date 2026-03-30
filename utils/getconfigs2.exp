@@ -55,6 +55,12 @@ foreach line $device_data {
         continue
     }
 
+    # Skip lines starting with #
+    if {[string match "#*" $line]} {
+        puts "skipping comment line"
+        continue
+    }
+
     set fields [split $line ":"]
 
     lassign $fields DeviceName DeviceIP

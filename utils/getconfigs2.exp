@@ -98,12 +98,12 @@ foreach line $device_data {
 #        send "terminal length 0\r"
 #        expect "#"
 
-        send "copy running-config tftp:\r"
-        expect "Address or name of remote host" {
+        send "copy running-config tftp\r"
+        expect -re "Address or name of remote host|Address of remote host\?" {
             send "$tftp_server\r"
         }
 
-        expect "Destination filename" {
+        expect -re "Destination filename|Destination filename\?" {
             send "$backup_filename\r"
         }
 

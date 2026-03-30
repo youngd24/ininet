@@ -1,0 +1,400 @@
+!
+!
+! ADTRAN, Inc. OS version R14.4.2.E
+! Boot ROM version R10.9.3.B2
+! Platform: Total Access 908e (3rd Gen), part number 4243908F2
+! Serial number CFG1431669
+!
+!
+hostname "TA908E01"
+!
+!
+!
+ip subnet-zero
+ip classless
+ip routing
+ipv6 unicast-routing
+!
+!
+domain-name "initech.net"
+domain-list "dy.net"
+name-server 192.168.42.46 
+!
+!
+no auto-config
+auto-config authname adtran encrypted password 3c3ad81149fbeb91c4ad15db806e6abc68da
+!
+event-history on
+logging forwarding on
+logging facility local0
+logging forwarding priority-level debug
+logging forwarding receiver-ip 192.168.42.46
+no logging email
+!
+service password-encryption
+!
+!
+!
+no ip firewall alg msn
+no ip firewall alg mszone
+no ip firewall alg h323
+!
+!
+!
+!
+!
+!
+!
+!
+no dot11ap access-point-control
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface eth 0/1
+  no ip address
+  shutdown
+!
+!
+interface eth 0/2
+  no ip address
+  shutdown
+!
+!
+!
+interface gigabit-eth 0/1
+  description VLAN42 Connection
+  ip address  192.168.42.15  255.255.255.0 
+  no shutdown
+  media-gateway ip primary
+!
+!
+!
+!
+interface t1 0/1
+  description PRI line to INIVGWU01-02 1/0
+  tdm-group 1 timeslots 1-24 speed 64
+  no shutdown
+!
+interface t1 0/2
+  shutdown
+!
+interface t1 0/3
+  shutdown
+!
+interface t1 0/4
+  shutdown
+!
+!
+interface pri 1
+  description PRI line to INIVGWU01-02 1/0
+  role user
+  connect t1 0/1 tdm-group 1
+  no shutdown
+!
+!
+interface fxs 0/1
+  no shutdown
+!
+interface fxs 0/2
+  no shutdown
+!
+interface fxs 0/3
+  no shutdown
+!
+interface fxs 0/4
+  no shutdown
+!
+interface fxs 0/5
+  no shutdown
+!
+interface fxs 0/6
+  no shutdown
+!
+interface fxs 0/7
+  no shutdown
+!
+interface fxs 0/8
+  no shutdown
+!
+!
+interface fxo 0/0
+  no shutdown
+!
+!
+isdn-group 1
+  max-channels 23
+  connect pri 1
+!
+!
+!
+!
+timing-source t1 0/1
+!
+!
+!
+!
+!
+!
+!
+!
+ip route 0.0.0.0 0.0.0.0 192.168.42.1
+!
+no tftp server
+no tftp server overwrite
+http server
+no http secure-server
+no snmp agent
+no ip ftp server
+no ip scp server
+no ip sntp server
+!
+!
+!
+!
+!
+!
+!
+!
+sip
+sip udp 5060
+sip udp 5092
+no sip tcp
+no sip tls
+!
+!
+!
+voice feature-mode network
+voice flashhook mode transparent
+voice transfer-mode local
+voice forward-mode network
+!
+!
+!
+!
+!
+!
+!
+!
+voice dial-plan 1 long-distance 1-NXX-NXX-XXXX 
+voice dial-plan 2 long-distance 1NXXNXXXXXX 
+!
+!
+!
+!
+voice codec-list Trunk
+  codec g711ulaw
+!
+!
+!
+voice trunk T02 type sip
+  description "voip.ms"
+  sip-server primary chicago1.voip.ms
+  registrar primary chicago1.voip.ms
+  registrar expire-time 600
+  domain "chicago1.voip.ms"
+  sip-keep-alive info 30
+  register 468616_0100
+  codec-list Trunk both
+!
+voice trunk T03 type isdn
+  description "PRI to INIVGWU01-02"
+  resource-selection circular descending
+  connect isdn-group 1
+  rtp delay-mode adaptive
+!
+!
+voice grouped-trunk SIP-UPSTREAM
+  description "Trunk to/from voip.ms"
+  trunk T02
+!
+!
+voice grouped-trunk PRI_TO_CISCO
+  trunk T03
+  accept 7088879791 cost 0
+  accept 7088879792 cost 0
+  accept 7088879793 cost 0
+  accept 7088879794 cost 0
+!
+!
+voice user 4501
+  connect fxs 0/1
+  no cos
+  first-name "Extension"
+  last-name "4501"
+  password encrypted "3236064bfa8f2edecabf378b8bdecbb626b8" 
+  no special-ring-cadences
+  sip-authentication password encrypted "161214f02c7d3ea8b41ff99f9d434ab7057c" 
+  no nls
+  no echo-cancellation
+  rtp frame-packetization 10
+  rtp delay-mode fixed
+!
+!
+!
+voice user 4502
+  connect fxs 0/2
+  no cos
+  first-name "Extension"
+  last-name "4502"
+  password encrypted "3236064bfa8f2edecabf378b8bdecbb626b8" 
+  no special-ring-cadences
+  sip-authentication password encrypted "353137ad1740f72c81782ec3266d6bc6f99f" 
+  no nls
+  no echo-cancellation
+  rtp frame-packetization 10
+  rtp delay-mode fixed
+!
+!
+!
+voice user 4503
+  connect fxs 0/3
+  no cos
+  first-name "Extension"
+  last-name "4503"
+  password encrypted "3236064bfa8f2edecabf378b8bdecbb626b8" 
+  no special-ring-cadences
+  sip-authentication password encrypted "353137ad1740f72c81782ec3266d6bc6f99f" 
+  no nls
+  no echo-cancellation
+  rtp frame-packetization 10
+  rtp delay-mode fixed
+!
+!
+!
+voice user 4504
+  connect fxs 0/4
+  no cos
+  first-name "Extension"
+  last-name "4504"
+  password encrypted "3236064bfa8f2edecabf378b8bdecbb626b8" 
+  no special-ring-cadences
+  sip-authentication password encrypted "353137ad1740f72c81782ec3266d6bc6f99f" 
+  no nls
+  no echo-cancellation
+  rtp frame-packetization 10
+  rtp delay-mode fixed
+!
+!
+!
+voice user 4505
+  connect fxs 0/5
+  no cos
+  first-name "Extension"
+  last-name "4505"
+  password encrypted "3236064bfa8f2edecabf378b8bdecbb626b8" 
+  no special-ring-cadences
+  sip-authentication password encrypted "353137ad1740f72c81782ec3266d6bc6f99f" 
+  no nls
+  no echo-cancellation
+  rtp frame-packetization 10
+  rtp delay-mode fixed
+!
+!
+!
+voice user 4506
+  connect fxs 0/6
+  no cos
+  first-name "Extension"
+  last-name "4506"
+  password encrypted "3236064bfa8f2edecabf378b8bdecbb626b8" 
+  no special-ring-cadences
+  sip-authentication password encrypted "353137ad1740f72c81782ec3266d6bc6f99f" 
+  no nls
+  no echo-cancellation
+  rtp frame-packetization 10
+  rtp delay-mode fixed
+!
+!
+!
+voice user 4507
+  connect fxs 0/7
+  no cos
+  first-name "Extension"
+  last-name "4507"
+  password encrypted "3236064bfa8f2edecabf378b8bdecbb626b8" 
+  no special-ring-cadences
+  sip-authentication password encrypted "353137ad1740f72c81782ec3266d6bc6f99f" 
+  no nls
+  no echo-cancellation
+  rtp frame-packetization 10
+  rtp delay-mode fixed
+!
+!
+!
+voice user 4508
+  connect fxs 0/8
+  no cos
+  first-name "Extension"
+  last-name "4508"
+  password encrypted "3236064bfa8f2edecabf378b8bdecbb626b8" 
+  no special-ring-cadences
+  sip-authentication password encrypted "353137ad1740f72c81782ec3266d6bc6f99f" 
+  no nls
+  no echo-cancellation
+  rtp frame-packetization 10
+  rtp delay-mode fixed
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+line con 0
+  no login
+!
+line telnet 0 4
+  login local-userlist
+  line-timeout 0
+  no shutdown
+line ssh 0 4
+  login local-userlist
+  line-timeout 0
+  no shutdown
+!
+!
+ntp server 192.168.42.46
+!
+!
+!
+end

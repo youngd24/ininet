@@ -1,8 +1,8 @@
 
 !
-! Last configuration change at 23:38:51 cst Mon Mar 30 2026 by admin
-! NVRAM config last updated at 23:38:52 cst Mon Mar 30 2026 by admin
-! NVRAM config last updated at 23:38:52 cst Mon Mar 30 2026 by admin
+! Last configuration change at 23:46:22 cst Mon Mar 30 2026 by admin
+! NVRAM config last updated at 23:46:23 cst Mon Mar 30 2026 by admin
+! NVRAM config last updated at 23:46:23 cst Mon Mar 30 2026 by admin
 version 15.1
 service timestamps debug datetime msec
 service timestamps log datetime msec
@@ -95,7 +95,9 @@ voice class codec 1
 !
 !
 voice translation-rule 10
+ rule 1 /^7088879791$/ /4200/
  rule 2 /^7088879792$/ /4202/
+ rule 3 /^7088879793$/ /4203/
  rule 4 /^7088879794$/ /4204/
 !
 voice translation-rule 555
@@ -147,10 +149,10 @@ controller T1 0/1/1
  cablelength short 110
 !
 controller T1 0/2/0
- cablelength long 0db
+ cablelength short 110
 !
 controller T1 0/2/1
- cablelength long 0db
+ cablelength short 110
 !
 ip ssh version 2
 ! 

@@ -247,7 +247,7 @@ line vty 0 4
  transport input telnet
 !
 ntp logging
-ntp clock-period 17179451
+ntp clock-period 17179452
 ntp source Ethernet1/1.42
 ntp server 192.168.42.46 source Ethernet1/1.42 prefer
 !

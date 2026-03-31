@@ -1,6 +1,8 @@
 
 !
-! No configuration change since last restart
+! Last configuration change at 23:38:51 cst Mon Mar 30 2026 by admin
+! NVRAM config last updated at 23:38:52 cst Mon Mar 30 2026 by admin
+! NVRAM config last updated at 23:38:52 cst Mon Mar 30 2026 by admin
 version 15.1
 service timestamps debug datetime msec
 service timestamps log datetime msec
@@ -14,7 +16,7 @@ boot-end-marker
 !
 card type t1 0 0
 card type t1 0 1
-! card type command needed for slot/vwic-slot 0/2
+card type t1 0 2
 logging buffered 100000
 no logging console
 no logging monitor
@@ -44,6 +46,7 @@ clock timezone cst -6 0
 clock summer-time cst recurring
 network-clock-participate wic 0 
 network-clock-participate wic 1 
+no network-clock-participate wic 2 
 !
 dot11 syslog
 ip source-route
@@ -67,6 +70,7 @@ isdn switch-type primary-ni
 !
 voice-card 0
  dspfarm
+ dsp services dspfarm
 !
 !
 !
@@ -94,9 +98,15 @@ voice translation-rule 10
  rule 2 /^7088879792$/ /4202/
  rule 4 /^7088879794$/ /4204/
 !
+voice translation-rule 555
+ rule 1 /^555\(4...\)/ /\1/
+!
 !
 voice translation-profile PRI_IN
  translate called 10
+!
+voice translation-profile STRIP_555
+ translate called 555
 !
 !
 ivr prompt memory 8000
@@ -135,6 +145,12 @@ controller T1 0/1/0
 !
 controller T1 0/1/1
  cablelength short 110
+!
+controller T1 0/2/0
+ cablelength long 0db
+!
+controller T1 0/2/1
+ cablelength long 0db
 !
 ip ssh version 2
 ! 
@@ -320,36 +336,164 @@ voice-port 2/0/7
  caller-id enable
 !
 voice-port 2/0/8
+ translation-profile incoming PRI_IN
+ no echo-cancel enable
+ no vad
+ no comfort-noise
+ description FXS port to station
+ station-id name EXT 4208
+ station-id number 4208
+ caller-id enable
 !
 voice-port 2/0/9
+ translation-profile incoming PRI_IN
+ no echo-cancel enable
+ no vad
+ no comfort-noise
+ description FXS port to station
+ station-id name EXT 4209
+ station-id number 4209
+ caller-id enable
 !
 voice-port 2/0/10
+ translation-profile incoming PRI_IN
+ no echo-cancel enable
+ no vad
+ no comfort-noise
+ description FXS port to station
+ station-id name EXT 4210
+ station-id number 4210
+ caller-id enable
 !
 voice-port 2/0/11
+ translation-profile incoming PRI_IN
+ no echo-cancel enable
+ no vad
+ no comfort-noise
+ description FXS port to station
+ station-id name EXT 4211
+ station-id number 4211
+ caller-id enable
 !
 voice-port 2/0/12
+ translation-profile incoming PRI_IN
+ no echo-cancel enable
+ no vad
+ no comfort-noise
+ description FXS port to station
+ station-id name EXT 4212
+ station-id number 4212
+ caller-id enable
 !
 voice-port 2/0/13
+ translation-profile incoming PRI_IN
+ no echo-cancel enable
+ no vad
+ no comfort-noise
+ description FXS port to station
+ station-id name EXT 4213
+ station-id number 4213
+ caller-id enable
 !
 voice-port 2/0/14
+ translation-profile incoming PRI_IN
+ no echo-cancel enable
+ no vad
+ no comfort-noise
+ description FXS port to station
+ station-id name EXT 4214
+ station-id number 4214
+ caller-id enable
 !
 voice-port 2/0/15
+ translation-profile incoming PRI_IN
+ no echo-cancel enable
+ no vad
+ no comfort-noise
+ description FXS port to station
+ station-id name EXT 4215
+ station-id number 4215
+ caller-id enable
 !
 voice-port 2/0/16
+ translation-profile incoming PRI_IN
+ no echo-cancel enable
+ no vad
+ no comfort-noise
+ description FXS port to station
+ station-id name EXT 4216
+ station-id number 4216
+ caller-id enable
 !
 voice-port 2/0/17
+ translation-profile incoming PRI_IN
+ no echo-cancel enable
+ no vad
+ no comfort-noise
+ description FXS port to station
+ station-id name EXT 4217
+ station-id number 4217
+ caller-id enable
 !
 voice-port 2/0/18
+ translation-profile incoming PRI_IN
+ no echo-cancel enable
+ no vad
+ no comfort-noise
+ description FXS port to station
+ station-id name EXT 4218
+ station-id number 4218
+ caller-id enable
 !
 voice-port 2/0/19
+ translation-profile incoming PRI_IN
+ no echo-cancel enable
+ no vad
+ no comfort-noise
+ description FXS port to station
+ station-id name EXT 4219
+ station-id number 4219
+ caller-id enable
 !
 voice-port 2/0/20
+ translation-profile incoming PRI_IN
+ no echo-cancel enable
+ no vad
+ no comfort-noise
+ description FXS port to station
+ station-id name EXT 4220
+ station-id number 4220
+ caller-id enable
 !
 voice-port 2/0/21
+ translation-profile incoming PRI_IN
+ no echo-cancel enable
+ no vad
+ no comfort-noise
+ description FXS port to station
+ station-id name EXT 4221
+ station-id number 4221
+ caller-id enable
 !
 voice-port 2/0/22
+ translation-profile incoming PRI_IN
+ no echo-cancel enable
+ no vad
+ no comfort-noise
+ description FXS port to station
+ station-id name EXT 4222
+ station-id number 4222
+ caller-id enable
 !
 voice-port 2/0/23
+ translation-profile incoming PRI_IN
+ no echo-cancel enable
+ no vad
+ no comfort-noise
+ description FXS port to station
+ station-id name EXT 4223
+ station-id number 4223
+ caller-id enable
 !
 !
 !
@@ -358,6 +502,7 @@ mgcp profile default
 !
 dial-peer voice 4200 pots
  description To FXS port 2/0/0
+ translation-profile incoming STRIP_555
  huntstop
  destination-pattern 4200
  port 2/0/0
@@ -365,6 +510,7 @@ dial-peer voice 4200 pots
 !
 dial-peer voice 4201 pots
  description To FXS port 2/0/1
+ translation-profile incoming STRIP_555
  huntstop
  destination-pattern 4201
  port 2/0/1
@@ -372,6 +518,7 @@ dial-peer voice 4201 pots
 !
 dial-peer voice 4202 pots
  description To FXS port 2/0/2
+ translation-profile incoming STRIP_555
  huntstop
  destination-pattern 4202
  port 2/0/2
@@ -379,6 +526,7 @@ dial-peer voice 4202 pots
 !
 dial-peer voice 4203 pots
  description To FXS port 2/0/3
+ translation-profile incoming STRIP_555
  huntstop
  destination-pattern 4203
  port 2/0/3
@@ -386,6 +534,7 @@ dial-peer voice 4203 pots
 !
 dial-peer voice 4204 pots
  description To FXS port 2/0/4
+ translation-profile incoming STRIP_555
  huntstop
  destination-pattern 4204
  port 2/0/4
@@ -400,6 +549,7 @@ dial-peer voice 4205 pots
 !
 dial-peer voice 4206 pots
  description To FXS port 2/0/6
+ translation-profile incoming STRIP_555
  huntstop
  destination-pattern 4206
  port 2/0/6
@@ -433,6 +583,134 @@ dial-peer voice 9990 pots
  translation-profile incoming PRI_IN
  incoming called-number 708887979.
  direct-inward-dial
+!
+dial-peer voice 4208 pots
+ description To FXS port 2/0/8
+ translation-profile incoming STRIP_555
+ huntstop
+ destination-pattern 4208
+ port 2/0/8
+ forward-digits 0
+!
+dial-peer voice 4209 pots
+ description To FXS port 2/0/9
+ translation-profile incoming STRIP_555
+ huntstop
+ destination-pattern 4209
+ port 2/0/9
+ forward-digits 0
+!
+dial-peer voice 4210 pots
+ description To FXS port 2/0/10
+ translation-profile incoming STRIP_555
+ huntstop
+ destination-pattern 4210
+ port 2/0/10
+ forward-digits 0
+!
+dial-peer voice 4211 pots
+ description To FXS port 2/0/11
+ translation-profile incoming STRIP_555
+ huntstop
+ destination-pattern 4211
+ port 2/0/11
+ forward-digits 0
+!
+dial-peer voice 4212 pots
+ description To FXS port 2/0/12
+ translation-profile incoming STRIP_555
+ huntstop
+ destination-pattern 4212
+ port 2/0/12
+ forward-digits 0
+!
+dial-peer voice 4213 pots
+ description To FXS port 2/0/13
+ translation-profile incoming STRIP_555
+ huntstop
+ destination-pattern 4213
+ port 2/0/13
+ forward-digits 0
+!
+dial-peer voice 4214 pots
+ description To FXS port 2/0/14
+ translation-profile incoming STRIP_555
+ huntstop
+ destination-pattern 4214
+ port 2/0/14
+ forward-digits 0
+!
+dial-peer voice 4215 pots
+ description To FXS port 2/0/15
+ translation-profile incoming STRIP_555
+ huntstop
+ destination-pattern 4215
+ port 2/0/15
+ forward-digits 0
+!
+dial-peer voice 4216 pots
+ description To FXS port 2/0/16
+ translation-profile incoming STRIP_555
+ huntstop
+ destination-pattern 4216
+ port 2/0/16
+ forward-digits 0
+!
+dial-peer voice 4217 pots
+ description To FXS port 2/0/17
+ translation-profile incoming STRIP_555
+ huntstop
+ destination-pattern 4217
+ port 2/0/17
+ forward-digits 0
+!
+dial-peer voice 4218 pots
+ description To FXS port 2/0/18
+ translation-profile incoming STRIP_555
+ huntstop
+ destination-pattern 4218
+ port 2/0/18
+ forward-digits 0
+!
+dial-peer voice 4219 pots
+ description To FXS port 2/0/19
+ translation-profile incoming STRIP_555
+ huntstop
+ destination-pattern 4219
+ port 2/0/19
+ forward-digits 0
+!
+dial-peer voice 4220 pots
+ description To FXS port 2/0/20
+ translation-profile incoming STRIP_555
+ huntstop
+ destination-pattern 4220
+ port 2/0/20
+ forward-digits 0
+!
+dial-peer voice 4221 pots
+ description To FXS port 2/0/21
+ translation-profile incoming STRIP_555
+ huntstop
+ destination-pattern 4221
+ port 2/0/21
+ forward-digits 0
+!
+dial-peer voice 4222 pots
+ description To FXS port 2/0/22
+ translation-profile incoming STRIP_555
+ huntstop
+ destination-pattern 4222
+ port 2/0/22
+ forward-digits 0
+!
+dial-peer voice 4223 pots
+ description To FXS port 2/0/23
+ translation-profile incoming STRIP_555
+ huntstop
+ destination-pattern 4223
+ port 2/0/23
+ forward-digits 0
 !
 !
 !

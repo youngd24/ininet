@@ -1,8 +1,8 @@
 
 !
-! Last configuration change at 23:46:22 cst Mon Mar 30 2026 by admin
-! NVRAM config last updated at 23:46:23 cst Mon Mar 30 2026 by admin
-! NVRAM config last updated at 23:46:23 cst Mon Mar 30 2026 by admin
+! Last configuration change at 00:25:59 cst Tue Mar 31 2026 by admin
+! NVRAM config last updated at 00:26:00 cst Tue Mar 31 2026 by admin
+! NVRAM config last updated at 00:26:00 cst Tue Mar 31 2026 by admin
 version 15.1
 service timestamps debug datetime msec
 service timestamps log datetime msec
@@ -46,7 +46,7 @@ clock timezone cst -6 0
 clock summer-time cst recurring
 network-clock-participate wic 0 
 network-clock-participate wic 1 
-no network-clock-participate wic 2 
+network-clock-participate wic 2 
 !
 dot11 syslog
 ip source-route
@@ -143,16 +143,24 @@ controller T1 0/0/1
  description PRI line to Userland 2801 0/3/0
 !
 controller T1 0/1/0
+ shutdown
  cablelength short 110
+ description ** FUTURE EXPANSION **
 !
 controller T1 0/1/1
+ shutdown
  cablelength short 110
+ description ** FUTURE EXPANSION **
 !
 controller T1 0/2/0
+ shutdown
  cablelength short 110
+ description ** FUTURE EXPANSION **
 !
 controller T1 0/2/1
+ shutdown
  cablelength short 110
+ description ** FUTURE EXPANSION **
 !
 ip ssh version 2
 ! 
@@ -177,7 +185,7 @@ interface GigabitEthernet0/1
  media-type rj45
 !
 interface Serial0/0/0:23
- description voice channels under t1 1/0 to TA908e-01
+ description voice channels under t1 0/0/0 to TA908e-01
  no ip address
  encapsulation hdlc
  isdn switch-type primary-ni
@@ -186,7 +194,7 @@ interface Serial0/0/0:23
  no cdp enable
 !
 interface Serial0/0/1:23
- description voice channels under t1 1/1 to Userland
+ description voice channels under t1 0/0/1 to Userland
  no ip address
  encapsulation hdlc
  isdn switch-type primary-ni
@@ -254,7 +262,6 @@ voice-port 0/0/1:23
  description voice ports under t1 0/0/1
 !
 voice-port 2/0/0
- translation-profile incoming PRI_IN
  no echo-cancel enable
  no vad
  no comfort-noise
@@ -264,7 +271,6 @@ voice-port 2/0/0
  caller-id enable
 !
 voice-port 2/0/1
- translation-profile incoming PRI_IN
  no echo-cancel enable
  no vad
  no comfort-noise
@@ -274,7 +280,6 @@ voice-port 2/0/1
  caller-id enable
 !
 voice-port 2/0/2
- translation-profile incoming PRI_IN
  input gain -2
  no echo-cancel enable
  no non-linear
@@ -286,7 +291,6 @@ voice-port 2/0/2
  station-id number 4202
 !
 voice-port 2/0/3
- translation-profile incoming PRI_IN
  no echo-cancel enable
  no vad
  no comfort-noise
@@ -296,7 +300,6 @@ voice-port 2/0/3
  caller-id enable
 !
 voice-port 2/0/4
- translation-profile incoming PRI_IN
  input gain -2
  no echo-cancel enable
  no vad
@@ -308,7 +311,6 @@ voice-port 2/0/4
  caller-id enable
 !
 voice-port 2/0/5
- translation-profile incoming PRI_IN
  no echo-cancel enable
  no vad
  no comfort-noise
@@ -318,7 +320,6 @@ voice-port 2/0/5
  caller-id enable
 !
 voice-port 2/0/6
- translation-profile incoming PRI_IN
  no echo-cancel enable
  no vad
  no comfort-noise
@@ -328,7 +329,6 @@ voice-port 2/0/6
  caller-id enable
 !
 voice-port 2/0/7
- translation-profile incoming PRI_IN
  no echo-cancel enable
  no vad
  no comfort-noise
@@ -338,7 +338,6 @@ voice-port 2/0/7
  caller-id enable
 !
 voice-port 2/0/8
- translation-profile incoming PRI_IN
  no echo-cancel enable
  no vad
  no comfort-noise
@@ -348,7 +347,6 @@ voice-port 2/0/8
  caller-id enable
 !
 voice-port 2/0/9
- translation-profile incoming PRI_IN
  no echo-cancel enable
  no vad
  no comfort-noise
@@ -358,7 +356,6 @@ voice-port 2/0/9
  caller-id enable
 !
 voice-port 2/0/10
- translation-profile incoming PRI_IN
  no echo-cancel enable
  no vad
  no comfort-noise
@@ -368,7 +365,6 @@ voice-port 2/0/10
  caller-id enable
 !
 voice-port 2/0/11
- translation-profile incoming PRI_IN
  no echo-cancel enable
  no vad
  no comfort-noise
@@ -378,7 +374,6 @@ voice-port 2/0/11
  caller-id enable
 !
 voice-port 2/0/12
- translation-profile incoming PRI_IN
  no echo-cancel enable
  no vad
  no comfort-noise
@@ -388,7 +383,6 @@ voice-port 2/0/12
  caller-id enable
 !
 voice-port 2/0/13
- translation-profile incoming PRI_IN
  no echo-cancel enable
  no vad
  no comfort-noise
@@ -398,7 +392,6 @@ voice-port 2/0/13
  caller-id enable
 !
 voice-port 2/0/14
- translation-profile incoming PRI_IN
  no echo-cancel enable
  no vad
  no comfort-noise
@@ -408,7 +401,6 @@ voice-port 2/0/14
  caller-id enable
 !
 voice-port 2/0/15
- translation-profile incoming PRI_IN
  no echo-cancel enable
  no vad
  no comfort-noise
@@ -418,7 +410,6 @@ voice-port 2/0/15
  caller-id enable
 !
 voice-port 2/0/16
- translation-profile incoming PRI_IN
  no echo-cancel enable
  no vad
  no comfort-noise
@@ -428,7 +419,6 @@ voice-port 2/0/16
  caller-id enable
 !
 voice-port 2/0/17
- translation-profile incoming PRI_IN
  no echo-cancel enable
  no vad
  no comfort-noise
@@ -438,7 +428,6 @@ voice-port 2/0/17
  caller-id enable
 !
 voice-port 2/0/18
- translation-profile incoming PRI_IN
  no echo-cancel enable
  no vad
  no comfort-noise
@@ -448,7 +437,6 @@ voice-port 2/0/18
  caller-id enable
 !
 voice-port 2/0/19
- translation-profile incoming PRI_IN
  no echo-cancel enable
  no vad
  no comfort-noise
@@ -458,7 +446,6 @@ voice-port 2/0/19
  caller-id enable
 !
 voice-port 2/0/20
- translation-profile incoming PRI_IN
  no echo-cancel enable
  no vad
  no comfort-noise
@@ -468,7 +455,6 @@ voice-port 2/0/20
  caller-id enable
 !
 voice-port 2/0/21
- translation-profile incoming PRI_IN
  no echo-cancel enable
  no vad
  no comfort-noise
@@ -478,7 +464,6 @@ voice-port 2/0/21
  caller-id enable
 !
 voice-port 2/0/22
- translation-profile incoming PRI_IN
  no echo-cancel enable
  no vad
  no comfort-noise
@@ -488,7 +473,6 @@ voice-port 2/0/22
  caller-id enable
 !
 voice-port 2/0/23
- translation-profile incoming PRI_IN
  no echo-cancel enable
  no vad
  no comfort-noise
@@ -563,28 +547,6 @@ dial-peer voice 4207 pots
  destination-pattern 4207
  port 2/0/7
  forward-digits 0
-!
-dial-peer voice 4300 pots
- description Bridge to Userland 2801
- destination-pattern 43..
- incoming called-number 43..
- direct-inward-dial
- port 0/0/1:23
- forward-digits all
-!
-dial-peer voice 4500 pots
- description Bridge to Adtran TA908e
- destination-pattern 45..
- incoming called-number 45..
- direct-inward-dial
- port 0/0/0:23
- forward-digits all
-!
-dial-peer voice 9990 pots
- description *** INBOUND FROM ADTRAN PRI ***
- translation-profile incoming PRI_IN
- incoming called-number 708887979.
- direct-inward-dial
 !
 dial-peer voice 4208 pots
  description To FXS port 2/0/8
@@ -713,6 +675,22 @@ dial-peer voice 4223 pots
  destination-pattern 4223
  port 2/0/23
  forward-digits 0
+!
+dial-peer voice 4300 pots
+ description Bridge to Userland 2801
+ destination-pattern 43..
+ incoming called-number 43..
+ direct-inward-dial
+ port 0/0/1:23
+ forward-digits all
+!
+dial-peer voice 4500 pots
+ description Bridge to Adtran TA908e
+ destination-pattern 45..
+ incoming called-number 45..
+ direct-inward-dial
+ port 0/0/0:23
+ forward-digits all
 !
 !
 !

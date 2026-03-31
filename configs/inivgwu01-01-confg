@@ -1,8 +1,8 @@
 
 !
-! Last configuration change at 00:25:59 cst Tue Mar 31 2026 by admin
-! NVRAM config last updated at 00:26:00 cst Tue Mar 31 2026 by admin
-! NVRAM config last updated at 00:26:00 cst Tue Mar 31 2026 by admin
+! Last configuration change at 10:30:26 cst Tue Mar 31 2026 by admin
+! NVRAM config last updated at 10:30:27 cst Tue Mar 31 2026 by admin
+! NVRAM config last updated at 10:30:27 cst Tue Mar 31 2026 by admin
 version 15.1
 service timestamps debug datetime msec
 service timestamps log datetime msec
@@ -97,11 +97,11 @@ voice class codec 1
 voice translation-rule 10
  rule 1 /^7088879791$/ /4200/
  rule 2 /^7088879792$/ /4202/
- rule 3 /^7088879793$/ /4203/
+ rule 3 /^7088879793$/ /4300/
  rule 4 /^7088879794$/ /4204/
 !
 voice translation-rule 555
- rule 1 /^555\(4...\)/ /\1/
+ rule 1 /^555\(42[0-4][0-9]\)/ /\1/
 !
 !
 voice translation-profile PRI_IN
@@ -255,10 +255,9 @@ control-plane
 !
 voice-port 0/0/0:23
  translation-profile incoming PRI_IN
- description voice ports under t1 0/0/0
+ description voice ports from Adtran TA908e under t1 0/0/0
 !
 voice-port 0/0/1:23
- translation-profile incoming PRI_IN
  description voice ports under t1 0/0/1
 !
 voice-port 2/0/0

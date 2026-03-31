@@ -1,6 +1,6 @@
 
 !
-! Last configuration change at 13:40:53 cst Fri Mar 27 2026 by admin
+! Last configuration change at 10:33:31 cst Tue Mar 31 2026 by admin
 ! NVRAM config last updated at 13:49:21 cst Fri Mar 27 2026 by admin
 ! NVRAM config last updated at 13:49:21 cst Fri Mar 27 2026 by admin
 version 15.1
@@ -340,14 +340,6 @@ dial-peer voice 4500 pots
  description Bridge to Adtran TA908e via 3825
  destination-pattern 45..
  incoming called-number 45..
- direct-inward-dial
- port 0/3/0:23
- forward-digits all
-!
-dial-peer voice 4100 pots
- description Bridge to Kernel Space 3825
- destination-pattern 41..
- incoming called-number 41..
  direct-inward-dial
  port 0/3/0:23
  forward-digits all

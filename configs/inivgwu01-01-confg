@@ -1,8 +1,8 @@
 
 !
-! Last configuration change at 10:30:26 cst Tue Mar 31 2026 by admin
-! NVRAM config last updated at 10:30:27 cst Tue Mar 31 2026 by admin
-! NVRAM config last updated at 10:30:27 cst Tue Mar 31 2026 by admin
+! Last configuration change at 10:39:36 cst Tue Mar 31 2026 by admin
+! NVRAM config last updated at 10:39:42 cst Tue Mar 31 2026 by admin
+! NVRAM config last updated at 10:39:42 cst Tue Mar 31 2026 by admin
 version 15.1
 service timestamps debug datetime msec
 service timestamps log datetime msec
@@ -100,15 +100,15 @@ voice translation-rule 10
  rule 3 /^7088879793$/ /4300/
  rule 4 /^7088879794$/ /4204/
 !
-voice translation-rule 555
+voice translation-rule 20
  rule 1 /^555\(42[0-4][0-9]\)/ /\1/
 !
 !
-voice translation-profile PRI_IN
+voice translation-profile ADTRAN_SIP_IN
  translate called 10
 !
-voice translation-profile STRIP_555
- translate called 555
+voice translation-profile LOCAL_ROUTING
+ translate called 20
 !
 !
 ivr prompt memory 8000
@@ -254,7 +254,7 @@ control-plane
 !
 !
 voice-port 0/0/0:23
- translation-profile incoming PRI_IN
+ translation-profile incoming ADTRAN_SIP_IN
  description voice ports from Adtran TA908e under t1 0/0/0
 !
 voice-port 0/0/1:23
@@ -487,7 +487,7 @@ mgcp profile default
 !
 dial-peer voice 4200 pots
  description To FXS port 2/0/0
- translation-profile incoming STRIP_555
+ translation-profile incoming LOCAL_ROUTING
  huntstop
  destination-pattern 4200
  port 2/0/0
@@ -495,7 +495,7 @@ dial-peer voice 4200 pots
 !
 dial-peer voice 4201 pots
  description To FXS port 2/0/1
- translation-profile incoming STRIP_555
+ translation-profile incoming LOCAL_ROUTING
  huntstop
  destination-pattern 4201
  port 2/0/1
@@ -503,7 +503,7 @@ dial-peer voice 4201 pots
 !
 dial-peer voice 4202 pots
  description To FXS port 2/0/2
- translation-profile incoming STRIP_555
+ translation-profile incoming LOCAL_ROUTING
  huntstop
  destination-pattern 4202
  port 2/0/2
@@ -511,7 +511,7 @@ dial-peer voice 4202 pots
 !
 dial-peer voice 4203 pots
  description To FXS port 2/0/3
- translation-profile incoming STRIP_555
+ translation-profile incoming LOCAL_ROUTING
  huntstop
  destination-pattern 4203
  port 2/0/3
@@ -519,7 +519,7 @@ dial-peer voice 4203 pots
 !
 dial-peer voice 4204 pots
  description To FXS port 2/0/4
- translation-profile incoming STRIP_555
+ translation-profile incoming LOCAL_ROUTING
  huntstop
  destination-pattern 4204
  port 2/0/4
@@ -534,7 +534,7 @@ dial-peer voice 4205 pots
 !
 dial-peer voice 4206 pots
  description To FXS port 2/0/6
- translation-profile incoming STRIP_555
+ translation-profile incoming LOCAL_ROUTING
  huntstop
  destination-pattern 4206
  port 2/0/6
@@ -549,7 +549,7 @@ dial-peer voice 4207 pots
 !
 dial-peer voice 4208 pots
  description To FXS port 2/0/8
- translation-profile incoming STRIP_555
+ translation-profile incoming LOCAL_ROUTING
  huntstop
  destination-pattern 4208
  port 2/0/8
@@ -557,7 +557,7 @@ dial-peer voice 4208 pots
 !
 dial-peer voice 4209 pots
  description To FXS port 2/0/9
- translation-profile incoming STRIP_555
+ translation-profile incoming LOCAL_ROUTING
  huntstop
  destination-pattern 4209
  port 2/0/9
@@ -565,7 +565,7 @@ dial-peer voice 4209 pots
 !
 dial-peer voice 4210 pots
  description To FXS port 2/0/10
- translation-profile incoming STRIP_555
+ translation-profile incoming LOCAL_ROUTING
  huntstop
  destination-pattern 4210
  port 2/0/10
@@ -573,7 +573,7 @@ dial-peer voice 4210 pots
 !
 dial-peer voice 4211 pots
  description To FXS port 2/0/11
- translation-profile incoming STRIP_555
+ translation-profile incoming LOCAL_ROUTING
  huntstop
  destination-pattern 4211
  port 2/0/11
@@ -581,7 +581,7 @@ dial-peer voice 4211 pots
 !
 dial-peer voice 4212 pots
  description To FXS port 2/0/12
- translation-profile incoming STRIP_555
+ translation-profile incoming LOCAL_ROUTING
  huntstop
  destination-pattern 4212
  port 2/0/12
@@ -589,7 +589,7 @@ dial-peer voice 4212 pots
 !
 dial-peer voice 4213 pots
  description To FXS port 2/0/13
- translation-profile incoming STRIP_555
+ translation-profile incoming LOCAL_ROUTING
  huntstop
  destination-pattern 4213
  port 2/0/13
@@ -597,7 +597,7 @@ dial-peer voice 4213 pots
 !
 dial-peer voice 4214 pots
  description To FXS port 2/0/14
- translation-profile incoming STRIP_555
+ translation-profile incoming LOCAL_ROUTING
  huntstop
  destination-pattern 4214
  port 2/0/14
@@ -605,7 +605,7 @@ dial-peer voice 4214 pots
 !
 dial-peer voice 4215 pots
  description To FXS port 2/0/15
- translation-profile incoming STRIP_555
+ translation-profile incoming LOCAL_ROUTING
  huntstop
  destination-pattern 4215
  port 2/0/15
@@ -613,7 +613,7 @@ dial-peer voice 4215 pots
 !
 dial-peer voice 4216 pots
  description To FXS port 2/0/16
- translation-profile incoming STRIP_555
+ translation-profile incoming LOCAL_ROUTING
  huntstop
  destination-pattern 4216
  port 2/0/16
@@ -621,7 +621,7 @@ dial-peer voice 4216 pots
 !
 dial-peer voice 4217 pots
  description To FXS port 2/0/17
- translation-profile incoming STRIP_555
+ translation-profile incoming LOCAL_ROUTING
  huntstop
  destination-pattern 4217
  port 2/0/17
@@ -629,7 +629,7 @@ dial-peer voice 4217 pots
 !
 dial-peer voice 4218 pots
  description To FXS port 2/0/18
- translation-profile incoming STRIP_555
+ translation-profile incoming LOCAL_ROUTING
  huntstop
  destination-pattern 4218
  port 2/0/18
@@ -637,7 +637,7 @@ dial-peer voice 4218 pots
 !
 dial-peer voice 4219 pots
  description To FXS port 2/0/19
- translation-profile incoming STRIP_555
+ translation-profile incoming LOCAL_ROUTING
  huntstop
  destination-pattern 4219
  port 2/0/19
@@ -645,7 +645,7 @@ dial-peer voice 4219 pots
 !
 dial-peer voice 4220 pots
  description To FXS port 2/0/20
- translation-profile incoming STRIP_555
+ translation-profile incoming LOCAL_ROUTING
  huntstop
  destination-pattern 4220
  port 2/0/20
@@ -653,7 +653,7 @@ dial-peer voice 4220 pots
 !
 dial-peer voice 4221 pots
  description To FXS port 2/0/21
- translation-profile incoming STRIP_555
+ translation-profile incoming LOCAL_ROUTING
  huntstop
  destination-pattern 4221
  port 2/0/21
@@ -661,7 +661,7 @@ dial-peer voice 4221 pots
 !
 dial-peer voice 4222 pots
  description To FXS port 2/0/22
- translation-profile incoming STRIP_555
+ translation-profile incoming LOCAL_ROUTING
  huntstop
  destination-pattern 4222
  port 2/0/22
@@ -669,7 +669,7 @@ dial-peer voice 4222 pots
 !
 dial-peer voice 4223 pots
  description To FXS port 2/0/23
- translation-profile incoming STRIP_555
+ translation-profile incoming LOCAL_ROUTING
  huntstop
  destination-pattern 4223
  port 2/0/23

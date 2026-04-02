@@ -1,8 +1,8 @@
 
 !
-! Last configuration change at 10:33:31 cst Tue Mar 31 2026 by admin
-! NVRAM config last updated at 13:49:21 cst Fri Mar 27 2026 by admin
-! NVRAM config last updated at 13:49:21 cst Fri Mar 27 2026 by admin
+! Last configuration change at 13:29:20 cst Tue Mar 31 2026 by admin
+! NVRAM config last updated at 13:29:20 cst Tue Mar 31 2026 by admin
+! NVRAM config last updated at 13:29:20 cst Tue Mar 31 2026 by admin
 version 15.1
 service timestamps debug datetime msec
 service timestamps log datetime msec
@@ -68,14 +68,14 @@ isdn switch-type primary-ni
 !
 !
 !
-voice translation-rule 1
- rule 1 /^1999555\(4...\)/ /\1/
- rule 2 /^999555\(4...\)/ /\1/
- rule 3 /^555\(4...\)/ /\1/
+voice translation-rule 20
+ rule 5 /^5554242/ /4202/
+ rule 10 /^555\(42[0-4][0-9]\)/ /\1/
+ rule 20 /^4242/ /4202/
 !
 !
-voice translation-profile STRIP-PREFIX
- translate called 1
+voice translation-profile LOCAL_ROUTING
+ translate called 20
 !
 !
 voice-card 0
@@ -186,6 +186,7 @@ control-plane
 disable-eadi
 !
 voice-port 0/0/0
+ input gain -2
  no echo-cancel enable
  no vad
  no comfort-noise
@@ -300,14 +301,6 @@ dial-peer voice 4303 pots
  port 0/0/3
  forward-digits 0
 !
-dial-peer voice 4200 pots
- description Bridge to Kernel Space 3825
- destination-pattern 42..
- incoming called-number 42..
- direct-inward-dial
- port 0/3/0:23
- forward-digits all
-!
 dial-peer voice 4304 pots
  description To FXS port 0/1/0
  huntstop
@@ -331,10 +324,19 @@ dial-peer voice 4306 pots
 !
 dial-peer voice 4307 pots
  description To FXS port 0/1/2
+ translation-profile incoming LOCAL_ROUTING
  huntstop
  destination-pattern 4307
  port 0/1/3
  forward-digits 0
+!
+dial-peer voice 4200 pots
+ description Bridge to Kernel Space 3825
+ destination-pattern (42[0-4][0-9])
+ incoming called-number (42[0-4][0-9])
+ direct-inward-dial
+ port 0/3/0:23
+ forward-digits all
 !
 dial-peer voice 4500 pots
  description Bridge to Adtran TA908e via 3825
@@ -343,24 +345,6 @@ dial-peer voice 4500 pots
  direct-inward-dial
  port 0/3/0:23
  forward-digits all
-!
-dial-peer voice 9907 pots
- description Long Dialing 7-digit
- translation-profile outgoing STRIP-PREFIX
- destination-pattern 5554...
- port 0/3/0:23
-!
-dial-peer voice 9910 pots
- description Long Dialing 10-digit
- translation-profile outgoing STRIP-PREFIX
- destination-pattern 9995554...
- port 0/3/0:23
-!
-dial-peer voice 9911 pots
- description Long Dialing 11-digit
- translation-profile outgoing STRIP-PREFIX
- destination-pattern 19995554...
- port 0/3/0:23
 !
 !
 !

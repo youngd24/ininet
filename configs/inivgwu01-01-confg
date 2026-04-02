@@ -1,8 +1,8 @@
 
 !
-! Last configuration change at 10:39:36 cst Tue Mar 31 2026 by admin
-! NVRAM config last updated at 10:39:42 cst Tue Mar 31 2026 by admin
-! NVRAM config last updated at 10:39:42 cst Tue Mar 31 2026 by admin
+! Last configuration change at 02:52:30 cst Thu Apr 2 2026 by admin
+! NVRAM config last updated at 02:52:31 cst Thu Apr 2 2026 by admin
+! NVRAM config last updated at 02:52:31 cst Thu Apr 2 2026 by admin
 version 15.1
 service timestamps debug datetime msec
 service timestamps log datetime msec
@@ -97,11 +97,13 @@ voice class codec 1
 voice translation-rule 10
  rule 1 /^7088879791$/ /4200/
  rule 2 /^7088879792$/ /4202/
- rule 3 /^7088879793$/ /4300/
+ rule 3 /^7088879793$/ /4232/
  rule 4 /^7088879794$/ /4204/
 !
 voice translation-rule 20
  rule 1 /^555\(42[0-4][0-9]\)/ /\1/
+ rule 2 /4242/ /4202/
+ rule 3 /4243/ /4223/
 !
 !
 voice translation-profile ADTRAN_SIP_IN
@@ -115,6 +117,12 @@ ivr prompt memory 8000
 !
 application
  service playaudiofile flash:audio.vxml
+ !
+ service sit_discon-or-out-of-service flash:/apps/sit_discon-or-out-of-service.vxml
+ !
+ service discon-or-out-of-service flash:/apps/discon-or-out-of-service.vxml
+ !
+ service abandon-all-hope flash:/apps/abandon-all-hope.vxml
  !
 !
 crypto pki token default removal timeout 0
@@ -475,7 +483,8 @@ voice-port 2/0/23
  no echo-cancel enable
  no vad
  no comfort-noise
- description FXS port to station
+ shutdown
+ description FXS port to station (BUSYOUT PORT)
  station-id name EXT 4223
  station-id number 4223
  caller-id enable
@@ -668,7 +677,7 @@ dial-peer voice 4222 pots
  forward-digits 0
 !
 dial-peer voice 4223 pots
- description To FXS port 2/0/23
+ description To FXS port 2/0/23 (BUSYOUT PORT)
  translation-profile incoming LOCAL_ROUTING
  huntstop
  destination-pattern 4223
@@ -690,6 +699,37 @@ dial-peer voice 4500 pots
  direct-inward-dial
  port 0/0/0:23
  forward-digits all
+!
+dial-peer voice 4235 voip
+ service playaudiofile out-bound
+ destination-pattern 4235
+ session target loopback:rtp
+ codec g711ulaw
+!
+dial-peer voice 4239 voip
+ service discon-or-out-of-service out-bound
+ destination-pattern 4239
+ session target loopback:rtp
+ codec g711ulaw
+!
+dial-peer voice 4232 voip
+ service abandon-all-hope out-bound
+ destination-pattern 4232
+ session target loopback:rtp
+ codec g711ulaw
+!
+dial-peer voice 4224 pots
+ translation-profile incoming LOCAL_ROUTING
+ huntstop
+ destination-pattern 4224
+ port 2/0/23
+ forward-digits 0
+!
+dial-peer voice 4240 voip
+ service sit_discon-or-out-of-service out-bound
+ destination-pattern 4240
+ session target loopback:rtp
+ codec g711ulaw
 !
 !
 !

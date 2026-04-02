@@ -4,12 +4,15 @@
 !
 version 12.0
 no service pad
-service timestamps debug uptime
-service timestamps log uptime
+service timestamps debug datetime msec
+service timestamps log datetime msec
 service password-encryption
+service sequence-numbers
 !
 hostname INIHQMDSW01
 !
+no logging console
+no logging monitor
 aaa new-model
 aaa authentication login localauth local
 aaa authentication login TACPLUS group tacacs+ local
@@ -152,6 +155,8 @@ interface VLAN42
  no ip route-cache
 !
 ip default-gateway 192.168.42.1
+logging trap debugging
+logging facility local0
 logging source-interface VLAN42
 logging 192.168.42.46
 snmp-server engineID local 00000009020000036BE18900
@@ -217,6 +222,6 @@ line vty 0 4
 line vty 5 15
  transport input none
 !
-ntp clock-period 11259535
+ntp clock-period 11259410
 ntp server 192.168.42.46 prefer
 end

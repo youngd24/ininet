@@ -222,6 +222,5 @@ line vty 0 4
 line vty 5 15
  transport input none
 !
-ntp clock-period 11259410
 ntp server 192.168.42.46 prefer
 end

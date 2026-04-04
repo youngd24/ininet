@@ -144,6 +144,5 @@ line vty 0 4
  login authentication TACPLUS
  transport input telnet
 !
-ntp clock-period 17208239
 ntp server 192.168.42.46 prefer
 end

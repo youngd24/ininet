@@ -162,7 +162,6 @@ line vty 0 4
  transport input telnet
 !
 ntp logging
-ntp clock-period 17208322
 ntp server 192.168.42.46 prefer
 !
 end

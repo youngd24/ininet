@@ -150,7 +150,6 @@ line vty 0 4
  login local
 !
 ntp logging
-ntp clock-period 17208385
 ntp server 192.168.42.46 prefer
 !
 end

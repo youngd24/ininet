@@ -12,5 +12,6 @@ do
 	    grep -v 'auto-config authname' | \
 	    grep -v 'password encrypted' | \
 	    grep -v 'sip-authentication password encrypted' | \
+	    grep -v 'ntp clock-period' | \
 	    grep -v 'tacacs-server key' > ../configs/$file
 done

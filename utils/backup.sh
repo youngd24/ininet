@@ -1,23 +1,35 @@
 #!/bin/bash
 #
 
-DATE=$(date)
-WORKDIR=$(pwd)
-BASEDIR=$(dirname "$WORKDIR")
+SCRIPTDIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+BASEDIR=$(dirname "$SCRIPTDIR")
 CONFIGDIR="$BASEDIR/configs"
-LOGFILE="$WORKDIR/backup.log"
+LOGFILE="$SCRIPTDIR/backup.log"
+DATE=$(date)
 
-echo "WORKDIR: $WORKDIR"
+echo "SCRIPTDIR: $SCRIPTDIR"
 echo "CONFIGDIR: $CONFIGDIR"
-echo "LOGFILE: $LOGFILE"
+echo "LOGFILE:   $LOGFILE"
+
+if [[ ! -d "$CONFIGDIR" ]]; then
+    echo "ERROR: CONFIGDIR does not exist: $CONFIGDIR"
+    exit 1
+fi
+
+for script in "$SCRIPTDIR/getconfigs.exp" "$SCRIPTDIR/clean.sh"; do
+    if [[ ! -x "$script" ]]; then
+        echo "ERROR: Script not found or not executable: $script"
+        exit 1
+    fi
+done
 
 if [[ -f "$LOGFILE" ]]; then
-    echo "Clearing previous logfile"
-    rm -f "$LOGFILE"
+    echo "Rotating previous logfile"
+    mv "$LOGFILE" "$LOGFILE.prev"
 fi
 
 echo -n "Gathering configs... "
-"$WORKDIR/getconfigs.exp" >> "$LOGFILE" 2>&1
+"$SCRIPTDIR/getconfigs.exp" >> "$LOGFILE" 2>&1
 RESULT=$?
 if [[ $RESULT -ne 0 ]]; then
     echo "[FAILED]"
@@ -27,7 +39,7 @@ else
 fi
 
 echo -n "Cleaning out sensitive bits... "
-"$WORKDIR/clean.sh" >> "$LOGFILE" 2>&1
+"$SCRIPTDIR/clean.sh" >> "$LOGFILE" 2>&1
 RESULT=$?
 if [[ $RESULT -ne 0 ]]; then
     echo "[FAILED]"

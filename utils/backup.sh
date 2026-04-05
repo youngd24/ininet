@@ -1,5 +1,14 @@
 #!/bin/bash
+###############################################################################
 #
+# backup.sh 
+#
+# Collects network device configs, scrubs sensitive data, and commits/pushes
+# the results to a git repository.
+#
+# Copyright (c) 2026 Darren Young. All rights reserved.
+#
+###############################################################################
 
 SCRIPTDIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 BASEDIR=$(dirname "$SCRIPTDIR")

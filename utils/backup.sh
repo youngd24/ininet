@@ -20,11 +20,13 @@ echo "SCRIPTDIR: $SCRIPTDIR"
 echo "CONFIGDIR: $CONFIGDIR"
 echo "LOGFILE:   $LOGFILE"
 
+# Verify the configs directory exists before proceeding
 if [[ ! -d "$CONFIGDIR" ]]; then
     echo "ERROR: CONFIGDIR does not exist: $CONFIGDIR"
     exit 1
 fi
 
+# Verify required scripts exist and are executable
 for script in "$SCRIPTDIR/getconfigs.exp" "$SCRIPTDIR/clean.sh"; do
     if [[ ! -x "$script" ]]; then
         echo "ERROR: Script not found or not executable: $script"
@@ -32,11 +34,13 @@ for script in "$SCRIPTDIR/getconfigs.exp" "$SCRIPTDIR/clean.sh"; do
     fi
 done
 
+# Rotate the previous log so the last run is always available for review
 if [[ -f "$LOGFILE" ]]; then
     echo "Rotating previous logfile"
     mv "$LOGFILE" "$LOGFILE.prev"
 fi
 
+# Connect to each device and pull down its running configuration
 echo -n "Gathering configs... "
 "$SCRIPTDIR/getconfigs.exp" >> "$LOGFILE" 2>&1
 RESULT=$?
@@ -47,6 +51,7 @@ else
     echo "[DONE]"
 fi
 
+# Strip passwords, keys, and other sensitive data from the collected configs
 echo -n "Cleaning out sensitive bits... "
 "$SCRIPTDIR/clean.sh" >> "$LOGFILE" 2>&1
 RESULT=$?
@@ -57,6 +62,7 @@ else
     echo "[DONE]"
 fi
 
+# Commit any changed configs to the local git repository
 echo -n "Git commit... "
 if git -C "$CONFIGDIR" diff --cached --quiet && git -C "$CONFIGDIR" diff --quiet; then
     echo "[SKIPPED - nothing to commit]"
@@ -71,6 +77,7 @@ else
     fi
 fi
 
+# Push committed changes to the remote repository
 echo -n "Git push... "
 git -C "$CONFIGDIR" push >> "$LOGFILE" 2>&1
 RESULT=$?
@@ -80,3 +87,5 @@ if [[ $RESULT -ne 0 ]]; then
 else
     echo "[DONE]"
 fi
+
+echo "All done"

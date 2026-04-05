@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 
+DATE=$(date)
 WORKDIR=$(pwd)
 BASEDIR=$(dirname "$WORKDIR")
 CONFIGDIR="$BASEDIR/configs"
@@ -10,22 +11,51 @@ echo "WORKDIR: $WORKDIR"
 echo "CONFIGDIR: $CONFIGDIR"
 echo "LOGFILE: $LOGFILE"
 
-echo "Gathering configs"
-$WORKDIR/getconfigs.exp
-RESULT=$?
-if [[ $RESULT -ne 0 ]]; then
-    echo "FAILED TO GET CONFIGS"
-    exit 1
-else
-    echo "SUCCESSFULLY GATHERED CONFIGS"
+if [[ -f "$LOGFILE" ]]; then
+    echo "Clearing previous logfile"
+    rm -f "$LOGFILE"
 fi
 
-echo "Cleaning out sensitive and unneeded aspects"
-$WORKDIR/clean.sh
+echo -n "Gathering configs... "
+"$WORKDIR/getconfigs.exp" >> "$LOGFILE" 2>&1
 RESULT=$?
 if [[ $RESULT -ne 0 ]]; then
-    echo "FAILED TO CLEAN CONFIGS"
+    echo "[FAILED]"
     exit 1
 else
-    echo "SUCCESSFULLY CLEANED CONFIGS"
+    echo "[DONE]"
+fi
+
+echo -n "Cleaning out sensitive bits... "
+"$WORKDIR/clean.sh" >> "$LOGFILE" 2>&1
+RESULT=$?
+if [[ $RESULT -ne 0 ]]; then
+    echo "[FAILED]"
+    exit 1
+else
+    echo "[DONE]"
+fi
+
+echo -n "Git commit... "
+if git -C "$CONFIGDIR" diff --cached --quiet && git -C "$CONFIGDIR" diff --quiet; then
+    echo "[SKIPPED - nothing to commit]"
+else
+    git -C "$CONFIGDIR" commit -a -m "Backup on $DATE" >> "$LOGFILE" 2>&1
+    RESULT=$?
+    if [[ $RESULT -ne 0 ]]; then
+        echo "[FAILED]"
+        exit 1
+    else
+        echo "[DONE]"
+    fi
+fi
+
+echo -n "Git push... "
+git -C "$CONFIGDIR" push >> "$LOGFILE" 2>&1
+RESULT=$?
+if [[ $RESULT -ne 0 ]]; then
+    echo "[FAILED]"
+    exit 1
+else
+    echo "[DONE]"
 fi

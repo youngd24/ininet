@@ -1,8 +1,8 @@
 
 !
-! Last configuration change at 13:29:20 cst Tue Mar 31 2026 by admin
-! NVRAM config last updated at 13:29:20 cst Tue Mar 31 2026 by admin
-! NVRAM config last updated at 13:29:20 cst Tue Mar 31 2026 by admin
+! Last configuration change at 00:10:22 cst Sun Apr 5 2026 by admin
+! NVRAM config last updated at 00:13:39 cst Sun Apr 5 2026 by admin
+! NVRAM config last updated at 00:13:39 cst Sun Apr 5 2026 by admin
 version 15.1
 service timestamps debug datetime msec
 service timestamps log datetime msec
@@ -69,9 +69,11 @@ isdn switch-type primary-ni
 !
 !
 voice translation-rule 20
- rule 5 /^5554242/ /4202/
+ rule 2 /^4230/ /4300/
+ rule 3 /^5554230/ /4300/
+ rule 4 /^4234/ /4304/
+ rule 5 /^5554234/ /4304/
  rule 10 /^555\(42[0-4][0-9]\)/ /\1/
- rule 20 /^4242/ /4202/
 !
 !
 voice translation-profile LOCAL_ROUTING

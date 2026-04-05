@@ -1,8 +1,8 @@
 
 !
-! Last configuration change at 02:52:30 cst Thu Apr 2 2026 by admin
-! NVRAM config last updated at 17:18:40 cst Sat Apr 4 2026 by admin
-! NVRAM config last updated at 17:18:40 cst Sat Apr 4 2026 by admin
+! Last configuration change at 02:50:17 cst Sun Apr 5 2026 by admin
+! NVRAM config last updated at 02:52:01 cst Sun Apr 5 2026 by admin
+! NVRAM config last updated at 02:52:01 cst Sun Apr 5 2026 by admin
 version 15.1
 service timestamps debug datetime msec
 service timestamps log datetime msec
@@ -101,9 +101,11 @@ voice translation-rule 10
  rule 4 /^7088879794$/ /4204/
 !
 voice translation-rule 20
- rule 1 /^555\(42[0-4][0-9]\)/ /\1/
- rule 2 /4242/ /4202/
- rule 3 /4243/ /4223/
+ rule 2 /^4234/ /4304/
+ rule 3 /^5554234/ /4304/
+ rule 4 /4230/ /4300/
+ rule 5 /^5554230/ /4300/
+ rule 10 /^555\(42[0-4][0-9]\)/ /\1/
 !
 !
 voice translation-profile ADTRAN_SIP_IN
@@ -493,6 +495,18 @@ voice-port 2/0/23
 !
 mgcp profile default
 !
+sccp local GigabitEthernet0/0
+sccp ccm 192.168.42.41 identifier 1 version 7.0 
+sccp
+!
+sccp ccm group 1
+ associate ccm 1 priority 1
+ associate profile 1 register INIMTP001
+!
+dspfarm profile 1 mtp  
+ codec g711ulaw
+ maximum sessions software 8
+ associate application SCCP
 !
 dial-peer voice 4200 pots
  description To FXS port 2/0/0
@@ -718,20 +732,27 @@ dial-peer voice 4232 voip
  session target loopback:rtp
  codec g711ulaw
 !
-dial-peer voice 4224 pots
- translation-profile incoming LOCAL_ROUTING
- huntstop
- destination-pattern 4224
- port 2/0/23
- forward-digits 0
-!
 dial-peer voice 4240 voip
  service sit_discon-or-out-of-service out-bound
  destination-pattern 4240
  session target loopback:rtp
  codec g711ulaw
 !
+dial-peer voice 42400 pots
+ service sit_discon-or-out-of-service
+ incoming called-number 4240
+ direct-inward-dial
+ port 0/0/1:23
 !
+!
+!
+!
+telephony-service
+ max-ephones 5
+ max-dn 10
+ ip source-address 192.168.42.41 port 2000
+ max-conferences 12 gain -6
+ transfer-system full-consult
 !
 !
 banner motd 

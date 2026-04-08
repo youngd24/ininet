@@ -1,8 +1,8 @@
 
 !
-! Last configuration change at 13:40:13 cst Wed Apr 8 2026 by admin
-! NVRAM config last updated at 13:40:18 cst Wed Apr 8 2026 by admin
-! NVRAM config last updated at 13:40:18 cst Wed Apr 8 2026 by admin
+! Last configuration change at 13:50:48 cst Wed Apr 8 2026 by admin
+! NVRAM config last updated at 13:55:14 cst Wed Apr 8 2026 by admin
+! NVRAM config last updated at 13:55:14 cst Wed Apr 8 2026 by admin
 version 15.1
 service timestamps debug datetime msec
 service timestamps log datetime msec
@@ -206,10 +206,12 @@ control-plane
 disable-eadi
 !
 voice-port 0/0/0
+ trunk-group OUTBOUND-LINES 1
  input gain -2
  no echo-cancel enable
  no vad
  no comfort-noise
+ timeouts interdigit 3
  description FXS port to station
  station-id name EXT 4300
  station-id number 4300
@@ -221,6 +223,7 @@ voice-port 0/0/1
  no echo-cancel enable
  no vad
  no comfort-noise
+ timeouts interdigit 3
  description FXS port to station
  station-id name EXT 4301
  station-id number 4301
@@ -232,6 +235,7 @@ voice-port 0/0/2
  no echo-cancel enable
  no vad
  no comfort-noise
+ timeouts interdigit 3
  description FXS port to station
  station-id name EXT 4302
  station-id number 4302
@@ -243,6 +247,7 @@ voice-port 0/0/3
  no echo-cancel enable
  no vad
  no comfort-noise
+ timeouts interdigit 3
  description FXS port to station
  station-id name EXT 4303
  station-id number 4303
@@ -256,6 +261,7 @@ voice-port 0/1/0
  no echo-cancel enable
  no vad
  no comfort-noise
+ timeouts interdigit 3
  description FXS port to station
  station-id name EXT 4304
  station-id number 4304
@@ -267,6 +273,7 @@ voice-port 0/1/1
  no echo-cancel enable
  no vad
  no comfort-noise
+ timeouts interdigit 3
  description FXS port to station
  station-id name EXT 4305
  station-id number 4305
@@ -278,6 +285,7 @@ voice-port 0/1/2
  no echo-cancel enable
  no vad
  no comfort-noise
+ timeouts interdigit 3
  description FXS port to station
  station-id name EXT 4306
  station-id number 4306

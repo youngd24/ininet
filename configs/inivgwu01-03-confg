@@ -1,8 +1,8 @@
 
 !
-! Last configuration change at 13:50:48 cst Wed Apr 8 2026 by admin
-! NVRAM config last updated at 13:55:14 cst Wed Apr 8 2026 by admin
-! NVRAM config last updated at 13:55:14 cst Wed Apr 8 2026 by admin
+! Last configuration change at 17:13:45 cst Wed Apr 8 2026 by admin
+! NVRAM config last updated at 17:13:45 cst Wed Apr 8 2026 by admin
+! NVRAM config last updated at 17:13:45 cst Wed Apr 8 2026 by admin
 version 15.1
 service timestamps debug datetime msec
 service timestamps log datetime msec
@@ -206,7 +206,6 @@ control-plane
 disable-eadi
 !
 voice-port 0/0/0
- trunk-group OUTBOUND-LINES 1
  input gain -2
  no echo-cancel enable
  no vad
@@ -218,7 +217,6 @@ voice-port 0/0/0
  caller-id enable
 !
 voice-port 0/0/1
- trunk-group OUTBOUND-LINES 1
  input gain -2
  no echo-cancel enable
  no vad
@@ -230,7 +228,6 @@ voice-port 0/0/1
  caller-id enable
 !
 voice-port 0/0/2
- trunk-group OUTBOUND-LINES 1
  input gain -2
  no echo-cancel enable
  no vad
@@ -242,7 +239,6 @@ voice-port 0/0/2
  caller-id enable
 !
 voice-port 0/0/3
- trunk-group OUTBOUND-LINES 1
  input gain -2
  no echo-cancel enable
  no vad
@@ -256,7 +252,6 @@ voice-port 0/0/3
 voice-port 0/3/0:23
 !
 voice-port 0/1/0
- trunk-group OUTBOUND-LINES 1
  input gain -2
  no echo-cancel enable
  no vad
@@ -268,7 +263,6 @@ voice-port 0/1/0
  caller-id enable
 !
 voice-port 0/1/1
- trunk-group OUTBOUND-LINES 1
  input gain -2
  no echo-cancel enable
  no vad
@@ -280,7 +274,6 @@ voice-port 0/1/1
  caller-id enable
 !
 voice-port 0/1/2
- trunk-group OUTBOUND-LINES 1
  input gain -2
  no echo-cancel enable
  no vad
@@ -292,7 +285,6 @@ voice-port 0/1/2
  caller-id enable
 !
 voice-port 0/1/3
- trunk-group OUTBOUND-LINES 1
  input gain -2
  no echo-cancel enable
  no vad

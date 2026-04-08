@@ -1,8 +1,8 @@
 
 !
-! Last configuration change at 02:50:17 cst Sun Apr 5 2026 by admin
-! NVRAM config last updated at 02:52:01 cst Sun Apr 5 2026 by admin
-! NVRAM config last updated at 02:52:01 cst Sun Apr 5 2026 by admin
+! Last configuration change at 20:49:49 cst Tue Apr 7 2026 by admin
+! NVRAM config last updated at 20:52:11 cst Tue Apr 7 2026 by admin
+! NVRAM config last updated at 20:52:11 cst Tue Apr 7 2026 by admin
 version 15.1
 service timestamps debug datetime msec
 service timestamps log datetime msec
@@ -101,11 +101,19 @@ voice translation-rule 10
  rule 4 /^7088879794$/ /4204/
 !
 voice translation-rule 20
- rule 2 /^4234/ /4304/
- rule 3 /^5554234/ /4304/
- rule 4 /4230/ /4300/
- rule 5 /^5554230/ /4300/
- rule 10 /^555\(42[0-4][0-9]\)/ /\1/
+ rule 2 /^4224/ /4304/
+ rule 3 /^5554224/ /4304/
+ rule 4 /^4225/ /4300/
+ rule 5 /^5554225/ /4300/
+ rule 6 /^4203/ /4240/
+ rule 7 /^5554203/ /4240/
+ rule 8 /^4209/ /4240/
+ rule 9 /^5554209/ /4240/
+ rule 10 /^4216/ /4240/
+ rule 11 /^5554216/ /4240/
+ rule 12 /^4217/ /4235/
+ rule 13 /^5554217/ /4235/
+ rule 100 /^555\(42[0-4][0-9]\)/ /\1/
 !
 !
 voice translation-profile ADTRAN_SIP_IN
@@ -121,8 +129,6 @@ application
  service playaudiofile flash:audio.vxml
  !
  service sit_discon-or-out-of-service flash:/apps/sit_discon-or-out-of-service.vxml
- !
- service discon-or-out-of-service flash:/apps/discon-or-out-of-service.vxml
  !
  service abandon-all-hope flash:/apps/abandon-all-hope.vxml
  !
@@ -153,9 +159,10 @@ controller T1 0/0/1
  description PRI line to Userland 2801 0/3/0
 !
 controller T1 0/1/0
- shutdown
+ clock source internal
  cablelength short 110
- description ** FUTURE EXPANSION **
+ pri-group timeslots 1-24
+ description PRI line to Portmaster3 line 0
 !
 controller T1 0/1/1
  shutdown
@@ -212,6 +219,15 @@ interface Serial0/0/1:23
  isdn incoming-voice voice
  no cdp enable
 !
+interface Serial0/1/0:23
+ description PRI channels under t1 0/1/0 to the Portmaster 3
+ no ip address
+ encapsulation hdlc
+ isdn switch-type primary-ni
+ isdn protocol-emulate network
+ isdn incoming-voice modem
+ no cdp enable
+!
 ip default-gateway 192.168.42.1
 ip forward-protocol nd
 ip http server
@@ -266,6 +282,8 @@ control-plane
 voice-port 0/0/0:23
  translation-profile incoming ADTRAN_SIP_IN
  description voice ports from Adtran TA908e under t1 0/0/0
+!
+voice-port 0/1/0:23
 !
 voice-port 0/0/1:23
  description voice ports under t1 0/0/1
@@ -341,6 +359,7 @@ voice-port 2/0/7
  no echo-cancel enable
  no vad
  no comfort-noise
+ shutdown
  description FXS port to station
  station-id name EXT 4207
  station-id number 4207
@@ -386,6 +405,7 @@ voice-port 2/0/12
  no echo-cancel enable
  no vad
  no comfort-noise
+ shutdown
  description FXS port to station
  station-id name EXT 4212
  station-id number 4212
@@ -550,6 +570,7 @@ dial-peer voice 4204 pots
 !
 dial-peer voice 4205 pots
  description To FXS port 2/0/5
+ translation-profile incoming LOCAL_ROUTING
  huntstop
  destination-pattern 4205
  port 2/0/5
@@ -565,6 +586,7 @@ dial-peer voice 4206 pots
 !
 dial-peer voice 4207 pots
  description To FXS port 2/0/7
+ translation-profile incoming LOCAL_ROUTING
  huntstop
  destination-pattern 4207
  port 2/0/7
@@ -720,12 +742,6 @@ dial-peer voice 4235 voip
  session target loopback:rtp
  codec g711ulaw
 !
-dial-peer voice 4239 voip
- service discon-or-out-of-service out-bound
- destination-pattern 4239
- session target loopback:rtp
- codec g711ulaw
-!
 dial-peer voice 4232 voip
  service abandon-all-hope out-bound
  destination-pattern 4232
@@ -743,6 +759,12 @@ dial-peer voice 42400 pots
  incoming called-number 4240
  direct-inward-dial
  port 0/0/1:23
+!
+dial-peer voice 4230 pots
+ description Dial-Peer off to PortMaster 3 PRI line channels
+ destination-pattern 4230
+ direct-inward-dial
+ port 0/1/0:23
 !
 !
 !

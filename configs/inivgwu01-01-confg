@@ -1,8 +1,8 @@
 
 !
-! Last configuration change at 00:26:34 cst Thu Apr 9 2026 by admin
-! NVRAM config last updated at 00:26:35 cst Thu Apr 9 2026 by admin
-! NVRAM config last updated at 00:26:35 cst Thu Apr 9 2026 by admin
+! Last configuration change at 12:32:00 cst Thu Apr 9 2026 by admin
+! NVRAM config last updated at 12:44:33 cst Thu Apr 9 2026 by admin
+! NVRAM config last updated at 12:44:33 cst Thu Apr 9 2026 by admin
 version 15.1
 service timestamps debug datetime msec
 service timestamps log datetime msec
@@ -80,6 +80,7 @@ voice service voip
   ipv4 192.168.42.41
   ipv4 192.168.42.42
   ipv4 192.168.42.43
+  ipv4 192.168.42.31
  allow-connections sip to sip
  no supplementary-service sip moved-temporarily
  sip
@@ -785,11 +786,19 @@ dial-peer voice 4230 pots
  direct-inward-dial
  port 0/1/0:23
 !
-dial-peer voice 4150 voip
- description SIP Extension 4150
- destination-pattern 4150
+dial-peer voice 440 voip
+ description Outbound to FreePBX
+ destination-pattern 44..
  session protocol sipv2
- session target dns:inivgwu01-01.initech.net
+ session target ipv4:192.168.42.31
+ dtmf-relay rtp-nte
+ codec g711ulaw
+ no vad
+!
+dial-peer voice 441 voip
+ description Inbound from FreePBX
+ session protocol sipv2
+ incoming called-number 42..
  dtmf-relay rtp-nte
  codec g711ulaw
  no vad

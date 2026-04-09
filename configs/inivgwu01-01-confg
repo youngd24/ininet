@@ -1,8 +1,8 @@
 
 !
-! Last configuration change at 12:47:00 cst Thu Apr 9 2026 by admin
-! NVRAM config last updated at 12:47:01 cst Thu Apr 9 2026 by admin
-! NVRAM config last updated at 12:47:01 cst Thu Apr 9 2026 by admin
+! Last configuration change at 16:08:59 cst Thu Apr 9 2026 by admin
+! NVRAM config last updated at 16:10:59 cst Thu Apr 9 2026 by admin
+! NVRAM config last updated at 16:10:59 cst Thu Apr 9 2026 by admin
 version 15.1
 service timestamps debug datetime msec
 service timestamps log datetime msec
@@ -120,6 +120,7 @@ voice translation-rule 10
  rule 2 /^7088879792$/ /4202/
  rule 3 /^7088879793$/ /4230/
  rule 4 /^7088879794$/ /4218/
+ rule 5 /^3126680980$/ /4499/
 !
 voice translation-rule 20
  rule 2 /^4224/ /4304/
@@ -733,7 +734,7 @@ dial-peer voice 4222 pots
  forward-digits 0
 !
 dial-peer voice 4223 pots
- description To FXS port 2/0/23 (BUSYOUT PORT)
+ description To FXS port 2/0/23
  translation-profile incoming LOCAL_ROUTING
  huntstop
  destination-pattern 4223

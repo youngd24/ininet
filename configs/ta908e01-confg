@@ -230,6 +230,7 @@ voice grouped-trunk PRI_TO_CISCO
   accept 7088879792 cost 0
   accept 7088879793 cost 0
   accept 7088879794 cost 0
+  accept 3126680980 cost 0
 !
 !
 voice user 4501

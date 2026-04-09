@@ -1,8 +1,8 @@
 
 !
-! Last configuration change at 12:32:00 cst Thu Apr 9 2026 by admin
-! NVRAM config last updated at 12:44:33 cst Thu Apr 9 2026 by admin
-! NVRAM config last updated at 12:44:33 cst Thu Apr 9 2026 by admin
+! Last configuration change at 12:47:00 cst Thu Apr 9 2026 by admin
+! NVRAM config last updated at 12:47:01 cst Thu Apr 9 2026 by admin
+! NVRAM config last updated at 12:47:01 cst Thu Apr 9 2026 by admin
 version 15.1
 service timestamps debug datetime msec
 service timestamps log datetime msec
@@ -786,7 +786,7 @@ dial-peer voice 4230 pots
  direct-inward-dial
  port 0/1/0:23
 !
-dial-peer voice 440 voip
+dial-peer voice 4400 voip
  description Outbound to FreePBX
  destination-pattern 44..
  session protocol sipv2
@@ -795,7 +795,7 @@ dial-peer voice 440 voip
  codec g711ulaw
  no vad
 !
-dial-peer voice 441 voip
+dial-peer voice 4401 voip
  description Inbound from FreePBX
  session protocol sipv2
  incoming called-number 42..

@@ -1,8 +1,8 @@
 
 !
-! Last configuration change at 16:08:59 cst Thu Apr 9 2026 by admin
-! NVRAM config last updated at 16:10:59 cst Thu Apr 9 2026 by admin
-! NVRAM config last updated at 16:10:59 cst Thu Apr 9 2026 by admin
+! Last configuration change at 16:52:01 cst Thu Apr 9 2026 by admin
+! NVRAM config last updated at 16:52:02 cst Thu Apr 9 2026 by admin
+! NVRAM config last updated at 16:52:02 cst Thu Apr 9 2026 by admin
 version 15.1
 service timestamps debug datetime msec
 service timestamps log datetime msec
@@ -803,6 +803,13 @@ dial-peer voice 4401 voip
  dtmf-relay rtp-nte
  codec g711ulaw
  no vad
+!
+dial-peer voice 900 pots
+ description Outbound PSTN via Userland 2801 FXO
+ huntstop
+ destination-pattern 91[2-9]..[2-9]......
+ port 0/0/1:23
+ forward-digits all
 !
 !
 !

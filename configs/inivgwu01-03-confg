@@ -1,8 +1,8 @@
 
 !
-! Last configuration change at 17:13:45 cst Wed Apr 8 2026 by admin
-! NVRAM config last updated at 00:27:59 cst Thu Apr 9 2026 by admin
-! NVRAM config last updated at 00:27:59 cst Thu Apr 9 2026 by admin
+! Last configuration change at 16:51:57 cst Thu Apr 9 2026 by admin
+! NVRAM config last updated at 16:51:58 cst Thu Apr 9 2026 by admin
+! NVRAM config last updated at 16:51:58 cst Thu Apr 9 2026 by admin
 version 15.1
 service timestamps debug datetime msec
 service timestamps log datetime msec
@@ -401,6 +401,14 @@ dial-peer voice 900 pots
  translation-profile outgoing STRIP_OUTBOUND_9
  huntstop
  destination-pattern 91[2-9]..[2-9]......
+ forward-digits all
+!
+dial-peer voice 910 pots
+ trunkgroup OUTBOUND-LINES
+ description Inbound PSTN calls from INIVGWU01-01
+ translation-profile outgoing STRIP_OUTBOUND_9
+ incoming called-number 91[2-9]..[2-9]......
+ direct-inward-dial
  forward-digits all
 !
 !

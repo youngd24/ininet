@@ -1,8 +1,8 @@
 
 !
-! Last configuration change at 12:20:04 cst Wed Apr 8 2026 by admin
-! NVRAM config last updated at 13:55:11 cst Wed Apr 8 2026 by admin
-! NVRAM config last updated at 13:55:11 cst Wed Apr 8 2026 by admin
+! Last configuration change at 00:26:34 cst Thu Apr 9 2026 by admin
+! NVRAM config last updated at 00:26:35 cst Thu Apr 9 2026 by admin
+! NVRAM config last updated at 00:26:35 cst Thu Apr 9 2026 by admin
 version 15.1
 service timestamps debug datetime msec
 service timestamps log datetime msec
@@ -91,6 +91,26 @@ voice service voip
 voice class codec 1
  codec preference 1 g711ulaw
 !
+!
+voice register global
+ mode cme
+ source-address 192.168.42.41 port 5060
+ max-dn 10
+ max-pool 10
+ authenticate register
+ create profile sync 0733932547480375
+!
+voice register dn  1
+ number 4150
+ allow watch
+ name Grandstream4150
+!
+voice register pool  1
+ id mac EC74.D74E.CAF4
+ type 7960
+ number 1 dn 1
+ dtmf-relay rtp-nte
+ codec g711ulaw
 !
 !
 !
@@ -237,7 +257,6 @@ no ip http secure-server
 ip route 0.0.0.0 0.0.0.0 192.168.42.1
 !
 logging esm config
-logging trap debugging
 logging facility local0
 logging 192.168.42.46
 !
@@ -765,6 +784,15 @@ dial-peer voice 4230 pots
  destination-pattern 4230
  direct-inward-dial
  port 0/1/0:23
+!
+dial-peer voice 4150 voip
+ description SIP Extension 4150
+ destination-pattern 4150
+ session protocol sipv2
+ session target dns:inivgwu01-01.initech.net
+ dtmf-relay rtp-nte
+ codec g711ulaw
+ no vad
 !
 !
 !
